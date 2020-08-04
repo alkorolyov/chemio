@@ -21095,7 +21095,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.buttonOpen = new desktop.Button(sketcher.id + '_button_open', imageDepot.OPEN, 'Open', function() {
 			sketcher.dialogManager.openPopup.show();
 		});
-		// save
+
+        // save
 		this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save', function() {
 			if (sketcher.useServices) {
 				sketcher.dialogManager.saveDialog.clear();
@@ -21277,7 +21278,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.oneMolecule) {
 			sb.push(this.buttonMove.getSource(bg));
 		} else {
-			sb.push(this.lassoSet.getSource(bg));
+			sb.push(this.buttonLasso.getSource(bg));
 		}
 		sb.push(this.buttonClear.getSource());
 		sb.push(this.buttonErase.getSource(bg));
@@ -21341,7 +21342,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.oneMolecule) {
 			this.buttonMove.setup(true);
 		} else {
-			this.lassoSet.setup();
+			this.buttonLasso.setup();
 		}
 		this.buttonClear.setup();
 		this.buttonErase.setup(true);
@@ -21434,46 +21435,14 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.scaleSet.buttons.push(this.buttonScaleMinus);
 	};
 	_.makeLassoSet = function(self) {
-		this.buttonLassoAll = new desktop.Button(self.sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LASSO);
-			self.sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
-			if (!self.sketcher.lasso.isActive()) {
-				self.sketcher.lasso.selectNextMolecule();
-			}
-		});
-		this.buttonLassoShapes = new desktop.Button(self.sketcher.id + '_button_lasso_shapes', imageDepot.LASSO_SHAPES, 'Lasso Tool (shapes only)', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LASSO);
-			self.sketcher.lasso.mode = tools.Lasso.MODE_LASSO_SHAPES;
-			if (!self.sketcher.lasso.isActive()) {
-				self.sketcher.lasso.selectNextShape();
-			}
-		});
-		this.buttonRectMarq = new desktop.Button(self.sketcher.id + '_button_lasso_marquee', imageDepot.MARQUEE, 'Marquee Tool', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LASSO);
-			self.sketcher.lasso.mode = tools.Lasso.MODE_RECTANGLE_MARQUEE;
-			if (!self.sketcher.lasso.isActive()) {
-				self.sketcher.lasso.selectNextMolecule();
-			}
-		});
-
-		this.lassoSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_lasso');
-		this.buttonLasso = new desktop.DummyButton(self.sketcher.id + '_button_lasso', 'Selection Tool');
-		this.lassoSet.buttons.push(this.buttonLasso);
-		this.lassoSet.addDropDown('More Selection Tools');
-		this.lassoSet.dropDown.buttonSet.buttons.push(this.buttonLassoAll);
-		this.lassoSet.dropDown.buttonSet.buttons.push(this.buttonLassoShapes);
-		this.lassoSet.dropDown.buttonSet.buttons.push(this.buttonRectMarq);
-	};
-	_.makeSingleLasso = function(self) {
-        this.buttonLasso = new desktop.Button(self.sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool', function() {
+		this.buttonLasso = new desktop.Button(self.sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool', function() {
             self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LASSO);
             self.sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
             if (!self.sketcher.lasso.isActive()) {
                 self.sketcher.lasso.selectNextMolecule();
             }
         });
-
-    }
+	};
 	_.makeFlipSet = function(self) {
 		let action = function(horizontal){
 			let ps = self.sketcher.oneMolecule?self.sketcher.getAllPoints():self.sketcher.lasso.getAllPoints();
