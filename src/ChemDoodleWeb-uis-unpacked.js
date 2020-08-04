@@ -15958,7 +15958,6 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
                 this.sketcher.toolbarManager.buttonLasso.getElement().click();
                 this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
                 this.sketcher.toolbarManager.buttonCenter.func();
-                console.log(this.sketcher.lasso);
             }
 		} else if (e.which === 13) {
 			// enter or return key
@@ -16727,7 +16726,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 				if (this.sketcher.hovering instanceof structures.Atom) {
 					ps = monitor.SHIFT ? [ this.sketcher.hovering ] : this.sketcher.getMoleculeByAtom(this.sketcher.hovering).atoms;
 				} else if (this.sketcher.hovering instanceof structures.Bond) {
-					ps = [ this.sketcher.hovering.a1, this.sketcher.hovering.a2 ];
+					ps =  monitor.SHIFT ? [ this.sketcher.hovering.a1, this.sketcher.hovering.a2 ] : this.sketcher.getMoleculeByAtom(this.sketcher.hovering.a1).atoms;
 				} else if (this.sketcher.hovering instanceof d2._Shape) {
 					ps = this.sketcher.hovering.hoverPoint ? [ this.sketcher.hovering.hoverPoint ] : this.sketcher.hovering.getPoints();
 				}
