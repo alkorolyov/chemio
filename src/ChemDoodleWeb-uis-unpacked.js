@@ -15834,7 +15834,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		if (this.innermousewheel) {
 			this.innermousewheel(e);
 		}
-		this.sketcher.styles.scale += delta / 50;
+		this.sketcher.styles.scale += delta / 10;
 		this.sketcher.checkScale();
 		this.sketcher.repaint();
 	};
