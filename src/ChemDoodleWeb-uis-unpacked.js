@@ -15766,11 +15766,19 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		if (this.innerdblclick) {
 			this.innerdblclick(e);
 		}
-		if (!this.sketcher.hovering && this.sketcher.oneMolecule) {
-			// center structure
-			this.sketcher.toolbarManager.buttonCenter.func();
-		}
-	};
+        if (this.sketcher.lasso.isActive()) {
+            this.findHoveredObject(e, true, true, true);
+            let hovering = this.sketcher.hovering;
+            let mol;
+            if(hovering && hovering instanceof structures.Bond ) {
+                mol = this.sketcher.getMoleculeByAtom(hovering.a1);
+            } else if (hovering && hovering instanceof structures.Atom) {
+                mol = this.sketcher.getMoleculeByAtom(hovering);
+            }
+            this.sketcher.lasso.selectMolecule(mol);
+            this.clearHover();
+        }
+    };
 	_.mousedown = function(e) {
 		this.sketcher.lastPoint = e.p;
 		// must also check for mobile hits here to the help button
@@ -15786,9 +15794,10 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.rightmousedown = function(e) {
-		if (this.innerrightmousedown) {
+	    if (this.innerrightmousedown) {
 			this.innerrightmousedown(e);
 		}
+        this.sketcher.stateManager.STATE_ERASE.handleDelete();
 	};
 	_.mousemove = function(e) {
 		// lastMousePos is really only used for pasting
@@ -15925,15 +15934,6 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			} else if (e.which === 79) {
 				// o
 				this.sketcher.toolbarManager.buttonOpen.func();
-			} else if (e.which === 78) {
-				// n
-				this.sketcher.toolbarManager.buttonClear.func();
-			} else if (e.which === 187 || e.which === 61) {
-				// +
-				this.sketcher.toolbarManager.buttonScalePlus.func();
-			} else if (e.which === 189 || e.which === 109) {
-				// -
-				this.sketcher.toolbarManager.buttonScaleMinus.func();
 			} else if (e.which === 65) {
 				// a
 				if (!this.sketcher.oneMolecule) {
@@ -15951,59 +15951,20 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 				// v
 				this.sketcher.copyPasteManager.paste();
 			}
-		} else if (e.which === 9) {
-			// tab
-			if (!this.sketcher.oneMolecule) {
-				this.sketcher.lasso.block = true;
-				this.sketcher.toolbarManager.buttonLasso.select();
-				this.sketcher.toolbarManager.buttonLasso.getElement().click();
-				this.sketcher.lasso.block = false;
-				if (monitor.SHIFT) {
-					this.sketcher.lasso.selectNextShape();
-				} else {
-					this.sketcher.lasso.selectNextMolecule();
-				}
-			}
 		} else if (e.which === 32) {
 			// space key
-			if (this.sketcher.lasso) {
-				this.sketcher.lasso.empty();
-			}
-			if(this.sketcher.hovering instanceof structures.Atom){
-				if(desktop.TextInput){
-					this.sketcher.stateManager.STATE_TEXT_INPUT.innerclick(e);
-				}
-			}else if(this.sketcher.stateManager.getCurrentState() === this.sketcher.stateManager.STATE_LASSO){
-				if(this.sketcher.floatDrawTools){
-					this.sketcher.toolbarManager.buttonBond.getLabelElement().click();
-					this.sketcher.toolbarManager.buttonBond.getElement().click();
-				}else{
-					this.sketcher.toolbarManager.buttonSingle.getElement().click();
-				}
-			}
+            if (!this.sketcher.oneMolecule) {
+                // center and select all
+                this.sketcher.toolbarManager.buttonLasso.getElement().click();
+                this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
+                this.sketcher.toolbarManager.buttonCenter.func();
+                console.log(this.sketcher.lasso);
+            }
 		} else if (e.which === 13) {
 			// enter or return key
 			if(this.sketcher.hovering instanceof structures.Atom && this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel && this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel !== this.sketcher.hovering.label){
 				this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel));
 			}
-		} else if (e.which >= 37 && e.which <= 40) {
-			// arrow keys
-			let dif = new structures.Point();
-			switch (e.which) {
-			case 37:
-				dif.x = -10;
-				break;
-			case 38:
-				dif.y = -10;
-				break;
-			case 39:
-				dif.x = 10;
-				break;
-			case 40:
-				dif.y = 10;
-				break;
-			}
-			this.sketcher.historyManager.pushUndo(new actions.MoveAction(this.sketcher.lasso && this.sketcher.lasso.isActive() ? this.sketcher.lasso.getAllPoints() : this.sketcher.getAllPoints(), dif));
 		} else if (e.which === 187 || e.which === 189 || e.which === 61 || e.which === 109) {
 			// plus or minus
 			if (this.sketcher.hovering && this.sketcher.hovering instanceof structures.Atom) {
@@ -16848,9 +16809,9 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerdblclick = function(e) {
-		if (this.sketcher.lasso.isActive()) {
-			this.sketcher.lasso.empty();
-		}
+		// if (this.sketcher.lasso.isActive()) {
+		// 	this.sketcher.lasso.empty();
+		// }
 	};
 	_.draw = function(ctx, styles) {
 		if (paintRotate && this.sketcher.lasso.bounds) {
@@ -22105,6 +22066,17 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.points.push(p);
 		}
 	};
+	_.selectMolecule = function(mol){
+        let attachedShapes = [];
+        // also select shape appendages, like repeating groups
+        for(let i = 0, ii = this.sketcher.shapes.length; i<ii; i++){
+            let s = this.sketcher.shapes[i];
+            if(s instanceof structures.d2.DynamicBracket && s.contents.length!==0 && mol.atoms.indexOf(s.contents[0])!==-1){
+                attachedShapes.push(s);
+            }
+        }
+        this.select(mol.atoms, attachedShapes);
+    };
 	_.selectNextMolecule = function(){
 		if (this.sketcher.molecules.length > 0) {
 			let nextMolIndex = this.sketcher.molecules.length - 1;
@@ -22116,15 +22088,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				nextMolIndex = 0;
 			}
 			let mol = this.sketcher.molecules[nextMolIndex];
-			let attachedShapes = [];
-			// also select shape appendages, like repeating groups
-			for(let i = 0, ii = this.sketcher.shapes.length; i<ii; i++){
-				let s = this.sketcher.shapes[i];
-				if(s instanceof structures.d2.DynamicBracket && s.contents.length!==0 && mol.atoms.indexOf(s.contents[0])!==-1){
-					attachedShapes.push(s);
-				}
-			}
-			this.select(mol.atoms, attachedShapes);
+			this.selectMolecule(mol);
 		}
 	};
 	_.selectNextShape = function(){

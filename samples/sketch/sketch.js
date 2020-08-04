@@ -33,13 +33,14 @@
 // logMolecule(pyridine);
 //
 // set defaults
-ChemDoodle.DEFAULT_STYLES.bonds_width_2D = 2
-ChemDoodle.DEFAULT_STYLES.bonds_saturationWidthAbs_2D = 5
-ChemDoodle.DEFAULT_STYLES.bonds_hashSpacing_2D = 2.5
+ChemDoodle.DEFAULT_STYLES.bonds_width_2D = 2;
+ChemDoodle.DEFAULT_STYLES.bonds_saturationWidthAbs_2D = 5;
+ChemDoodle.DEFAULT_STYLES.bonds_hashSpacing_2D = 2.5;
 ChemDoodle.DEFAULT_STYLES.atoms_font_size_2D = 14;
-ChemDoodle.DEFAULT_STYLES.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif']
-ChemDoodle.DEFAULT_STYLES.atoms_displayTerminalCarbonLabels_2D = false
-ChemDoodle.DEFAULT_STYLES.atoms_useJMOLColors = false
+ChemDoodle.DEFAULT_STYLES.atoms_font_families_2D = ['Helvetica', 'Arial', 'sans-serif'];
+ChemDoodle.DEFAULT_STYLES.atoms_font_bold_2D = true;
+ChemDoodle.DEFAULT_STYLES.atoms_displayTerminalCarbonLabels_2D = false;
+ChemDoodle.DEFAULT_STYLES.atoms_useJMOLColors = false;
 //
 //
 // let myCanvas = new ChemDoodle.ViewerCanvas('id', 150, 150);
