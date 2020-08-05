@@ -6188,10 +6188,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 		// lasso
 		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool (Space)', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LASSO);
-			self.sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
-			if (!self.sketcher.lasso.isActive()) {
-				self.sketcher.lasso.selectNextMolecule();
+			console.log(this.buttonLasso);
+			console.log(sketcher.lasso);
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_LASSO);
+			sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
+			if (!sketcher.lasso.isActive()) {
+				sketcher.lasso.selectNextMolecule();
 			}
 		});
 
