@@ -1996,10 +1996,11 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			let mol;
 			if(hovering && hovering instanceof structures.Bond ) {
 				mol = this.sketcher.getMoleculeByAtom(hovering.a1);
+				this.sketcher.lasso.selectMolecule(mol);
 			} else if (hovering && hovering instanceof structures.Atom) {
 				mol = this.sketcher.getMoleculeByAtom(hovering);
+				this.sketcher.lasso.selectMolecule(mol);
 			}
-			this.sketcher.lasso.selectMolecule(mol);
 			this.clearHover();
 		}
 	};
