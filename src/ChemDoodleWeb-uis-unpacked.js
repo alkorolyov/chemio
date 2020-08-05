@@ -4843,46 +4843,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 
 })(ChemDoodle.uis.gui.desktop, ChemDoodle.lib.jQuery, document);
-(function(desktop, q, undefined) {
-	'use strict';
-	desktop.FloatingToolbar = function(sketcher) {
-		this.sketcher = sketcher;
-		this.components = [];
-	};
-	let _ = desktop.FloatingToolbar.prototype;
-	_.getElement = function() {
-		return q('#' + this.id);
-	};
-	_.getSource = function(buttonGroup) {
-		let sb = [];
-		sb.push('<div id="');
-		sb.push(this.sketcher.id);
-		sb.push('_floating_toolbar" style="position:absolute;left:-50px;z-index:10;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);border:1px #C1C1C1 solid;background:#F5F5F5;padding:2px;">');
-		sb.push('<div id="');
-		sb.push(this.sketcher.id);
-		// box-sizing makes the browser include borders and padding in width and height
-		sb.push('_floating_toolbar_handle" style="height:14px;"><div style="box-sizing:border-box;padding:0px;height:4px;border-top:1px solid #999;border-bottom:1px solid #999;">');
-		sb.push('</div></div>');
-		for ( let i = 0, ii = this.components.length; i < ii; i++) {
-			sb.push(this.components[i].getSource(buttonGroup));
-			sb.push('<br>');
-		}
-		sb.push('</div>');
-		return sb.join('');
-	};
-	_.setup = function() {
-		let self = this;
-		q('#'+this.sketcher.id+'_floating_toolbar').draggable({handle:'#'+this.sketcher.id+'_floating_toolbar_handle', drag:function(){
-			if(self.sketcher.openTray){
-				self.sketcher.openTray.reposition();
-			}
-		}, containment:'document'});
-		for ( let i = 0, ii = this.components.length; i < ii; i++) {
-			this.components[i].setup(true);
-		}
-	};
-
-})(ChemDoodle.uis.gui.desktop, ChemDoodle.lib.jQuery);
 
 (function(c, structures, actions, desktop, q, document, undefined) {
 	'use strict';
@@ -5400,11 +5360,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				let e = this.getHoveredElement();
 				self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LABEL);
 				self.sketcher.stateManager.STATE_LABEL.label = e.symbol;
-				if(self.sketcher.floatDrawTools){
-					self.sketcher.toolbarManager.labelTray.open(self.sketcher.toolbarManager.buttonLabelPT);
-				}else{
-					self.sketcher.toolbarManager.buttonLabel.absorb(self.sketcher.toolbarManager.buttonLabelPT);
-				}
+				self.sketcher.toolbarManager.buttonLabel.absorb(self.sketcher.toolbarManager.buttonLabelPT);
 				self.sketcher.toolbarManager.buttonLabel.select();
 				this.repaint();
 			}
@@ -6230,10 +6186,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	gui.ToolbarManager = function(sketcher) {
 		this.sketcher = sketcher;
 
-		if(this.sketcher.floatDrawTools){
-			this.drawTools = new desktop.FloatingToolbar(sketcher);
-		}
-
 		// lasso
 		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool (Space)', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LASSO);
@@ -6417,34 +6369,20 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			sb.push(this.buttonSearch.getSource());
 			sb.push(this.buttonCalculate.getSource());
 		}
-		if(!this.sketcher.floatDrawTools){
-			sb.push('<br>');
-			if(desktop.TextInput){
-				sb.push(this.buttonTextInput.getSource(bg));
-			}
-			sb.push(this.labelSet.getSource(bg));
-			if (this.sketcher.includeQuery) {
-				sb.push(this.buttonQuery.getSource(bg));
-			}
-			sb.push(this.attributeSet.getSource(bg));
-			sb.push(this.bondSet.getSource(bg));
-			sb.push(this.ringSet.getSource(bg));
-			sb.push(this.buttonChain.getSource(bg));
-			sb.push(this.shapeSet.getSource(bg));
+		sb.push('<br>');
+		if(desktop.TextInput){
+			sb.push(this.buttonTextInput.getSource(bg));
 		}
+		sb.push(this.labelSet.getSource(bg));
+		if (this.sketcher.includeQuery) {
+			sb.push(this.buttonQuery.getSource(bg));
+		}
+		sb.push(this.attributeSet.getSource(bg));
+		sb.push(this.bondSet.getSource(bg));
+		sb.push(this.ringSet.getSource(bg));
+		sb.push(this.buttonChain.getSource(bg));
+		sb.push(this.shapeSet.getSource(bg));
 		sb.push('</div>');
-		if(this.sketcher.floatDrawTools){
-			if(desktop.TextInput){
-				this.drawTools.components.splice(0, 0, this.buttonTextInput);
-			}
-			if (this.sketcher.includeQuery) {
-				this.drawTools.components.splice((desktop.TextInput?1:0), 0, this.buttonQuery);
-			}
-			this.drawTools.components.splice(this.drawTools.components.length-(3), 0, this.buttonChain);
-			this.drawTools.components.push(this.buttonVAP);
-			sb.push(this.drawTools.getSource(bg));
-		}
-
 		if (document.getElementById(this.sketcher.id)) {
 			let canvas = q('#' + this.sketcher.id);
 			canvas.before(sb.join(''));
@@ -6470,24 +6408,19 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.buttonSearch.setup();
 			this.buttonCalculate.setup();
 		}
-		if(this.sketcher.floatDrawTools){
-			this.drawTools.setup();
-			this.buttonBond.getElement().click();
-		}else{
-			if(desktop.TextInput){
-				this.buttonTextInput.setup(true);
-			}
-			this.labelSet.setup();
-			if (this.sketcher.includeQuery) {
-				this.buttonQuery.setup(true);
-			}
-			this.attributeSet.setup();
-			this.bondSet.setup();
-			this.ringSet.setup();
-			this.buttonChain.setup(true);
-			this.shapeSet.setup();
-			this.buttonSingle.getElement().click();
+		if(desktop.TextInput){
+			this.buttonTextInput.setup(true);
 		}
+		this.labelSet.setup();
+		if (this.sketcher.includeQuery) {
+			this.buttonQuery.setup(true);
+		}
+		this.attributeSet.setup();
+		this.bondSet.setup();
+		this.ringSet.setup();
+		this.buttonChain.setup(true);
+		this.shapeSet.setup();
+		this.buttonSingle.getElement().click();
 
 		this.buttonUndo.disable();
 		this.buttonRedo.disable();
@@ -6629,40 +6562,22 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		});
 
 		this.buttonLabel = new desktop.DummyButton(self.sketcher.id + '_button_label', 'Set Label');
-		if(self.sketcher.floatDrawTools){
-			this.labelTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_label', this.buttonLabel, 3);
-			this.labelTray.defaultButton = this.buttonLabelO;
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelH);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelC);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelN);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelO);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelF);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelCl);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelBr);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelI);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelP);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelS);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelSi);
-			this.labelTray.buttonSet.buttons.push(this.buttonLabelPT);
-			this.drawTools.components.push(this.labelTray);
-		}else{
-			this.labelSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_label');
-			this.labelSet.buttons.push(this.buttonLabel);
-			this.labelSet.addDropDown('More Labels');
-			this.labelSet.dropDown.defaultButton = this.buttonLabelO;
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelH);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelC);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelN);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelO);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelF);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelCl);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelBr);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelI);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelP);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelS);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelSi);
-			this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelPT);
-		}
+		this.labelSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_label');
+		this.labelSet.buttons.push(this.buttonLabel);
+		this.labelSet.addDropDown('More Labels');
+		this.labelSet.dropDown.defaultButton = this.buttonLabelO;
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelH);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelC);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelN);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelO);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelF);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelCl);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelBr);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelI);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelP);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelS);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelSi);
+		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelPT);
 	};
 	_.makeBondSet = function(self) {
 		this.buttonSingle = new desktop.Button(self.sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond', function() {
@@ -6716,37 +6631,21 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 		});
 
-		this.buttonBond = new desktop.DummyButton(self.sketcher.id + '_button_bond', self.sketcher.floatDrawTools?'Draw Bond':'Other Bond');
-		if(self.sketcher.floatDrawTools){
-			this.bondTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_bond', this.buttonBond, 2);
-			this.bondTray.defaultButton = this.buttonSingle;
-			this.bondTray.buttonSet.buttons.push(this.buttonZero);
-			this.bondTray.buttonSet.buttons.push(this.buttonHalf);
-			this.bondTray.buttonSet.buttons.push(this.buttonWavy);
-			this.bondTray.buttonSet.buttons.push(this.buttonSingle);
-			this.bondTray.buttonSet.buttons.push(this.buttonRecessed);
-			this.bondTray.buttonSet.buttons.push(this.buttonProtruding);
-			this.bondTray.buttonSet.buttons.push(this.buttonDoubleAmbiguous);
-			this.bondTray.buttonSet.buttons.push(this.buttonDouble);
-			this.bondTray.buttonSet.buttons.push(this.buttonResonance);
-			this.bondTray.buttonSet.buttons.push(this.buttonTriple);
-			this.drawTools.components.push(this.bondTray);
-		}else{
-			this.bondSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_bond');
-			this.bondSet.buttons.push(this.buttonSingle);
-			this.bondSet.buttons.push(this.buttonRecessed);
-			this.bondSet.buttons.push(this.buttonProtruding);
-			this.bondSet.buttons.push(this.buttonDouble);
-			this.bondSet.buttons.push(this.buttonBond);
-			this.bondSet.addDropDown('More Bonds');
-			this.bondSet.dropDown.buttonSet.buttons.push(this.buttonZero);
-			this.bondSet.dropDown.buttonSet.buttons.push(this.buttonHalf);
-			this.bondSet.dropDown.buttonSet.buttons.push(this.buttonWavy);
-			this.bondSet.dropDown.buttonSet.buttons.push(this.buttonResonance);
-			this.bondSet.dropDown.buttonSet.buttons.push(this.buttonDoubleAmbiguous);
-			this.bondSet.dropDown.buttonSet.buttons.push(this.buttonTriple);
-			this.bondSet.dropDown.defaultButton = this.buttonTriple;
-		}
+		this.buttonBond = new desktop.DummyButton(self.sketcher.id + '_button_bond', 'Other Bond');
+		this.bondSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_bond');
+		this.bondSet.buttons.push(this.buttonSingle);
+		this.bondSet.buttons.push(this.buttonRecessed);
+		this.bondSet.buttons.push(this.buttonProtruding);
+		this.bondSet.buttons.push(this.buttonDouble);
+		this.bondSet.buttons.push(this.buttonBond);
+		this.bondSet.addDropDown('More Bonds');
+		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonZero);
+		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonHalf);
+		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonWavy);
+		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonResonance);
+		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonDoubleAmbiguous);
+		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonTriple);
+		this.bondSet.dropDown.defaultButton = this.buttonTriple;
 	};
 	_.makeRingSet = function(self) {
 		this.buttonCyclohexane = new desktop.Button(self.sketcher.id + '_button_ring_cyclohexane', imageDepot.CYCLOHEXANE, 'Cyclohexane Ring', function() {
@@ -6790,33 +6689,19 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
 
-		this.buttonRing = new desktop.DummyButton(self.sketcher.id + '_button_ring', self.sketcher.floatDrawTools?'Draw Ring':'Other Ring');
-		if(self.sketcher.floatDrawTools){
-			this.ringTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_ring', this.buttonRing, 2);
-			this.ringTray.defaultButton = this.buttonCyclohexane;
-			this.ringTray.buttonSet.buttons.push(this.buttonCyclopropane);
-			this.ringTray.buttonSet.buttons.push(this.buttonCyclobutane);
-			this.ringTray.buttonSet.buttons.push(this.buttonCyclopentane);
-			this.ringTray.buttonSet.buttons.push(this.buttonCyclohexane);
-			this.ringTray.buttonSet.buttons.push(this.buttonCycloheptane);
-			this.ringTray.buttonSet.buttons.push(this.buttonCyclooctane);
-			this.ringTray.buttonSet.buttons.push(this.buttonBenzene);
-			this.ringTray.buttonSet.buttons.push(this.buttonRingArbitrary);
-			this.drawTools.components.push(this.ringTray);
-		}else{
-			this.ringSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_ring');
-			this.ringSet.buttons.push(this.buttonCyclohexane);
-			this.ringSet.buttons.push(this.buttonBenzene);
-			this.ringSet.buttons.push(this.buttonRing);
-			this.ringSet.addDropDown('More Rings');
-			this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclopropane);
-			this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclobutane);
-			this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclopentane);
-			this.ringSet.dropDown.defaultButton = this.buttonCyclopentane;
-			this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCycloheptane);
-			this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclooctane);
-			this.ringSet.dropDown.buttonSet.buttons.push(this.buttonRingArbitrary);
-		}
+		this.buttonRing = new desktop.DummyButton(self.sketcher.id + '_button_ring', 'Other Ring');
+		this.ringSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_ring');
+		this.ringSet.buttons.push(this.buttonCyclohexane);
+		this.ringSet.buttons.push(this.buttonBenzene);
+		this.ringSet.buttons.push(this.buttonRing);
+		this.ringSet.addDropDown('More Rings');
+		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclopropane);
+		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclobutane);
+		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclopentane);
+		this.ringSet.dropDown.defaultButton = this.buttonCyclopentane;
+		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCycloheptane);
+		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclooctane);
+		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonRingArbitrary);
 	};
 	_.makeAttributeSet = function(self) {
 		this.buttonChargePlus = new desktop.Button(self.sketcher.id + '_button_attribute_charge_increment', imageDepot.INCREASE_CHARGE, 'Increase Charge', function() {
@@ -6845,27 +6730,15 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		});
 
 		this.buttonAttribute = new desktop.DummyButton(self.sketcher.id + '_button_attribute', 'Attributes');
-		if(self.sketcher.floatDrawTools){
-			this.attributeTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_attribute', this.buttonAttribute, 2);
-			this.attributeTray.defaultButton = this.buttonChargePlus;
-			this.attributeTray.buttonSet.buttons.push(this.buttonChargeMinus);
-			this.attributeTray.buttonSet.buttons.push(this.buttonChargePlus);
-			this.attributeTray.buttonSet.buttons.push(this.buttonPairMinus);
-			this.attributeTray.buttonSet.buttons.push(this.buttonPairPlus);
-			this.attributeTray.buttonSet.buttons.push(this.buttonRadicalMinus);
-			this.attributeTray.buttonSet.buttons.push(this.buttonRadicalPlus);
-			this.drawTools.components.push(this.attributeTray);
-		}else{
-			this.attributeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_attribute');
-			this.attributeSet.buttons.push(this.buttonAttribute);
-			this.attributeSet.addDropDown('More Attributes');
-			this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonChargePlus);
-			this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonChargeMinus);
-			this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairPlus);
-			this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairMinus);
-			this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalPlus);
-			this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalMinus);
-		}
+		this.attributeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_attribute');
+		this.attributeSet.buttons.push(this.buttonAttribute);
+		this.attributeSet.addDropDown('More Attributes');
+		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonChargePlus);
+		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonChargeMinus);
+		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairPlus);
+		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairMinus);
+		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalPlus);
+		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalMinus);
 	};
 	_.makeShapeSet = function(self) {
 		this.buttonArrowSynthetic = new desktop.Button(self.sketcher.id + '_button_shape_arrow_synthetic', imageDepot.ARROW_SYNTHETIC, 'Synthetic Arrow', function() {
@@ -6915,42 +6788,21 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.buttonVAP = new desktop.Button(self.sketcher.id + '_button_vap', imageDepot.VARIABLE_ATTACHMENT_POINTS, 'Variable Attachment Points', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_VAP);
 		});
-		this.buttonShape = new desktop.DummyButton(self.sketcher.id + '_button_shape', self.sketcher.floatDrawTools?'Reactions':'Shapes');
-		if(self.sketcher.floatDrawTools){
-			// we have to set toggle to true for buttons we are including as parent options
-			this.buttonVAP.toggle = true;
-			this.shapeTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_shape', this.buttonShape, 4);
-			this.shapeTray.defaultButton = this.buttonArrowSynthetic;
-			this.shapeTray.buttonSet.buttons.push(this.buttonArrowSynthetic);
-			this.shapeTray.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
-			this.shapeTray.buttonSet.buttons.push(this.buttonArrowResonance);
-			this.shapeTray.buttonSet.buttons.push(this.buttonArrowEquilibrum);
-			this.shapeTray.buttonSet.buttons.push(this.buttonPusher1);
-			this.shapeTray.buttonSet.buttons.push(this.buttonPusher2);
-			this.shapeTray.buttonSet.buttons.push(this.buttonPusherBond);
-			this.shapeTray.buttonSet.buttons.push(this.buttonReactionMapping);
-			this.drawTools.components.push(this.shapeTray);
-			this.buttonBrackets = new desktop.DummyButton(self.sketcher.id + '_button_bracket', 'Brackets');
-			this.bracketTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_bracket', this.buttonBrackets, 2);
-			this.bracketTray.buttonSet.buttons.push(this.buttonBracket);
-			this.bracketTray.buttonSet.buttons.push(this.buttonDynamicBracket);
-			this.drawTools.components.push(this.bracketTray);
-		}else{
-			this.shapeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_shape');
-			this.shapeSet.buttons.push(this.buttonShape);
-			this.shapeSet.addDropDown('More Shapes');
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowSynthetic);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowResonance);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowEquilibrum);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher1);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher2);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusherBond);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonReactionMapping);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonBracket);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonDynamicBracket);
-			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonVAP);
-		}
+		this.buttonShape = new desktop.DummyButton(self.sketcher.id + '_button_shape', 'Shapes');
+		this.shapeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_shape');
+		this.shapeSet.buttons.push(this.buttonShape);
+		this.shapeSet.addDropDown('More Shapes');
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowSynthetic);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowResonance);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowEquilibrum);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher1);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher2);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusherBond);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonReactionMapping);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonBracket);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonDynamicBracket);
+		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonVAP);
 	};
 
 })(ChemDoodle, ChemDoodle.iChemLabs, ChemDoodle.io, ChemDoodle.structures, ChemDoodle.uis.actions, ChemDoodle.uis.gui, ChemDoodle.uis.gui.imageDepot, ChemDoodle.uis.gui.desktop, ChemDoodle.uis.tools, ChemDoodle.uis.states, ChemDoodle.lib.jQuery, document);
@@ -7328,7 +7180,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.useServices = options.useServices === undefined ? false : options.useServices;
 		this.requireStartingAtom = options.requireStartingAtom === undefined ? true : options.requireStartingAtom;
 		this.includeToolbar = options.includeToolbar === undefined ? true : options.includeToolbar;
-		this.floatDrawTools = options.floatDrawTools === undefined ? false : options.floatDrawTools;
 		this.resizable = options.resizable === undefined ? false : options.resizable;
 		this.includeQuery = options.includeQuery === undefined ? false : options.includeQuery;
 		// save the original options object
