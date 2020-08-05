@@ -70,28 +70,28 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 
 (function(informatics, structures, actions, undefined) {
 	'use strict';
-	actions.AddAction = function(sketcher, a, as, bs) {
+	actions.AddAction = function(sketcher, atom, atoms, bonds) {
 		this.sketcher = sketcher;
-		this.a = a;
-		this.as = as;
-		this.bs = bs;
+		this.atom = atom;
+		this.atoms = atoms;
+		this.bonds = bonds;
 	};
 	let _ = actions.AddAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		let mol = this.sketcher.getMoleculeByAtom(this.a);
+		let mol = this.sketcher.getMoleculeByAtom(this.atom);
 		if (!mol) {
 			mol = new structures.Molecule();
 			this.sketcher.molecules.push(mol);
 		}
-		if (this.as) {
-			for ( let i = 0, ii = this.as.length; i < ii; i++) {
-				mol.atoms.push(this.as[i]);
+		if (this.atoms) {
+			for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+				mol.atoms.push(this.atoms[i]);
 			}
 		}
-		if (this.bs) {
+		if (this.bonds) {
 			let merging = [];
-			for ( let i = 0, ii = this.bs.length; i < ii; i++) {
-				let b = this.bs[i];
+			for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+				let b = this.bonds[i];
 				if (mol.atoms.indexOf(b.a1) === -1) {
 					let otherMol = this.sketcher.getMoleculeByAtom(b.a1);
 					if (merging.indexOf(otherMol) === -1) {
@@ -115,20 +115,20 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerReverse = function() {
-		let mol = this.sketcher.getMoleculeByAtom(this.a);
-		if (this.as) {
+		let mol = this.sketcher.getMoleculeByAtom(this.atom);
+		if (this.atoms) {
 			let aKeep = [];
 			for ( let i = 0, ii = mol.atoms.length; i < ii; i++) {
-				if (this.as.indexOf(mol.atoms[i]) === -1) {
+				if (this.atoms.indexOf(mol.atoms[i]) === -1) {
 					aKeep.push(mol.atoms[i]);
 				}
 			}
 			mol.atoms = aKeep;
 		}
-		if (this.bs) {
+		if (this.bonds) {
 			let bKeep = [];
 			for ( let i = 0, ii = mol.bonds.length; i < ii; i++) {
-				if (this.bs.indexOf(mol.bonds[i]) === -1) {
+				if (this.bonds.indexOf(mol.bonds[i]) === -1) {
 					bKeep.push(mol.bonds[i]);
 				}
 			}
@@ -192,15 +192,15 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	'use strict';
 	actions.AddVAPAttachementAction = function(vap, a, substituent) {
 		this.vap = vap;
-		this.a = a;
+		this.atom = a;
 		this.substituent = substituent;
 	};
 	let _ = actions.AddVAPAttachementAction.prototype = new actions._Action();
 	_.innerForward = function() {
 		if(this.substituent){
-			this.vap.substituent = this.a;
+			this.vap.substituent = this.atom;
 		}else{
-			this.vap.attachments.push(this.a);
+			this.vap.attachments.push(this.atom);
 		}
 	};
 	_.innerReverse = function() {
@@ -312,27 +312,27 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 (function(actions, undefined) {
 	'use strict';
 	actions.ChangeChargeAction = function(a, delta) {
-		this.a = a;
+		this.atom = a;
 		this.delta = delta;
 	};
 	let _ = actions.ChangeChargeAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		this.a.charge += this.delta;
+		this.atom.charge += this.delta;
 	};
 	_.innerReverse = function() {
-		this.a.charge -= this.delta;
+		this.atom.charge -= this.delta;
 	};
 
 })(ChemDoodle.uis.actions);
 (function(actions, undefined) {
 	'use strict';
-	actions.ChangeCoordinatesAction = function(as, newCoords) {
-		this.as = as;
+	actions.ChangeCoordinatesAction = function(atoms, newCoords) {
+		this.atoms = atoms;
 		this.recs = [];
-		for ( let i = 0, ii = this.as.length; i < ii; i++) {
+		for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
 			this.recs[i] = {
-				'xo' : this.as[i].x,
-				'yo' : this.as[i].y,
+				'xo' : this.atoms[i].x,
+				'yo' : this.atoms[i].y,
 				'xn' : newCoords[i].x,
 				'yn' : newCoords[i].y
 			};
@@ -340,15 +340,15 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	};
 	let _ = actions.ChangeCoordinatesAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		for ( let i = 0, ii = this.as.length; i < ii; i++) {
-			this.as[i].x = this.recs[i].xn;
-			this.as[i].y = this.recs[i].yn;
+		for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+			this.atoms[i].x = this.recs[i].xn;
+			this.atoms[i].y = this.recs[i].yn;
 		}
 	};
 	_.innerReverse = function() {
-		for ( let i = 0, ii = this.as.length; i < ii; i++) {
-			this.as[i].x = this.recs[i].xo;
-			this.as[i].y = this.recs[i].yo;
+		for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+			this.atoms[i].x = this.recs[i].xo;
+			this.atoms[i].y = this.recs[i].yo;
 		}
 	};
 
@@ -356,31 +356,31 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 (function(actions, undefined) {
 	'use strict';
 	actions.ChangeLabelAction = function(a, after) {
-		this.a = a;
+		this.atom = a;
 		this.before = a.label;
 		this.after = after;
 	};
 	let _ = actions.ChangeLabelAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		this.a.label = this.after;
+		this.atom.label = this.after;
 	};
 	_.innerReverse = function() {
-		this.a.label = this.before;
+		this.atom.label = this.before;
 	};
 
 })(ChemDoodle.uis.actions);
 (function(actions, undefined) {
 	'use strict';
 	actions.ChangeLonePairAction = function(a, delta) {
-		this.a = a;
+		this.atom = a;
 		this.delta = delta;
 	};
 	let _ = actions.ChangeLonePairAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		this.a.numLonePair += this.delta;
+		this.atom.numLonePair += this.delta;
 	};
 	_.innerReverse = function() {
-		this.a.numLonePair -= this.delta;
+		this.atom.numLonePair -= this.delta;
 	};
 
 })(ChemDoodle.uis.actions);
@@ -403,15 +403,15 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 (function(actions, undefined) {
 	'use strict';
 	actions.ChangeRadicalAction = function(a, delta) {
-		this.a = a;
+		this.atom = a;
 		this.delta = delta;
 	};
 	let _ = actions.ChangeRadicalAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		this.a.numRadical += this.delta;
+		this.atom.numRadical += this.delta;
 	};
 	_.innerReverse = function() {
-		this.a.numRadical -= this.delta;
+		this.atom.numRadical -= this.delta;
 	};
 
 })(ChemDoodle.uis.actions);
@@ -479,26 +479,26 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 })(ChemDoodle.structures, ChemDoodle.uis.actions);
 (function(actions, undefined) {
 	'use strict';
-	actions.DeleteAction = function(sketcher, a, as, bs) {
+	actions.DeleteAction = function(sketcher, atom, atoms, bonds) {
 		this.sketcher = sketcher;
-		this.a = a;
-		this.as = as;
-		this.bs = bs;
-		this.ss = [];
+		this.atom = atom;
+		this.atoms = atoms;
+		this.bonds = bonds;
+		this.shapes = [];
 	};
 	let _ = actions.DeleteAction.prototype = new actions._Action();
 	_.innerForwardAReverse = actions.AddAction.prototype.innerReverse;
 	_.innerReverseAForward = actions.AddAction.prototype.innerForward;
 	_.innerForward = function() {
 		this.innerForwardAReverse();
-		for ( let i = 0, ii = this.ss.length; i < ii; i++) {
-			this.sketcher.removeShape(this.ss[i]);
+		for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+			this.sketcher.removeShape(this.shapes[i]);
 		}
 	};
 	_.innerReverse = function() {
 		this.innerReverseAForward();
-		if (this.ss.length > 0) {
-			this.sketcher.shapes = this.sketcher.shapes.concat(this.ss);
+		if (this.shapes.length > 0) {
+			this.sketcher.shapes = this.sketcher.shapes.concat(this.shapes);
 		}
 	};
 
@@ -506,25 +506,25 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 
 (function(informatics, actions, undefined) {
 	'use strict';
-	actions.DeleteContentAction = function(sketcher, as, ss) {
+	actions.DeleteContentAction = function(sketcher, atoms, shapes) {
 		this.sketcher = sketcher;
-		this.as = as;
-		this.ss = ss;
-		this.bs = [];
+		this.atoms = atoms;
+		this.shapes = shapes;
+		this.bonds = [];
 		for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
 			let mol = this.sketcher.molecules[i];
 			for ( let j = 0, jj = mol.bonds.length; j < jj; j++) {
 				let b = mol.bonds[j];
 				if (b.a1.isLassoed || b.a2.isLassoed) {
-					this.bs.push(b);
+					this.bonds.push(b);
 				}
 			}
 		}
 	};
 	let _ = actions.DeleteContentAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		for ( let i = 0, ii = this.ss.length; i < ii; i++) {
-			this.sketcher.removeShape(this.ss[i]);
+		for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+			this.sketcher.removeShape(this.shapes[i]);
 		}
 		let asKeep = [];
 		let bsKeep = [];
@@ -532,13 +532,13 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			let mol = this.sketcher.molecules[i];
 			for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
 				let a = mol.atoms[j];
-				if (this.as.indexOf(a) === -1) {
+				if (this.atoms.indexOf(a) === -1) {
 					asKeep.push(a);
 				}
 			}
 			for ( let j = 0, jj = mol.bonds.length; j < jj; j++) {
 				let b = mol.bonds[j];
-				if (this.bs.indexOf(b) === -1) {
+				if (this.bonds.indexOf(b) === -1) {
 					bsKeep.push(b);
 				}
 			}
@@ -549,7 +549,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		});
 	};
 	_.innerReverse = function() {
-		this.sketcher.shapes = this.sketcher.shapes.concat(this.ss);
+		this.sketcher.shapes = this.sketcher.shapes.concat(this.shapes);
 		let asKeep = [];
 		let bsKeep = [];
 		for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
@@ -558,8 +558,8 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			bsKeep = bsKeep.concat(mol.bonds);
 		}
 		this.sketcher.molecules = new informatics.Splitter().split({
-			atoms : asKeep.concat(this.as),
-			bonds : bsKeep.concat(this.bs)
+			atoms : asKeep.concat(this.atoms),
+			bonds : bsKeep.concat(this.bonds)
 		});
 	};
 
@@ -601,9 +601,9 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 })(ChemDoodle.uis.actions);
 (function(structures, actions, m, undefined) {
 	'use strict';
-	actions.FlipAction = function(ps, bs, horizontal) {
+	actions.FlipAction = function(ps, bonds, horizontal) {
 		this.ps = ps;
-		this.bs = bs;
+		this.bonds = bonds;
 		let minX = Infinity, minY = Infinity;
 		let maxX = -Infinity, maxY = -Infinity;
 		for ( let i = 0, ii = this.ps.length; i < ii; i++) {
@@ -625,8 +625,8 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 				p.y += 2*(this.center.y-p.y);
 			}
 		}
-		for(let i = 0, ii = this.bs.length; i<ii; i++){
-			let b = this.bs[i];
+		for(let i = 0, ii = this.bonds.length; i<ii; i++){
+			let b = this.bonds[i];
 			if(b.stereo===structures.Bond.STEREO_PROTRUDING){
 				b.stereo = structures.Bond.STEREO_RECESSED;
 			}else if(b.stereo===structures.Bond.STEREO_RECESSED){
@@ -685,21 +685,21 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 
 (function(structures, actions, undefined) {
 	'use strict';
-	actions.NewMoleculeAction = function(sketcher, as, bs) {
+	actions.NewMoleculeAction = function(sketcher, atoms, bonds) {
 		this.sketcher = sketcher;
-		this.as = as;
-		this.bs = bs;
+		this.atoms = atoms;
+		this.bonds = bonds;
 	};
 	let _ = actions.NewMoleculeAction.prototype = new actions._Action();
 	_.innerForward = function() {
 		let mol = new structures.Molecule();
-		mol.atoms = mol.atoms.concat(this.as);
-		mol.bonds = mol.bonds.concat(this.bs);
+		mol.atoms = mol.atoms.concat(this.atoms);
+		mol.bonds = mol.bonds.concat(this.bonds);
 		mol.check();
 		this.sketcher.addMolecule(mol);
 	};
 	_.innerReverse = function() {
-		this.sketcher.removeMolecule(this.sketcher.getMoleculeByAtom(this.as[0]));
+		this.sketcher.removeMolecule(this.sketcher.getMoleculeByAtom(this.atoms[0]));
 	};
 
 })(ChemDoodle.structures, ChemDoodle.uis.actions);
@@ -1223,8 +1223,8 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			if (this.sketcher.hovering) {
 				let number = e.which - 48;
 				let molIdentifier;
-				let as = [];
-				let bs = [];
+				let atoms = [];
+				let bonds = [];
 				if (this.sketcher.hovering instanceof structures.Atom) {
 					molIdentifier = this.sketcher.hovering;
 					if (monitor.SHIFT) {
@@ -1237,21 +1237,21 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 							}
 							let ring = this.sketcher.stateManager.STATE_NEW_RING.getRing(this.sketcher.hovering, number, this.sketcher.styles.bondLength_2D, angle, false);
 							if (mol.atoms.indexOf(ring[0]) === -1) {
-								as.push(ring[0]);
+								atoms.push(ring[0]);
 							}
 							if (!this.sketcher.bondExists(this.sketcher.hovering, ring[0])) {
-								bs.push(new structures.Bond(this.sketcher.hovering, ring[0]));
+								bonds.push(new structures.Bond(this.sketcher.hovering, ring[0]));
 							}
 							for ( let i = 1, ii = ring.length; i < ii; i++) {
 								if (mol.atoms.indexOf(ring[i]) === -1) {
-									as.push(ring[i]);
+									atoms.push(ring[i]);
 								}
 								if (!this.sketcher.bondExists(ring[i - 1], ring[i])) {
-									bs.push(new structures.Bond(ring[i - 1], ring[i]));
+									bonds.push(new structures.Bond(ring[i - 1], ring[i]));
 								}
 							}
 							if (!this.sketcher.bondExists(ring[ring.length - 1], this.sketcher.hovering)) {
-								bs.push(new structures.Bond(ring[ring.length - 1], this.sketcher.hovering));
+								bonds.push(new structures.Bond(ring[ring.length - 1], this.sketcher.hovering));
 							}
 						}
 					} else {
@@ -1282,10 +1282,10 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 							if (minDist < 5) {
 								use = closest;
 							} else {
-								as.push(use);
+								atoms.push(use);
 							}
 							if (!this.sketcher.bondExists(prev, use)) {
-								bs.push(new structures.Bond(prev, use));
+								bonds.push(new structures.Bond(prev, use));
 							}
 							prev = use;
 						}
@@ -1303,21 +1303,21 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 								end = this.sketcher.hovering.a2;
 							}
 							if (mol.atoms.indexOf(ring[1]) === -1) {
-								as.push(ring[1]);
+								atoms.push(ring[1]);
 							}
 							if (!this.sketcher.bondExists(start, ring[1])) {
-								bs.push(new structures.Bond(start, ring[1]));
+								bonds.push(new structures.Bond(start, ring[1]));
 							}
 							for ( let i = 2, ii = ring.length; i < ii; i++) {
 								if (mol.atoms.indexOf(ring[i]) === -1) {
-									as.push(ring[i]);
+									atoms.push(ring[i]);
 								}
 								if (!this.sketcher.bondExists(ring[i - 1], ring[i])) {
-									bs.push(new structures.Bond(ring[i - 1], ring[i]));
+									bonds.push(new structures.Bond(ring[i - 1], ring[i]));
 								}
 							}
 							if (!this.sketcher.bondExists(ring[ring.length - 1], end)) {
-								bs.push(new structures.Bond(ring[ring.length - 1], end));
+								bonds.push(new structures.Bond(ring[ring.length - 1], end));
 							}
 						}
 					} else if (number > 0 && number < 4 && this.sketcher.hovering.bondOrder !== number) {
@@ -1330,8 +1330,8 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 						this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, stereo));
 					}
 				}
-				if (as.length !== 0 || bs.length !== 0) {
-					this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, molIdentifier, as, bs));
+				if (atoms.length !== 0 || bonds.length !== 0) {
+					this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, molIdentifier, atoms, bonds));
 				}
 			}
 		} else if (e.which >= 65 && e.which <= 90) {
@@ -1647,9 +1647,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 				let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
 				action = new actions.DeleteAction(this.sketcher, mol.atoms[0], [ this.sketcher.hovering ], mol.getBonds(this.sketcher.hovering));
 			} else if (this.sketcher.hovering instanceof structures.Bond) {
-				if (this.sketcher.hovering.ring) {
-					action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, undefined, [ this.sketcher.hovering ]);
-				}
+				action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, undefined, [ this.sketcher.hovering ]);
 			} else if (this.sketcher.hovering instanceof d2._Shape) {
 				let s = this.sketcher.hovering;
 				if(s.hoverBond){
@@ -1690,7 +1688,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 						}
 					}
 					if (!remains1 || !remains2) {
-						action.ss.push(s);
+						action.shapes.push(s);
 						this.sketcher.removeShape(s);
 					}
 				}
@@ -1708,7 +1706,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 						}
 					}
 					if (!remains1 || !remains2) {
-						action.ss.push(s);
+						action.shapes.push(s);
 						this.sketcher.removeShape(s);
 					}
 				}
@@ -1738,7 +1736,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 						}
 					}
 					if (broken) {
-						action.ss.push(s);
+						action.shapes.push(s);
 						this.sketcher.removeShape(s);
 					}
 				}
@@ -1955,17 +1953,17 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	_.innerclick = function(e) {
 		if (!transformType && !this.inDrag) {
 			if (this.sketcher.hovering) {
-				let as = [];
-				let ss = [];
+				let atoms = [];
+				let shapes = [];
 				if (this.sketcher.hovering instanceof structures.Atom) {
-					as.push(this.sketcher.hovering);
+					atoms.push(this.sketcher.hovering);
 				} else if (this.sketcher.hovering instanceof structures.Bond) {
-					as.push(this.sketcher.hovering.a1);
-					as.push(this.sketcher.hovering.a2);
+					atoms.push(this.sketcher.hovering.a1);
+					atoms.push(this.sketcher.hovering.a2);
 				} else if (this.sketcher.hovering instanceof d2._Shape) {
-					ss.push(this.sketcher.hovering);
+					shapes.push(this.sketcher.hovering);
 				}
-				this.sketcher.lasso.select(as, ss);
+				this.sketcher.lasso.select(atoms, shapes);
 			} else if (this.sketcher.lasso.isActive()) {
 				this.sketcher.lasso.empty();
 			}
@@ -2194,8 +2192,8 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	};
 	_.innermouseup = function(e) {
 		if (this.sketcher.tempAtom && this.sketcher.hovering) {
-			let as = [];
-			let bs = [];
+			let atoms = [];
+			let bonds = [];
 			let makeBond = true;
 			if (this.sketcher.tempAtom.isOverlap) {
 				for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
@@ -2213,12 +2211,12 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 					makeBond = false;
 				}
 			} else {
-				as.push(this.sketcher.tempAtom);
+				atoms.push(this.sketcher.tempAtom);
 			}
 			if (makeBond) {
-				bs[0] = new structures.Bond(this.sketcher.hovering, this.sketcher.tempAtom, this.bondOrder);
-				bs[0].stereo = this.stereo;
-				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, bs[0].a1, as, bs));
+				bonds[0] = new structures.Bond(this.sketcher.hovering, this.sketcher.tempAtom, this.bondOrder);
+				bonds[0].stereo = this.stereo;
+				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, bonds[0].a1, atoms, bonds));
 			}
 		}
 		this.sketcher.tempAtom = undefined;
@@ -2346,22 +2344,22 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	};
 	_.innermouseup = function(e) {
 		if (this.sketcher.tempChain && this.sketcher.hovering && this.sketcher.tempChain.length!==0) {
-			let as = [];
-			let bs = [];
+			let atoms = [];
+			let bonds = [];
 			let allAs = this.sketcher.getAllAtoms();
 			for ( let i = 0, ii = this.sketcher.tempChain.length; i < ii; i++) {
 				if (allAs.indexOf(this.sketcher.tempChain[i]) === -1) {
-					as.push(this.sketcher.tempChain[i]);
+					atoms.push(this.sketcher.tempChain[i]);
 				}
 				if (i!=0 && !this.sketcher.bondExists(this.sketcher.tempChain[i - 1], this.sketcher.tempChain[i])) {
-					bs.push(new structures.Bond(this.sketcher.tempChain[i - 1], this.sketcher.tempChain[i]));
+					bonds.push(new structures.Bond(this.sketcher.tempChain[i - 1], this.sketcher.tempChain[i]));
 				}
 			}
 			if (!this.sketcher.bondExists(this.sketcher.tempChain[0], this.sketcher.hovering)) {
-				bs.push(new structures.Bond(this.sketcher.tempChain[0], this.sketcher.hovering));
+				bonds.push(new structures.Bond(this.sketcher.tempChain[0], this.sketcher.hovering));
 			}
-			if (as.length !== 0 || bs.length !== 0) {
-				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, this.sketcher.hovering, as, bs));
+			if (atoms.length !== 0 || bonds.length !== 0) {
+				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, this.sketcher.hovering, atoms, bonds));
 			}
 			for ( let j = 0, jj = allAs.length; j < jj; j++) {
 				allAs[j].isOverlap = false;
@@ -2581,29 +2579,29 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	};
 	_.innermouseup = function(e) {
 		if (this.sketcher.tempRing && this.sketcher.hovering) {
-			let as = [];
-			let bs = [];
+			let atoms = [];
+			let bonds = [];
 			let allAs = this.sketcher.getAllAtoms();
 			let unsat = this.unsaturated || this.numSides===-1 && monitor.SHIFT;
 			if (this.sketcher.hovering instanceof structures.Atom) {
 				if (allAs.indexOf(this.sketcher.tempRing[0]) === -1) {
-					as.push(this.sketcher.tempRing[0]);
+					atoms.push(this.sketcher.tempRing[0]);
 				}
 				if (!this.sketcher.bondExists(this.sketcher.hovering, this.sketcher.tempRing[0])) {
-					bs.push(new structures.Bond(this.sketcher.hovering, this.sketcher.tempRing[0]));
+					bonds.push(new structures.Bond(this.sketcher.hovering, this.sketcher.tempRing[0]));
 				}
 				for ( let i = 1, ii = this.sketcher.tempRing.length; i < ii; i++) {
 					let ai = this.sketcher.tempRing[i];
 					let aip = this.sketcher.tempRing[i-1];
 					if (allAs.indexOf(ai) === -1) {
-						as.push(ai);
+						atoms.push(ai);
 					}
 					if (!this.sketcher.bondExists(aip, ai)) {
-						bs.push(new structures.Bond(aip, ai, unsat && i % 2 === 1 && ai.getImplicitHydrogenCount()>1 && aip.getImplicitHydrogenCount()>1 ? 2 : 1));
+						bonds.push(new structures.Bond(aip, ai, unsat && i % 2 === 1 && ai.getImplicitHydrogenCount()>1 && aip.getImplicitHydrogenCount()>1 ? 2 : 1));
 					}
 				}
 				if (!this.sketcher.bondExists(this.sketcher.tempRing[this.sketcher.tempRing.length - 1], this.sketcher.hovering)) {
-					bs.push(new structures.Bond(this.sketcher.tempRing[this.sketcher.tempRing.length - 1], this.sketcher.hovering, unsat && this.sketcher.tempRing.length%2===1 && this.sketcher.tempRing[this.sketcher.tempRing.length - 1].getImplicitHydrogenCount()>1 && this.sketcher.hovering.getImplicitHydrogenCount()>1 ? 2 : 1));
+					bonds.push(new structures.Bond(this.sketcher.tempRing[this.sketcher.tempRing.length - 1], this.sketcher.hovering, unsat && this.sketcher.tempRing.length%2===1 && this.sketcher.tempRing[this.sketcher.tempRing.length - 1].getImplicitHydrogenCount()>1 && this.sketcher.hovering.getImplicitHydrogenCount()>1 ? 2 : 1));
 				}
 			} else if (this.sketcher.hovering instanceof structures.Bond) {
 				let start = this.sketcher.hovering.a2;
@@ -2613,27 +2611,27 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 					end = this.sketcher.hovering.a2;
 				}
 				if (allAs.indexOf(this.sketcher.tempRing[1]) === -1) {
-					as.push(this.sketcher.tempRing[1]);
+					atoms.push(this.sketcher.tempRing[1]);
 				}
 				if (!this.sketcher.bondExists(start, this.sketcher.tempRing[1])) {
-					bs.push(new structures.Bond(start, this.sketcher.tempRing[1]));
+					bonds.push(new structures.Bond(start, this.sketcher.tempRing[1]));
 				}
 				for ( let i = 2, ii = this.sketcher.tempRing.length; i < ii; i++) {
 					let ai = this.sketcher.tempRing[i];
 					let aip = this.sketcher.tempRing[i - 1];
 					if (allAs.indexOf(ai) === -1) {
-						as.push(ai);
+						atoms.push(ai);
 					}
 					if (!this.sketcher.bondExists(aip, ai)) {
-						bs.push(new structures.Bond(aip, ai, unsat && i % 2 === 0 && ai.getImplicitHydrogenCount()>1 && aip.getImplicitHydrogenCount()>1 ? 2 : 1));
+						bonds.push(new structures.Bond(aip, ai, unsat && i % 2 === 0 && ai.getImplicitHydrogenCount()>1 && aip.getImplicitHydrogenCount()>1 ? 2 : 1));
 					}
 				}
 				if (!this.sketcher.bondExists(this.sketcher.tempRing[this.sketcher.tempRing.length - 1], end)) {
-					bs.push(new structures.Bond(this.sketcher.tempRing[this.sketcher.tempRing.length - 1], end, unsat && this.sketcher.tempRing.length % 2 === 0 && this.sketcher.tempRing[this.sketcher.tempRing.length - 1].getImplicitHydrogenCount()>1 && end.getImplicitHydrogenCount()>1 ? 2 : 1));
+					bonds.push(new structures.Bond(this.sketcher.tempRing[this.sketcher.tempRing.length - 1], end, unsat && this.sketcher.tempRing.length % 2 === 0 && this.sketcher.tempRing[this.sketcher.tempRing.length - 1].getImplicitHydrogenCount()>1 && end.getImplicitHydrogenCount()>1 ? 2 : 1));
 				}
 			}
-			if (as.length !== 0 || bs.length !== 0) {
-				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, bs[0].a1, as, bs));
+			if (atoms.length !== 0 || bonds.length !== 0) {
+				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, bonds[0].a1, atoms, bonds));
 			}
 			for ( let j = 0, jj = allAs.length; j < jj; j++) {
 				allAs[j].isOverlap = false;
@@ -5895,11 +5893,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					sketcher.historyManager.pushUndo(new actions.AddContentAction(sketcher, self.searchDialog.canvas.molecules, self.searchDialog.canvas.shapes));
 					sketcher.toolbarManager.buttonLasso.select();
 					sketcher.toolbarManager.buttonLasso.getElement().click();
-					let as = [];
+					let atoms = [];
 					for(let i = 0, ii = self.searchDialog.canvas.molecules.length; i<ii; i++){
-						as = as.concat(self.searchDialog.canvas.molecules[i].atoms);
+						atoms = atoms.concat(self.searchDialog.canvas.molecules[i].atoms);
 					}
-					sketcher.lasso.select(as, self.searchDialog.canvas.shapes);
+					sketcher.lasso.select(atoms, self.searchDialog.canvas.shapes);
 				}else{
 					alert('After entering a search term, press the "Show Molecule" button to show it before loading. To close this dialog, press the "X" button to the top-right.');
 				}
@@ -6474,15 +6472,15 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.makeFlipSet = function(self) {
 		let action = function(horizontal){
 			let ps = self.sketcher.lasso.getAllPoints();
-			let bs = [];
+			let bonds = [];
 			let lbs = self.sketcher.lasso.getBonds();
 			for(let i = 0, ii = lbs.length; i<ii; i++){
 				let b = lbs[i];
 				if(b.bondOrder===1 && (b.stereo===structures.Bond.STEREO_PROTRUDING || b.stereo===structures.Bond.STEREO_RECESSED)){
-					bs.push(b);
+					bonds.push(b);
 				}
 			}
-			self.sketcher.historyManager.pushUndo(new actions.FlipAction(ps, bs, horizontal));
+			self.sketcher.historyManager.pushUndo(new actions.FlipAction(ps, bonds, horizontal));
 		}
 		this.buttonFlipVert = new desktop.Button(self.sketcher.id + '_button_flip_hor', imageDepot.FLIP_HOR, 'Flip Horizontally', function() {
 			action(true);
