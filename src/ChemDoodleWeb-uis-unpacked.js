@@ -465,21 +465,11 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		this.beforeMols = this.sketcher.molecules;
 		this.beforeShapes = this.sketcher.shapes;
 		this.sketcher.clear();
-		if (this.sketcher.oneMolecule && !this.sketcher.setupScene) {
-			this.afterMol = new structures.Molecule();
-			this.afterMol.atoms.push(new structures.Atom());
-			this.sketcher.molecules.push(this.afterMol);
-			this.sketcher.center();
-			this.sketcher.repaint();
-		}
 	};
 	let _ = actions.ClearAction.prototype = new actions._Action();
 	_.innerForward = function() {
 		this.sketcher.molecules = [];
 		this.sketcher.shapes = [];
-		if (this.sketcher.oneMolecule && !this.sketcher.setupScene) {
-			this.sketcher.molecules.push(this.afterMol);
-		}
 	};
 	_.innerReverse = function() {
 		this.sketcher.molecules = this.beforeMols;
@@ -1198,11 +1188,9 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 				this.sketcher.toolbarManager.buttonOpen.func();
 			} else if (e.which === 65) {
 				// a
-				if (!this.sketcher.oneMolecule) {
-					this.sketcher.toolbarManager.buttonLasso.select();
-					this.sketcher.toolbarManager.buttonLasso.getElement().click();
-					this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
-				}
+				this.sketcher.toolbarManager.buttonLasso.select();
+				this.sketcher.toolbarManager.buttonLasso.getElement().click();
+				this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
 			} else if (e.which === 88) {
 				// x
 				this.sketcher.copyPasteManager.copy(true);
@@ -1215,15 +1203,13 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			}
 		} else if (e.which === 32) {
 			// space key
-            if (!this.sketcher.oneMolecule) {
-                // switch to lasso, center and select
-				let buttonLasso = this.sketcher.toolbarManager.buttonLasso
-				buttonLasso.getElement().focus();
-				buttonLasso.getElement().select();
-				buttonLasso.func();
-                this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
-                this.sketcher.toolbarManager.buttonCenter.func();
-            }
+			// switch to lasso, center and select
+			let buttonLasso = this.sketcher.toolbarManager.buttonLasso
+			buttonLasso.getElement().focus();
+			buttonLasso.getElement().select();
+			buttonLasso.func();
+			this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
+			this.sketcher.toolbarManager.buttonCenter.func();
 		} else if (e.which === 13) {
 			// enter or return key
 			if(this.sketcher.hovering instanceof structures.Atom && this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel && this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel !== this.sketcher.hovering.label){
@@ -1668,75 +1654,10 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			this.sketcher.lasso.empty();
 		} else if (this.sketcher.hovering) {
 			if (this.sketcher.hovering instanceof structures.Atom) {
-				if (this.sketcher.oneMolecule) {
-					let mol = this.sketcher.molecules[0];
-					for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-						mol.atoms[j].visited = false;
-					}
-					let connectionsA = [];
-					let connectionsB = [];
-					this.sketcher.hovering.visited = true;
-					for ( let j = 0, jj = mol.bonds.length; j < jj; j++) {
-						let bj = mol.bonds[j];
-						if (bj.contains(this.sketcher.hovering)) {
-							let atoms = [];
-							let bonds = [];
-							let q = new structures.Queue();
-							q.enqueue(bj.getNeighbor(this.sketcher.hovering));
-							while (!q.isEmpty()) {
-								let a = q.dequeue();
-								if (!a.visited) {
-									a.visited = true;
-									atoms.push(a);
-									for ( let k = 0, kk = mol.bonds.length; k < kk; k++) {
-										let bk = mol.bonds[k];
-										if (bk.contains(a) && !bk.getNeighbor(a).visited) {
-											q.enqueue(bk.getNeighbor(a));
-											bonds.push(bk);
-										}
-									}
-								}
-							}
-							connectionsA.push(atoms);
-							connectionsB.push(bonds);
-						}
-					}
-					let largest = -1;
-					let index = -1;
-					for ( let j = 0, jj = connectionsA.length; j < jj; j++) {
-						if (connectionsA[j].length > largest) {
-							index = j;
-							largest = connectionsA[j].length;
-						}
-					}
-					if (index > -1) {
-						let as = [];
-						let bs = [];
-						let hold;
-						for ( let i = 0, ii = mol.atoms.length; i < ii; i++) {
-							let a = mol.atoms[i];
-							if (connectionsA[index].indexOf(a) === -1) {
-								as.push(a);
-							} else if (!hold) {
-								hold = a;
-							}
-						}
-						for ( let i = 0, ii = mol.bonds.length; i < ii; i++) {
-							let b = mol.bonds[i];
-							if (connectionsB[index].indexOf(b) === -1) {
-								bs.push(b);
-							}
-						}
-						action = new actions.DeleteAction(this.sketcher, hold, as, bs);
-					} else {
-						action = new actions.ClearAction(this.sketcher);
-					}
-				} else {
-					let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
-					action = new actions.DeleteAction(this.sketcher, mol.atoms[0], [ this.sketcher.hovering ], mol.getBonds(this.sketcher.hovering));
-				}
+				let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
+				action = new actions.DeleteAction(this.sketcher, mol.atoms[0], [ this.sketcher.hovering ], mol.getBonds(this.sketcher.hovering));
 			} else if (this.sketcher.hovering instanceof structures.Bond) {
-				if (!this.sketcher.oneMolecule || this.sketcher.hovering.ring) {
+				if (this.sketcher.hovering.ring) {
 					action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, undefined, [ this.sketcher.hovering ]);
 				}
 			} else if (this.sketcher.hovering instanceof d2._Shape) {
@@ -1871,7 +1792,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			}else if (this.label !== this.sketcher.hovering.label) {
 				this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, this.label));
 			}
-		} else if (!this.sketcher.oneMolecule && this.newMolAllowed) {
+		} else if (this.newMolAllowed) {
 			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom(this.label, e.p.x, e.p.y) ], []));
 		}
 		if (!this.sketcher.isMobile) {
@@ -2245,7 +2166,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerclick = function(e) {
-		if (!this.sketcher.hovering && !this.sketcher.oneMolecule && this.newMolAllowed) {
+		if (!this.sketcher.hovering && this.newMolAllowed) {
 			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom('C', e.p.x, e.p.y) ], []));
 			if (!this.sketcher.isMobile) {
 				this.mousemove(e);
@@ -2404,7 +2325,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerclick = function(e) {
-		if (!this.sketcher.hovering && !this.sketcher.oneMolecule && this.newMolAllowed) {
+		if (!this.sketcher.hovering && this.newMolAllowed) {
 			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom('C', e.p.x, e.p.y) ], []));
 			if (!this.sketcher.isMobile) {
 				this.mousemove(e);
@@ -2639,7 +2560,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerclick = function(e) {
-		if (!this.sketcher.hovering && !this.sketcher.oneMolecule && this.newMolAllowed) {
+		if (!this.sketcher.hovering && this.newMolAllowed) {
 			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom('C', e.p.x, e.p.y) ], []));
 			if (!this.sketcher.isMobile) {
 				this.mousemove(e);
@@ -2873,7 +2794,7 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerclick = function(e) {
-		if (!this.sketcher.hovering && !this.sketcher.oneMolecule && this.newMolAllowed) {
+		if (!this.sketcher.hovering && this.newMolAllowed) {
 			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom('C', e.p.x, e.p.y) ], []));
 			if (!this.sketcher.isMobile) {
 				this.mousemove(e);
@@ -5642,7 +5563,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		let self = this;
 		q('#' + this.id + '_button').click(function() {
 			q('#' + self.id + '_link').html('Generating file, please wait...');
-			ChemDoodle.iChemLabs.saveFile(self.sketcher.oneMolecule ? self.sketcher.molecules[0] : self.sketcher.lasso.getFirstMolecule(), {
+			ChemDoodle.iChemLabs.saveFile(self.sketcher.lasso.getFirstMolecule(), {
 				ext : q('#' + self.id + '_select').val()
 			}, function(link) {
 				q('#' + self.id + '_link').html('<a href="' + link + '"><span style="text-decoration:underline;">File is generated. Right-click on this link and Save As...</span></a>');
@@ -5990,9 +5911,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				} else if (s.charAt(0) === '{') {
 					newContent = c.readJSON(s);
 				}
-				if (sketcher.oneMolecule && newContent && newContent.molecules.length > 0 && newContent.molecules[0].atoms.length > 0) {
-					sketcher.historyManager.pushUndo(new actions.SwitchMoleculeAction(sketcher, newContent.molecules[0]));
-				} else if (!sketcher.oneMolecule && newContent && (newContent.molecules.length > 0 || newContent.shapes.length > 0)) {
+				if (newContent && (newContent.molecules.length > 0 || newContent.shapes.length > 0)) {
 					sketcher.historyManager.pushUndo(new actions.SwitchContentAction(sketcher, newContent.molecules, newContent.shapes));
 				} else {
 					alert('No chemical content was recognized.');
@@ -6016,20 +5935,14 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				let newMol = self.searchDialog.canvas.molecules[0];
 				if (newMol && newMol.atoms.length > 0) {
 					q(this).dialog('close');
-					if (sketcher.oneMolecule) {
-						if (newMol !== sketcher.molecule) {
-							sketcher.historyManager.pushUndo(new actions.SwitchMoleculeAction(sketcher, newMol));
-						}
-					} else {
-						sketcher.historyManager.pushUndo(new actions.AddContentAction(sketcher, self.searchDialog.canvas.molecules, self.searchDialog.canvas.shapes));
-						sketcher.toolbarManager.buttonLasso.select();
-						sketcher.toolbarManager.buttonLasso.getElement().click();
-						let as = [];
-						for(let i = 0, ii = self.searchDialog.canvas.molecules.length; i<ii; i++){
-							as = as.concat(self.searchDialog.canvas.molecules[i].atoms);
-						}
-						sketcher.lasso.select(as, self.searchDialog.canvas.shapes);
+					sketcher.historyManager.pushUndo(new actions.AddContentAction(sketcher, self.searchDialog.canvas.molecules, self.searchDialog.canvas.shapes));
+					sketcher.toolbarManager.buttonLasso.select();
+					sketcher.toolbarManager.buttonLasso.getElement().click();
+					let as = [];
+					for(let i = 0, ii = self.searchDialog.canvas.molecules.length; i<ii; i++){
+						as = as.concat(self.searchDialog.canvas.molecules[i].atoms);
 					}
+					sketcher.lasso.select(as, self.searchDialog.canvas.shapes);
 				}else{
 					alert('After entering a search term, press the "Show Molecule" button to show it before loading. To close this dialog, press the "X" button to the top-right.');
 				}
@@ -6339,8 +6252,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save (Ctrl + S)', function() {
 			if (sketcher.useServices) {
 				sketcher.dialogManager.saveDialog.clear();
-			} else if (sketcher.oneMolecule) {
-				sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.molecules[0]));
 			} else if (sketcher.lasso.isActive()) {
 				sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.lasso.getFirstMolecule()));
 			}
@@ -6361,7 +6272,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 		// calculate
 		// this.buttonCalculate = new desktop.Button(sketcher.id + '_button_calculate', imageDepot.CALCULATE, 'Calculate', function() {
-		// 	let mol = sketcher.oneMolecule ? sketcher.molecules[0] : sketcher.lasso.getFirstMolecule();
+		// 	let mol = sketcher.lasso.getFirstMolecule();
 		// 	if (mol) {
 		// 		iChemLabs.calculate(mol, {
 		// 			descriptors : [ 'mf', 'ef', 'mw', 'miw', 'deg_unsat', 'hba', 'hbd', 'rot', 'electron', 'pol_miller', 'cmr', 'tpsa', 'vabc', 'xlogp2', 'bertz' ]
@@ -6421,7 +6332,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 		// clean
 		// this.buttonClean = new desktop.Button(sketcher.id + '_button_clean', imageDepot.OPTIMIZE, 'Clean', function() {
-		// 	let mol = sketcher.oneMolecule ? sketcher.molecules[0] : sketcher.lasso.getFirstMolecule();
+		// 	let mol = sketcher.lasso.getFirstMolecule();
 		// 	if (mol) {
 		// 		let json = new io.JSONInterpreter();
 		// 		iChemLabs._contactServer('optimize', {
@@ -6431,7 +6342,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// 		}, function(content) {
 		// 			let optimized = json.molFrom(content.mol);
 		// 			let optCenter = optimized.getCenter();
-		// 			let dif = sketcher.oneMolecule ? new structures.Point(sketcher.width / 2, sketcher.height / 2) : mol.getCenter();
+		// 			let dif = mol.getCenter();
 		// 			dif.sub(optCenter);
 		// 			for ( let i = 0, ii = optimized.atoms.length; i < ii; i++) {
 		// 				optimized.atoms[i].add(dif);
@@ -6492,11 +6403,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.write = function() {
 		let sb = ['<div style="font-size:10px;">'];
 		let bg = this.sketcher.id + '_main_group';
-		if (this.sketcher.oneMolecule) {
-			sb.push(this.buttonMove.getSource(bg));
-		} else {
-			sb.push(this.buttonLasso.getSource(bg));
-		}
+		sb.push(this.buttonLasso.getSource(bg));
 		sb.push(this.buttonErase.getSource(bg));
 		sb.push(this.buttonCenter.getSource());
 		if (this.sketcher.useServices) {
@@ -6523,9 +6430,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			sb.push(this.bondSet.getSource(bg));
 			sb.push(this.ringSet.getSource(bg));
 			sb.push(this.buttonChain.getSource(bg));
-			if (!this.sketcher.oneMolecule) {
-				sb.push(this.shapeSet.getSource(bg));
-			}
+			sb.push(this.shapeSet.getSource(bg));
 		}
 		sb.push('</div>');
 		if(this.sketcher.floatDrawTools){
@@ -6535,10 +6440,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (this.sketcher.includeQuery) {
 				this.drawTools.components.splice((desktop.TextInput?1:0), 0, this.buttonQuery);
 			}
-			this.drawTools.components.splice(this.drawTools.components.length-(this.sketcher.oneMolecule?1:3), 0, this.buttonChain);
-			if (!this.sketcher.oneMolecule) {
-				this.drawTools.components.push(this.buttonVAP);
-			}
+			this.drawTools.components.splice(this.drawTools.components.length-(3), 0, this.buttonChain);
+			this.drawTools.components.push(this.buttonVAP);
 			sb.push(this.drawTools.getSource(bg));
 		}
 
@@ -6550,11 +6453,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.setup = function() {
-		if (this.sketcher.oneMolecule) {
-			this.buttonMove.setup(true);
-		} else {
-			this.buttonLasso.setup();
-		}
+		this.buttonLasso.setup();
 		this.buttonErase.setup(true);
 		this.buttonCenter.setup();
 		if (this.sketcher.useServices) {
@@ -6562,9 +6461,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 		// this.flipSet.setup();
 		this.historySet.setup();
-		// if (!this.sketcher.oneMolecule) {
 		// 	this.copySet.setup();
-		// }
 		// this.scaleSet.setup();
 		this.buttonOpen.setup();
 		this.buttonSave.setup();
@@ -6588,25 +6485,21 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.bondSet.setup();
 			this.ringSet.setup();
 			this.buttonChain.setup(true);
-			if (!this.sketcher.oneMolecule) {
-				this.shapeSet.setup();
-			}
+			this.shapeSet.setup();
 			this.buttonSingle.getElement().click();
 		}
 
 		this.buttonUndo.disable();
 		this.buttonRedo.disable();
-		if (!this.sketcher.oneMolecule) {
-			this.buttonCut.disable();
-			this.buttonCopy.disable();
-			this.buttonPaste.disable();
-			this.buttonFlipVert.disable();
-			this.buttonFlipHor.disable();
-			if (this.sketcher.useServices) {
-				this.buttonClean.disable();
-				this.buttonCalculate.disable();
-				this.buttonSave.disable();
-			}
+		this.buttonCut.disable();
+		this.buttonCopy.disable();
+		this.buttonPaste.disable();
+		this.buttonFlipVert.disable();
+		this.buttonFlipHor.disable();
+		if (this.sketcher.useServices) {
+			this.buttonClean.disable();
+			this.buttonCalculate.disable();
+			this.buttonSave.disable();
 		}
 	};
 
@@ -6646,9 +6539,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.makeFlipSet = function(self) {
 		let action = function(horizontal){
-			let ps = self.sketcher.oneMolecule?self.sketcher.getAllPoints():self.sketcher.lasso.getAllPoints();
+			let ps = self.sketcher.lasso.getAllPoints();
 			let bs = [];
-			let lbs = self.sketcher.oneMolecule?self.sketcher.getAllBonds():self.sketcher.lasso.getBonds();
+			let lbs = self.sketcher.lasso.getBonds();
 			for(let i = 0, ii = lbs.length; i<ii; i++){
 				let b = lbs[i];
 				if(b.bondOrder===1 && (b.stereo===structures.Bond.STEREO_PROTRUDING || b.stereo===structures.Bond.STEREO_RECESSED)){
@@ -7022,44 +6915,41 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.buttonVAP = new desktop.Button(self.sketcher.id + '_button_vap', imageDepot.VARIABLE_ATTACHMENT_POINTS, 'Variable Attachment Points', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_VAP);
 		});
-
-		if(!this.sketcher.oneMolecule){
-			this.buttonShape = new desktop.DummyButton(self.sketcher.id + '_button_shape', self.sketcher.floatDrawTools?'Reactions':'Shapes');
-			if(self.sketcher.floatDrawTools){
-				// we have to set toggle to true for buttons we are including as parent options
-				this.buttonVAP.toggle = true;
-				this.shapeTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_shape', this.buttonShape, 4);
-				this.shapeTray.defaultButton = this.buttonArrowSynthetic;
-				this.shapeTray.buttonSet.buttons.push(this.buttonArrowSynthetic);
-				this.shapeTray.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
-				this.shapeTray.buttonSet.buttons.push(this.buttonArrowResonance);
-				this.shapeTray.buttonSet.buttons.push(this.buttonArrowEquilibrum);
-				this.shapeTray.buttonSet.buttons.push(this.buttonPusher1);
-				this.shapeTray.buttonSet.buttons.push(this.buttonPusher2);
-				this.shapeTray.buttonSet.buttons.push(this.buttonPusherBond);
-				this.shapeTray.buttonSet.buttons.push(this.buttonReactionMapping);
-				this.drawTools.components.push(this.shapeTray);
-				this.buttonBrackets = new desktop.DummyButton(self.sketcher.id + '_button_bracket', 'Brackets');
-				this.bracketTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_bracket', this.buttonBrackets, 2);
-				this.bracketTray.buttonSet.buttons.push(this.buttonBracket);
-				this.bracketTray.buttonSet.buttons.push(this.buttonDynamicBracket);
-				this.drawTools.components.push(this.bracketTray);
-			}else{
-				this.shapeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_shape');
-				this.shapeSet.buttons.push(this.buttonShape);
-				this.shapeSet.addDropDown('More Shapes');
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowSynthetic);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowResonance);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowEquilibrum);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher1);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher2);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusherBond);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonReactionMapping);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonBracket);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonDynamicBracket);
-				this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonVAP);
-			}
+		this.buttonShape = new desktop.DummyButton(self.sketcher.id + '_button_shape', self.sketcher.floatDrawTools?'Reactions':'Shapes');
+		if(self.sketcher.floatDrawTools){
+			// we have to set toggle to true for buttons we are including as parent options
+			this.buttonVAP.toggle = true;
+			this.shapeTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_shape', this.buttonShape, 4);
+			this.shapeTray.defaultButton = this.buttonArrowSynthetic;
+			this.shapeTray.buttonSet.buttons.push(this.buttonArrowSynthetic);
+			this.shapeTray.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
+			this.shapeTray.buttonSet.buttons.push(this.buttonArrowResonance);
+			this.shapeTray.buttonSet.buttons.push(this.buttonArrowEquilibrum);
+			this.shapeTray.buttonSet.buttons.push(this.buttonPusher1);
+			this.shapeTray.buttonSet.buttons.push(this.buttonPusher2);
+			this.shapeTray.buttonSet.buttons.push(this.buttonPusherBond);
+			this.shapeTray.buttonSet.buttons.push(this.buttonReactionMapping);
+			this.drawTools.components.push(this.shapeTray);
+			this.buttonBrackets = new desktop.DummyButton(self.sketcher.id + '_button_bracket', 'Brackets');
+			this.bracketTray = new desktop.Tray(self.sketcher, self.sketcher.id + '_buttons_bracket', this.buttonBrackets, 2);
+			this.bracketTray.buttonSet.buttons.push(this.buttonBracket);
+			this.bracketTray.buttonSet.buttons.push(this.buttonDynamicBracket);
+			this.drawTools.components.push(this.bracketTray);
+		}else{
+			this.shapeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_shape');
+			this.shapeSet.buttons.push(this.buttonShape);
+			this.shapeSet.addDropDown('More Shapes');
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowSynthetic);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowResonance);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowEquilibrum);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher1);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher2);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusherBond);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonReactionMapping);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonBracket);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonDynamicBracket);
+			this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonVAP);
 		}
 	};
 
@@ -7436,7 +7326,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// keep checks to undefined here as these are booleans
 		this.isMobile = options.isMobile === undefined ? featureDetection.supports_touch() : options.isMobile;
 		this.useServices = options.useServices === undefined ? false : options.useServices;
-		this.oneMolecule = options.oneMolecule === undefined ? false : options.oneMolecule;
 		this.requireStartingAtom = options.requireStartingAtom === undefined ? true : options.requireStartingAtom;
 		this.includeToolbar = options.includeToolbar === undefined ? true : options.includeToolbar;
 		this.floatDrawTools = options.floatDrawTools === undefined ? false : options.floatDrawTools;
@@ -7480,15 +7369,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.lastPinchScale = 1;
 		this.lastGestureRotate = 0;
 		this.inGesture = false;
-		if (this.oneMolecule) {
-			let startMol = new structures.Molecule();
-			startMol.atoms.push(new structures.Atom());
-			this.loadMolecule(startMol);
-		} else {
-			this.startAtom = new structures.Atom('C', -10, -10);
-			this.startAtom.isLone = true;
-			this.lasso = new tools.Lasso(this);
-		}
+		this.startAtom = new structures.Atom('C', -10, -10);
+		this.startAtom.isLone = true;
+		this.lasso = new tools.Lasso(this);
 		if(this.resizable){
 			let jqsk = q('#'+this.id);
 			let self = this;
