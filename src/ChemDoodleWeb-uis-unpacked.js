@@ -1018,18 +1018,6 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		if (this.innerdblclick) {
 			this.innerdblclick(e);
 		}
-        if (this.sketcher.lasso.isActive()) {
-            this.findHoveredObject(e, true, true, true);
-            let hovering = this.sketcher.hovering;
-            let mol;
-            if(hovering && hovering instanceof structures.Bond ) {
-                mol = this.sketcher.getMoleculeByAtom(hovering.a1);
-            } else if (hovering && hovering instanceof structures.Atom) {
-                mol = this.sketcher.getMoleculeByAtom(hovering);
-            }
-            this.sketcher.lasso.selectMolecule(mol);
-            this.clearHover();
-        }
     };
 	_.mousedown = function(e) {
 		this.sketcher.lastPoint = e.p;
@@ -1188,8 +1176,9 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 				this.sketcher.toolbarManager.buttonOpen.func();
 			} else if (e.which === 65) {
 				// a
-				this.sketcher.toolbarManager.buttonLasso.select();
-				this.sketcher.toolbarManager.buttonLasso.getElement().click();
+				let lasso = this.sketcher.toolbarManager.buttonLasso.getElement();
+				lasso.focus();
+				lasso.click();
 				this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
 			} else if (e.which === 88) {
 				// x
@@ -1203,13 +1192,14 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 			}
 		} else if (e.which === 32) {
 			// space key
-			// switch to lasso, center and select
-			let buttonLasso = this.sketcher.toolbarManager.buttonLasso
-			buttonLasso.getElement().focus();
-			buttonLasso.getElement().select();
-			buttonLasso.func();
-			this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
-			this.sketcher.toolbarManager.buttonCenter.func();
+			// switch to lasso
+			if (this.sketcher.lasso.isActive()) {
+				this.sketcher.lasso.empty();
+			} else {
+				let lasso = this.sketcher.toolbarManager.buttonLasso.getElement();
+				lasso.focus();
+				lasso.click();
+			}
 		} else if (e.which === 13) {
 			// enter or return key
 			if(this.sketcher.hovering instanceof structures.Atom && this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel && this.sketcher.stateManager.STATE_TEXT_INPUT.lastLabel !== this.sketcher.hovering.label){
@@ -1999,9 +1989,19 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 		}
 	};
 	_.innerdblclick = function(e) {
-		// if (this.sketcher.lasso.isActive()) {
-		// 	this.sketcher.lasso.empty();
-		// }
+		if (this.sketcher.lasso.isActive()) {
+			// select hovering molecule
+			this.findHoveredObject(e, true, true, true);
+			let hovering = this.sketcher.hovering;
+			let mol;
+			if(hovering && hovering instanceof structures.Bond ) {
+				mol = this.sketcher.getMoleculeByAtom(hovering.a1);
+			} else if (hovering && hovering instanceof structures.Atom) {
+				mol = this.sketcher.getMoleculeByAtom(hovering);
+			}
+			this.sketcher.lasso.selectMolecule(mol);
+			this.clearHover();
+		}
 	};
 	_.draw = function(ctx, styles) {
 		if (paintRotate && this.sketcher.lasso.bounds) {
@@ -6188,8 +6188,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 		// lasso
 		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool (Space)', function() {
-			console.log(this.buttonLasso);
-			console.log(sketcher.lasso);
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_LASSO);
 			sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
 			if (!sketcher.lasso.isActive()) {
@@ -6582,10 +6580,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelPT);
 	};
 	_.makeBondSet = function(self) {
-		this.buttonSingle = new desktop.Button(self.sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond', function() {
+		this.buttonSingle = new desktop.Button(self.sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond (1)', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
+			if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 		});
 		this.buttonRecessed = new desktop.Button(self.sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Recessed Bond', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
