@@ -6357,7 +6357,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		let sb = ['<div style="font-size:10px;">'];
 		let bg = this.sketcher.id + '_main_group';
 		sb.push(this.buttonLasso.getSource(bg));
-		sb.push(this.buttonErase.getSource(bg));
+		// sb.push(this.buttonErase.getSource(bg));
 		sb.push(this.buttonCenter.getSource());
 		if (this.sketcher.useServices) {
 			sb.push(this.buttonClean.getSource());
@@ -6393,7 +6393,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.setup = function() {
 		this.buttonLasso.setup();
-		this.buttonErase.setup(true);
+		// this.buttonErase.setup(true);
 		this.buttonCenter.setup();
 		if (this.sketcher.useServices) {
 			this.buttonClean.setup();
