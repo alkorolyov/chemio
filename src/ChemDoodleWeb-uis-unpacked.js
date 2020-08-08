@@ -1957,9 +1957,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.cursor = '';
 		this.defaultCursor = 'default';
 	};
-	// string POINTER_* ex. POINTER_LASSO, for custom imageDepot pointer
-	// or predefined cursor, ex 'default'
 	_.setCursor = function(cursor) {
+		// @param string POINTER_* ex. POINTER_LASSO, for custom imageDepot pointer
+		// or predefined cursor, ex 'default'
 		this.cursor = cursor;
 		let el = document.getElementById(this.sketcher.id);
 		if (this.cursor.includes('POINTER'))
@@ -3130,9 +3130,13 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		transformType = undefined;
 	};
 	_.innermousemove = function(e) {
-		// save mouse coordinates
 		if (!this.sketcher.lasso.isActive()) {
+			console.log(this.sketcher.hovering);
 			this.findHoveredObject(e, true, true, true);
+			if (this.sketcher.hovering && this.cursor != 'default')
+				this.setCursor('default');
+			else if (!this.sketcher.hovering && this.cursor != 'POINTER_LASSO')
+				this.setCursor('POINTER_LASSO');
 		} else if (!monitor.SHIFT) {
 			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
 			if (this.inDragBoundaries(e.p.x, e.p.y) && this.cursor != 'POINTER_DRAG') {
@@ -7249,10 +7253,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// keep checks to undefined here as these are booleans
 		this.isMobile = options.isMobile === undefined ? featureDetection.supports_touch() : options.isMobile;
 		this.useServices = options.useServices === undefined ? false : options.useServices;
-		this.requireStartingAtom = options.requireStartingAtom === undefined ? true : options.requireStartingAtom;
+		this.requireStartingAtom = options.requireStartingAtom === undefined ? false : options.requireStartingAtom;
 		this.includeToolbar = options.includeToolbar === undefined ? true : options.includeToolbar;
 		this.resizable = options.resizable === undefined ? false : options.resizable;
 		this.includeQuery = options.includeQuery === undefined ? false : options.includeQuery;
+		this.hideHelp = options.hideHelp === undefined ? true : options.includeQuery;
 		// save the original options object
 		this.originalOptions = options;
 		// toolbar manager needs the sketcher id to make it unique to this
