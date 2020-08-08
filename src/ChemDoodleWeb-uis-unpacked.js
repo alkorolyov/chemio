@@ -1955,7 +1955,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.setup = function(sketcher) {
 		this.sketcher = sketcher;
 		this.cursor = '';
+		this.defaultCursor = 'default';
 	};
+	// string POINTER_* ex. POINTER_LASSO, for custom imageDepot pointer
+	// or predefined cursor, ex 'default'
 	_.setCursor = function(cursor) {
 		this.cursor = cursor;
 		let el = document.getElementById(this.sketcher.id);
@@ -1963,7 +1966,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			// custom
 			el.style.cursor = imageDepot.getCursor(imageDepot[cursor]);
 		else
-			// default
+			// predefined
 			el.style.cursor = cursor;
 	};
 	_.clearHover = function() {
@@ -2123,6 +2126,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 
 	_.enter = function() {
+		this.setCursor(this.defaultCursor);
 		if (this.innerenter) {
 			this.innerenter();
 		}
@@ -2958,12 +2962,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	//let SCALE = 3;
 	let transformType = undefined;
 	let rotateBufferConst = 25;
-	let x, y;
 
 	states.LassoState = function(sketcher) {
 		this.setup(sketcher);
 		this.dontTranslateOnDrag = true;
 		this.paintRotate = false;
+		this.defaultCursor = 'POINTER_LASSO';
 	};
 	let _ = states.LassoState.prototype = new states._State();
 	_.inRotateBoundaries = function(x, y, rotateBuffer) {
@@ -2978,6 +2982,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.updateCursor = function() {
 		let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
+		let x = this.sketcher.lastMousePos.x;
+		let y = this.sketcher.lastMousePos.y;
 		if (this.inDragBoundaries(x, y))
 			this.setCursor('POINTER_DRAG');
 		else if (this.inRotateBoundaries(x, y, rotateBuffer)) {
@@ -2988,11 +2994,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		else
 			this.setCursor('POINTER_LASSO');
 	};
-	_.innerenter = function(e) {
-		this.setCursor('POINTER_LASSO');
-	};
-	_.innerexit = function() {
-		this.setCursor('default');
+	_.innerenter = function() {
+		this.updateCursor();
 	};
 	_.innerdrag = function(e) {
 		this.inDrag = true;
@@ -3128,8 +3131,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.innermousemove = function(e) {
 		// save mouse coordinates
-		x = e.p.x;
-		y = e.p.y;
 		if (!this.sketcher.lasso.isActive()) {
 			this.findHoveredObject(e, true, true, true);
 		} else if (!monitor.SHIFT) {
@@ -7003,8 +7004,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.empty();
 		}
 		this.points = [];
-		this.sketcher.stateManager.getCurrentState().clearHover();
-		this.sketcher.stateManager.getCurrentState().updateCursor();
+		this.sketcher.stateManager.STATE_LASSO.clearHover();
+		this.sketcher.stateManager.STATE_LASSO.updateCursor();
 		this.enableButtons();
 		this.sketcher.repaint();
 	};
@@ -7063,7 +7064,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.shapes = [];
 		this.bounds = undefined;
 		this.enableButtons();
-		this.sketcher.stateManager.getCurrentState().setCursor('POINTER_LASSO');
+		// if deselection caused by State change - change to new states default cursor
+		let cursor = this.sketcher.stateManager.getCurrentState().defaultCursor;
+		this.sketcher.stateManager.getCurrentState().setCursor(cursor);
 		this.sketcher.repaint();
 	};
 	_.draw = function(ctx, styles) {
