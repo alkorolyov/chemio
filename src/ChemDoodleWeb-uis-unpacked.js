@@ -2967,10 +2967,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	let _ = states.LassoState.prototype = new states._State();
 	_.inRotateBoundaries = function(x, y, rotateBuffer) {
+		if (!this.sketcher.lasso.isActive()) return false; // empty selection check
 		return (math.isBetween(x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer)
 		&& math.isBetween(y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer))
 	};
 	_.inDragBoundaries = function(x, y) {
+		if (!this.sketcher.lasso.isActive()) return false; // empty selection check
 		return (math.isBetween(x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX)
 			&& math.isBetween(y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
 	};
@@ -3154,7 +3156,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innerkeyup = function(e) {
-		if (!monitor.SHIFT && coords && this.sketcher.lasso.isActive())
+		if (!monitor.SHIFT && this.sketcher.lasso.isActive())
 			this.updateCursor();
 	};
 	_.innerdblclick = function(e) {
