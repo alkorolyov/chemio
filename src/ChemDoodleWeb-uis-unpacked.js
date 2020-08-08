@@ -2950,7 +2950,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	//let SCALE = 3;
 	let transformType = undefined;
 	let paintRotate = false;
-	let paintDrag = false;
 	let coords;
 
 	states.LassoState = function(sketcher) {
@@ -3105,30 +3104,23 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		transformType = undefined;
 	};
 	_.innermousemove = function(e) {
-		let rotate = false;
-		let drag = false;
 		if (!this.sketcher.lasso.isActive()) {
 			this.findHoveredObject(e, true, true, true);
 		} else if (!monitor.SHIFT) {
 			let rotateBuffer = 25 / this.sketcher.styles.scale;
-			if (this.inDragBoundaries(e.p.x, e.p.y))
-				drag = true;
-			else if (this.inRotateBoundaries(e.p.x, e.p.y, rotateBuffer))
-				rotate = true;
-			// cursor change check
-			if (rotate != paintRotate) {
-				paintRotate = rotate;
+			if (this.inDragBoundaries(e.p.x, e.p.y) && this.cursor != 'POINTER_DRAG') {
+				this.setCursor('POINTER_DRAG');
+				paintRotate = false;
+			}
+			else if (!(this.inDragBoundaries(e.p.x, e.p.y))
+				&& this.inRotateBoundaries(e.p.x, e.p.y, rotateBuffer) && this.cursor != 'POINTER_ROTATE') {
+				this.setCursor('POINTER_ROTATE');
+				paintRotate = true;
 				this.sketcher.repaint();
-				// console.log('rotate: ' + rotate);
-				// console.log('drag: ' + drag);
-				if (paintRotate)
-					this.setCursor('POINTER_ROTATE');
-				else if (drag) {
-					paintDrag = drag;
-					this.setCursor('POINTER_DRAG');
-				}
-				else
-					this.setCursor('POINTER_LASSO');
+			}
+			else if (!(this.inRotateBoundaries(e.p.x, e.p.y, rotateBuffer)) && this.cursor != 'POINTER_LASSO') {
+				this.setCursor('POINTER_LASSO');
+				paintRotate = false;
 			}
 		} else {
 			// shift + lasso
@@ -3138,7 +3130,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.innerkeydown = function(e) {
 		if (monitor.SHIFT && this.cursor != 'POINTER_LASSO') {
-			console.log('shift press');
 			this.setCursor('POINTER_LASSO');
 		}
 	};
@@ -3150,8 +3141,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			let rotateBuffer = 25 / this.sketcher.styles.scale;
 			if (this.inDragBoundaries(x, y))
 				this.setCursor('POINTER_DRAG');
-			else if (this.inRotateBoundaries(x, y, rotateBuffer))
+			else if (this.inRotateBoundaries(x, y, rotateBuffer)) {
 				this.setCursor('POINTER_ROTATE');
+				paintRotate = true;
+				this.sketcher.repaint();
+			}
 			else
 				this.setCursor('POINTER_LASSO');
 
@@ -6892,8 +6886,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.points = [];
 	};
 	tools.Lasso.MODE_LASSO = 'lasso';
-	tools.Lasso.MODE_LASSO_SHAPES = 'shapes';
-	tools.Lasso.MODE_RECTANGLE_MARQUEE = 'rectangle';
+	//tools.Lasso.MODE_LASSO_SHAPES = 'shapes';
+	//tools.Lasso.MODE_RECTANGLE_MARQUEE = 'rectangle';
 	let _ = tools.Lasso.prototype;
 	_.select = function(atoms, shapes) {
 		if (this.block) {
