@@ -58,7 +58,7 @@ ChemDoodle.uis.gui.imageDepot = (function (ext, undefined) {
 	// PNG pointers, image and coords for hotspot correction
 	d.POINTER_LASSO = ['iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAVklEQVQoz6WQuRHAQAgDV/Tfk0uTA258jxkcWBmzEh/8lbbKb6YVVTwNNrVEdBggegzxdUVr0FiyGKLpmNf5QNuSxuhSRrS+LzL75FQNM0fbSv0zOnwD5H4V0Q6i+NQAAAAASUVORK5CYII=', 3, 16];
 	d.POINTER_ROTATE = ['iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAQ0lEQVQoz2NgIBr8xy7MhF8aoRunAkY03YyETMBpFrIETiUEfUSCAiQlTIRUMmHRi+IjbP5GuIARV8D8xxdoRPsDCgC2xRb2xK4rcwAAAABJRU5ErkJggg==', 6, 6];
-	d.POINTER_GRAB = ['iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAYUlEQVQoz32QSQ7AMAgDx/z/z+6BRAUV6hOLM1iBLuM+iLawMVl1w7vg9rcLBrkUaZDquHFGQuXECVgYnSRsYDwB6Ib0eESgSPhmyQzHshsWCdT+YbWVb/m8rycWyk+G1AOPtyIPKl7P8AAAAABJRU5ErkJggg==', 8, 9];
+	d.POINTER_DRAG = ['iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAYUlEQVQoz32QSQ7AMAgDx/z/z+6BRAUV6hOLM1iBLuM+iLawMVl1w7vg9rcLBrkUaZDquHFGQuXECVgYnSRsYDwB6Ib0eESgSPhmyQzHshsWCdT+YbWVb/m8rycWyk+G1AOPtyIPKl7P8AAAAABJRU5ErkJggg==', 8, 9];
 
 	// SVG icons
 	{
@@ -2950,12 +2950,28 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	//let SCALE = 3;
 	let transformType = undefined;
 	let paintRotate = false;
+	let paintDrag = false;
+	let coords;
 
 	states.LassoState = function(sketcher) {
 		this.setup(sketcher);
 		this.dontTranslateOnDrag = true;
 	};
 	let _ = states.LassoState.prototype = new states._State();
+	_.cursor = 'POINTER_LASSO';
+	_.setCursor = function(cursor) {
+		this.cursor = cursor;
+		let el = document.getElementById(this.sketcher.id);
+		el.style.cursor = imageDepot.getCursor(imageDepot[cursor]);
+	};
+	_.inRotateBoundaries = function(x, y, rotateBuffer) {
+		return (math.isBetween(x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer)
+		&& math.isBetween(y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer))
+	};
+	_.inDragBoundaries = function(x, y) {
+		return (math.isBetween(x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX)
+			&& math.isBetween(y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
+	};
 	_.innerdrag = function(e) {
 		this.inDrag = true;
 		if (this.sketcher.lasso.isActive() && transformType) {
@@ -3089,27 +3105,56 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		transformType = undefined;
 	};
 	_.innermousemove = function(e) {
+		let rotate = false;
+		let drag = false;
 		if (!this.sketcher.lasso.isActive()) {
-			let includeMol = this.sketcher.lasso.mode !== tools.Lasso.MODE_LASSO_SHAPES;
-			this.findHoveredObject(e, includeMol, includeMol, true);
+			this.findHoveredObject(e, true, true, true);
 		} else if (!monitor.SHIFT) {
-			let p = false;
 			let rotateBuffer = 25 / this.sketcher.styles.scale;
-			if (!(math.isBetween(e.p.x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX) && math.isBetween(e.p.y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY)) && math.isBetween(e.p.x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer) && math.isBetween(e.p.y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer)) {
-				p = true;
-			}
-			if (p != paintRotate) {
-				paintRotate = p;
-				console.log(document.getElementById(this.sketcher.id));
-				console.log(this.sketcher.lasso.bounds);
-				let el = document.getElementById(this.sketcher.id);
+			if (this.inDragBoundaries(e.p.x, e.p.y))
+				drag = true;
+			else if (this.inRotateBoundaries(e.p.x, e.p.y, rotateBuffer))
+				rotate = true;
+			// cursor change check
+			if (rotate != paintRotate) {
+				paintRotate = rotate;
 				this.sketcher.repaint();
-				if (paintRotate) {
-					el.style.cursor = imageDepot.getCursor(imageDepot.POINTER_ROTATE);
-					console.log(imageDepot.getCursor(imageDepot.POINTER_ROTATE));
+				// console.log('rotate: ' + rotate);
+				// console.log('drag: ' + drag);
+				if (paintRotate)
+					this.setCursor('POINTER_ROTATE');
+				else if (drag) {
+					paintDrag = drag;
+					this.setCursor('POINTER_DRAG');
 				}
-				else el.style.cursor = 'default';
+				else
+					this.setCursor('POINTER_LASSO');
 			}
+		} else {
+			// shift + lasso
+			// save coords to restore cursor after shift released
+			coords = [e.p.x, e.p.y];
+		}
+	};
+	_.innerkeydown = function(e) {
+		if (monitor.SHIFT && this.cursor != 'POINTER_LASSO') {
+			console.log('shift press');
+			this.setCursor('POINTER_LASSO');
+		}
+	};
+	_.innerkeyup = function(e) {
+		if (!monitor.SHIFT && coords && this.sketcher.lasso.isActive()) {
+			// restore cursor based on coords
+			let x = coords[0];
+			let y = coords[1];
+			let rotateBuffer = 25 / this.sketcher.styles.scale;
+			if (this.inDragBoundaries(x, y))
+				this.setCursor('POINTER_DRAG');
+			else if (this.inRotateBoundaries(x, y, rotateBuffer))
+				this.setCursor('POINTER_ROTATE');
+			else
+				this.setCursor('POINTER_LASSO');
+
 		}
 	};
 	_.innerdblclick = function(e) {
@@ -3143,6 +3188,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			ctx.globalAlpha = 1;
 		}
 	};
+
 
 })(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.uis.tools, ChemDoodle.uis.gui.imageDepot, Math);
 
@@ -4506,7 +4552,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 })(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states);
 
-(function(states, q, undefined) {
+(function(states, q, imageDepot, undefined) {
 	'use strict';
 	states.StateManager = function(sketcher) {
 		this.STATE_NEW_BOND = new states.NewBondState(sketcher);
@@ -4533,6 +4579,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (nextState !== currentState) {
 				currentState.exit();
 				currentState = nextState;
+				this.setCursor(nextState);
 				currentState.enter();
 			}
 			if(sketcher.openTray && q('#'+sketcher.openTray.dummy.id+'_label').attr('aria-pressed')==='false'){
@@ -4540,12 +4587,19 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				sketcher.openTray.close();
 			}
 		};
+		this.setCursor = function(state) {
+			let el = document.getElementById(sketcher.id);
+			if (state === this.STATE_LASSO)
+				el.style.cursor = imageDepot.getCursor(imageDepot.POINTER_LASSO);
+			else
+				el.style.cursor = 'default';
+		}
 		this.getCurrentState = function() {
 			return currentState;
 		};
 	};
 
-})(ChemDoodle.uis.states, ChemDoodle.lib.jQuery);
+})(ChemDoodle.uis.states, ChemDoodle.lib.jQuery, ChemDoodle.uis.gui.imageDepot);
 
 
 (function(desktop, imageDepot, q, undefined) {
@@ -6376,6 +6430,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		sb.push(this.buttonLasso.getSource(bg));
 		// sb.push(this.buttonErase.getSource(bg));
 		sb.push(this.buttonCenter.getSource());
+		sb.push(this.flipSet.getSource());
 		if (this.sketcher.useServices) {
 			sb.push(this.buttonClean.getSource());
 		}
@@ -6415,7 +6470,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.useServices) {
 			this.buttonClean.setup();
 		}
-		// this.flipSet.setup();
+		this.flipSet.setup();
 		this.historySet.setup();
 		// 	this.copySet.setup();
 		// this.scaleSet.setup();
