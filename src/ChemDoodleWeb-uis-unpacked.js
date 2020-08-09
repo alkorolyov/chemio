@@ -1260,7 +1260,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (split.length > 1) {
 				this.sketcher.removeMolecule(mol);
 				for ( let i = 0, ii = split.length; i < ii; i++) {
-					this.sketcher.molecules.push(split[i]);
+					// dont' add single atom molecules
+					if (split[i].atoms.length != 1) {
+						this.sketcher.molecules.push(split[i]);
+					}
 				}
 			}
 		}
