@@ -2172,7 +2172,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	    if (this.innerrightmousedown) {
 			this.innerrightmousedown(e);
 		}
-        this.sketcher.stateManager.STATE_ERASE.handleDelete();
+        if (this.sketcher.hovering instanceof structures.Atom && this.sketcher.hovering.label != 'C') {
+			this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, 'C'));
+		} else {
+			this.sketcher.stateManager.STATE_ERASE.handleDelete();
+		}
 	};
 	_.mousemove = function(e) {
 		// lastMousePos is really only used for pasting
@@ -2345,11 +2349,14 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			}
 		} else if (e.which === 8 || e.which === 46) {
 			// delete or backspace
-			this.sketcher.stateManager.STATE_ERASE.handleDelete();
+			if (this.sketcher.hovering instanceof structures.Atom && this.sketcher.hovering.label != 'C') {
+				this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, 'C'));
+			} else {
+				this.sketcher.stateManager.STATE_ERASE.handleDelete();
+			}
 		} else if (e.which >= 48 && e.which <= 57) {
 			// digits
 			let number = e.which - 48;
-
 			if (number == 1) {
 				// 1 change state to NewBond
 				this.sketcher.toolbarManager.buttonSingle.getElement().focus();
