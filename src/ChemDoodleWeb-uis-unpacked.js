@@ -2946,7 +2946,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.innerdrag = function(e) {
 		this.inDrag = true;
-		if (this.sketcher.lasso.isActive() && transformType) {
+		if (this.sketcher.lasso.isActive() && transformType)  {
 			if (!this.sketcher.lastPoint) {
 				// this prevents the structure from being rotated and
 				// translated at the same time while a gesture is occurring,
@@ -3102,7 +3102,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innerkeydown = function(e) {
-		if (monitor.SHIFT && this.cursor != 'POINTER_LASSO') {
+		if (monitor.SHIFT && this.cursor != 'POINTER_LASSO' && !this.sketcher.hovering) {
 			this.setCursor('POINTER_LASSO');
 		}
 	};
