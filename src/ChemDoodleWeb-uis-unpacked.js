@@ -1339,6 +1339,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (orderAfter) {
 			this.orderAfter = orderAfter;
 			this.stereoAfter = stereoAfter;
+		} else if (b.stereo !== Bond.STEREO_NONE) {
+			this.orderAfter = 1;
+			this.stereoAfter = Bond.STEREO_NONE;
 		} else {
 			// make sure to floor so half bond types increment correctly
 			this.orderAfter = m.floor(b.bondOrder + 1);
@@ -2347,6 +2350,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			// digits
 			if (e.which == 49) {
 				// 1, focus on single bond draw
+				//this.sketcher.toolbarManager.buttonSingle.select();
 				this.sketcher.toolbarManager.buttonSingle.getElement().focus();
 				this.sketcher.toolbarManager.buttonSingle.func();
 			}
@@ -2450,7 +2454,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 								bonds.push(new structures.Bond(ring[ring.length - 1], end));
 							}
 						}
-					} else if (number > 0 && number < 4 && this.sketcher.hovering.bondOrder !== number) {
+					} else if (number > 0 && number < 4) {
 						this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, number, structures.Bond.STEREO_NONE));
 					} else if (number === 7 || number === 8) {
 						let stereo = structures.Bond.STEREO_RECESSED;
@@ -2466,6 +2470,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			}
 		} else if (e.which >= 65 && e.which <= 90) {
 			// alphabet
+
+
 			if (this.sketcher.hovering) {
 				if (this.sketcher.hovering instanceof structures.Atom) {
 					let check = String.fromCharCode(e.which);
@@ -2506,13 +2512,19 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					} else if (e.which === 87) {
 						// w
 						console.log('w');
-						this.sketcher.toolbarManager.buttonProtruding.getElement().focus();
-						this.sketcher.toolbarManager.buttonProtruding.getElement().click();
-						this.sketcher.toolbarManager.buttonProtruding.func();
+						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_PROTRUDING)
+							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_PROTRUDING));
+						else
+							this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
 					} else if (e.which === 72) {
 						// h
-						this.sketcher.toolbarManager.buttonRecessed.func();
+						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_RECESSED)
+							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_RECESSED));
+						else
+							this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
+
 					}
+
 				}
 			}
 		}
@@ -6674,13 +6686,13 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 			if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 		});
-		this.buttonRecessed = new desktop.Button(self.sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Recessed Bond [H]', function() {
+		this.buttonRecessed = new desktop.Button(self.sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Hashed Bond [H]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_RECESSED;
 			if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 		});
-		this.buttonProtruding = new desktop.Button(self.sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Protruding Bond [W]', function() {
+		this.buttonProtruding = new desktop.Button(self.sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Wedged Bond [W]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_PROTRUDING;
