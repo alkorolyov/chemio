@@ -2503,6 +2503,15 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					if (e.which === 70) {
 						// f
 						this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
+					} else if (e.which === 87) {
+						// w
+						console.log('w');
+						this.sketcher.toolbarManager.buttonProtruding.getElement().focus();
+						this.sketcher.toolbarManager.buttonProtruding.getElement().click();
+						this.sketcher.toolbarManager.buttonProtruding.func();
+					} else if (e.which === 72) {
+						// h
+						this.sketcher.toolbarManager.buttonRecessed.func();
 					}
 				}
 			}
@@ -3131,7 +3140,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.innermousemove = function(e) {
 		if (!this.sketcher.lasso.isActive()) {
-			console.log(this.sketcher.hovering);
 			this.findHoveredObject(e, true, true, true);
 			if (this.sketcher.hovering && this.cursor != 'default')
 				this.setCursor('default');
@@ -6256,7 +6264,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.sketcher = sketcher;
 
 		// lasso
-		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso Tool (Space)', function() {
+		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso: [Space]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_LASSO);
 			sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
 			if (!sketcher.lasso.isActive()) {
@@ -6265,12 +6273,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		});
 
 		// open
-		this.buttonOpen = new desktop.Button(sketcher.id + '_button_open', imageDepot.OPEN, 'Open (Ctrl + O)', function() {
+		this.buttonOpen = new desktop.Button(sketcher.id + '_button_open', imageDepot.OPEN, 'Open: [Ctrl + O]', function() {
 			sketcher.dialogManager.openPopup.show();
 		});
 
         // save
-		this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save (Ctrl + S)', function() {
+		this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save: [Ctrl + S]', function() {
 			if (sketcher.useServices) {
 				sketcher.dialogManager.saveDialog.clear();
 			} else if (sketcher.lasso.isActive()) {
@@ -6338,12 +6346,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// this.buttonMove.toggle = true;
 
 		// erase
-		this.buttonErase = new desktop.Button(sketcher.id + '_button_erase', imageDepot.ERASE, 'Erase (Right Click)', function() {
+		this.buttonErase = new desktop.Button(sketcher.id + '_button_erase', imageDepot.ERASE, 'Delete: [Right Click]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_ERASE);
 		});
 		this.buttonErase.toggle = true;
 		// center
-		this.buttonCenter = new desktop.Button(sketcher.id + '_button_center', imageDepot.CENTER, 'Center (Space)', function() {
+		this.buttonCenter = new desktop.Button(sketcher.id + '_button_center', imageDepot.CENTER, 'Center: [Space]', function() {
 			let dif = new structures.Point(sketcher.width / 2, sketcher.height / 2);
 			let bounds = sketcher.getContentBounds();
 			dif.x -= (bounds.maxX + bounds.minX) / 2;
@@ -6405,7 +6413,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.makeRingSet(this);
 
 		// chain
-		this.buttonChain = new desktop.Button(sketcher.id + '_button_chain', imageDepot.CHAIN_CARBON, 'Add Carbon Chain', function() {
+		this.buttonChain = new desktop.Button(sketcher.id + '_button_chain', imageDepot.CHAIN_CARBON, 'Chain: [Shift+click]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_CHAIN);
 		});
 		this.buttonChain.toggle = true;
@@ -6413,8 +6421,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// attribute set
 		this.makeAttributeSet(this);
 
-		// shape set
-		this.makeShapeSet(this);
+		// arrows
+		this.buttonArrowSynthetic = new desktop.Button(sketcher.id + '_button_shape_arrow_synthetic', imageDepot.ARROW_SYNTHETIC, 'Arrow: [Ctrl+click]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_SHAPE);
+			sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_SYNTHETIC;
+		});
 
 		if(this.makeOtherButtons){
 			this.makeOtherButtons(this);
@@ -6424,7 +6435,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.write = function() {
 		let sb = ['<div style="font-size:10px;">'];
 		let bg = this.sketcher.id + '_main_group';
-		sb.push(this.buttonLasso.getSource(bg));
+		sb.push(this.buttonLasso.getSource());
 		// sb.push(this.buttonErase.getSource(bg));
 		sb.push(this.buttonCenter.getSource());
 		sb.push(this.flipSet.getSource());
@@ -6447,11 +6458,19 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.includeQuery) {
 			sb.push(this.buttonQuery.getSource(bg));
 		}
-		sb.push(this.attributeSet.getSource(bg));
+		sb.push(this.attributeSet.getSource());
+
+		// bonds
 		sb.push(this.bondSet.getSource(bg));
+		// sb.push(this.buttonSingle.getSource());
+		// sb.push(this.buttonRecessed.getSource());
+		// sb.push(this.buttonProtruding.getSource());
+
+		//rings
 		sb.push(this.ringSet.getSource(bg));
+
 		sb.push(this.buttonChain.getSource(bg));
-		sb.push(this.shapeSet.getSource(bg));
+		sb.push(this.buttonArrowSynthetic.getSource());
 		sb.push('</div>');
 		if (document.getElementById(this.sketcher.id)) {
 			let canvas = q('#' + this.sketcher.id);
@@ -6489,8 +6508,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.bondSet.setup();
 		this.ringSet.setup();
 		this.buttonChain.setup(true);
-		this.shapeSet.setup();
-		this.buttonSingle.getElement().click();
+		this.buttonArrowSynthetic.setup();
 
 		this.buttonUndo.disable();
 		this.buttonRedo.disable();
@@ -6553,10 +6571,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			}
 			self.sketcher.historyManager.pushUndo(new actions.FlipAction(ps, bonds, horizontal));
 		}
-		this.buttonFlipVert = new desktop.Button(self.sketcher.id + '_button_flip_hor', imageDepot.FLIP_HOR, 'Flip Horizontally', function() {
+		this.buttonFlipVert = new desktop.Button(self.sketcher.id + '_button_flip_hor', imageDepot.FLIP_HOR, 'Flip Horizontally [F]', function() {
 			action(true);
 		});
-		this.buttonFlipHor = new desktop.Button(self.sketcher.id + '_button_flip_ver', imageDepot.FLIP_VER, 'Flip Vertically', function() {
+		this.buttonFlipHor = new desktop.Button(self.sketcher.id + '_button_flip_ver', imageDepot.FLIP_VER, 'Flip Vertically [Ctrl+F]', function() {
 			action(false);
 		});
 
@@ -6650,230 +6668,232 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.labelSet.dropDown.buttonSet.buttons.push(this.buttonLabelPT);
 	};
 	_.makeBondSet = function(self) {
-		this.buttonSingle = new desktop.Button(self.sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond (1)', function() {
+		this.buttonSingle = new desktop.Button(self.sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond [1]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 			if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 		});
-		this.buttonRecessed = new desktop.Button(self.sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Recessed Bond', function() {
+		this.buttonRecessed = new desktop.Button(self.sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Recessed Bond [H]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_RECESSED;
+			if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 		});
-		this.buttonProtruding = new desktop.Button(self.sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Protruding Bond', function() {
+		this.buttonProtruding = new desktop.Button(self.sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Protruding Bond [W]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_PROTRUDING;
+			if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 		});
 		this.buttonDouble = new desktop.Button(self.sketcher.id + '_button_bond_double', imageDepot.BOND_DOUBLE, 'Double Bond', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 2;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 		});
-		this.buttonZero = new desktop.Button(self.sketcher.id + '_button_bond_zero', imageDepot.BOND_ZERO, 'Zero Bond (Ionic/Hydrogen)', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
-			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 0;
-			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
-		});
-		this.buttonHalf = new desktop.Button(self.sketcher.id + '_button_bond_half', imageDepot.BOND_HALF, 'Half Bond', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
-			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 0.5;
-			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
-		});
-		this.buttonWavy = new desktop.Button(self.sketcher.id + '_button_bond_wavy', imageDepot.BOND_WAVY, 'Wavy Bond', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
-			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_AMBIGUOUS;
-		});
-		this.buttonResonance = new desktop.Button(self.sketcher.id + '_button_bond_resonance', imageDepot.BOND_RESONANCE, 'Resonance Bond', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
-			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1.5;
-			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
-		});
-		this.buttonDoubleAmbiguous = new desktop.Button(self.sketcher.id + '_button_bond_ambiguous_double', imageDepot.BOND_DOUBLE_AMBIGUOUS, 'Ambiguous Double Bond', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
-			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 2;
-			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_AMBIGUOUS;
-		});
+		// this.buttonZero = new desktop.Button(self.sketcher.id + '_button_bond_zero', imageDepot.BOND_ZERO, 'Zero Bond (Ionic/Hydrogen)', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 0;
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
+		// });
+		// this.buttonHalf = new desktop.Button(self.sketcher.id + '_button_bond_half', imageDepot.BOND_HALF, 'Half Bond', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 0.5;
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
+		// });
+		// this.buttonWavy = new desktop.Button(self.sketcher.id + '_button_bond_wavy', imageDepot.BOND_WAVY, 'Wavy Bond', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_AMBIGUOUS;
+		// });
+		// this.buttonResonance = new desktop.Button(self.sketcher.id + '_button_bond_resonance', imageDepot.BOND_RESONANCE, 'Resonance Bond', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1.5;
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
+		// });
+		// this.buttonDoubleAmbiguous = new desktop.Button(self.sketcher.id + '_button_bond_ambiguous_double', imageDepot.BOND_DOUBLE_AMBIGUOUS, 'Ambiguous Double Bond', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 2;
+		// 	self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_AMBIGUOUS;
+		// });
 		this.buttonTriple = new desktop.Button(self.sketcher.id + '_button_bond_triple', imageDepot.BOND_TRIPLE, 'Triple Bond', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 			self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 3;
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 		});
 
-		this.buttonBond = new desktop.DummyButton(self.sketcher.id + '_button_bond', 'Other Bond');
+		// this.buttonBond = new desktop.DummyButton(self.sketcher.id + '_button_bond', 'Other Bond');
 		this.bondSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_bond');
+		this.bondSet.toggle = false;
 		this.bondSet.buttons.push(this.buttonSingle);
-		this.bondSet.buttons.push(this.buttonRecessed);
 		this.bondSet.buttons.push(this.buttonProtruding);
-		this.bondSet.buttons.push(this.buttonDouble);
-		this.bondSet.buttons.push(this.buttonBond);
-		this.bondSet.addDropDown('More Bonds');
-		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonZero);
-		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonHalf);
-		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonWavy);
-		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonResonance);
-		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonDoubleAmbiguous);
-		this.bondSet.dropDown.buttonSet.buttons.push(this.buttonTriple);
-		this.bondSet.dropDown.defaultButton = this.buttonTriple;
+		this.bondSet.buttons.push(this.buttonRecessed);
+
+		// this.bondSet.buttons.push(this.buttonDouble);
+		// this.bondSet.buttons.push(this.buttonBond);
+		// this.bondSet.addDropDown('More Bonds');
+		// this.bondSet.dropDown.buttonSet.buttons.push(this.buttonZero);
+		// this.bondSet.dropDown.buttonSet.buttons.push(this.buttonHalf);
+		// this.bondSet.dropDown.buttonSet.buttons.push(this.buttonWavy);
+		// this.bondSet.dropDown.buttonSet.buttons.push(this.buttonResonance);
+		// this.bondSet.dropDown.buttonSet.buttons.push(this.buttonDoubleAmbiguous);
+		// this.bondSet.dropDown.buttonSet.buttons.push(this.buttonTriple);
+		// this.bondSet.dropDown.defaultButton = this.buttonTriple;
 	};
 	_.makeRingSet = function(self) {
-		this.buttonCyclohexane = new desktop.Button(self.sketcher.id + '_button_ring_cyclohexane', imageDepot.CYCLOHEXANE, 'Cyclohexane Ring', function() {
+		this.buttonCyclohexane = new desktop.Button(self.sketcher.id + '_button_ring_cyclohexane', imageDepot.CYCLOHEXANE, 'Cyclohexane: [6]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 6;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
-		this.buttonBenzene = new desktop.Button(self.sketcher.id + '_button_ring_benzene', imageDepot.BENZENE, 'Benzene Ring', function() {
+		this.buttonBenzene = new desktop.Button(self.sketcher.id + '_button_ring_benzene', imageDepot.BENZENE, 'Benzene: [V]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 6;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = true;
 		});
-		this.buttonCyclopropane = new desktop.Button(self.sketcher.id + '_button_ring_cyclopropane', imageDepot.CYCLOPROPANE, 'Cyclopropane Ring', function() {
+		this.buttonCyclopropane = new desktop.Button(self.sketcher.id + '_button_ring_cyclopropane', imageDepot.CYCLOPROPANE, 'Cyclopropane: [Shift+3]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 3;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
-		this.buttonCyclobutane = new desktop.Button(self.sketcher.id + '_button_ring_cyclobutane', imageDepot.CYCLOBUTANE, 'Cyclobutane Ring', function() {
+		this.buttonCyclobutane = new desktop.Button(self.sketcher.id + '_button_ring_cyclobutane', imageDepot.CYCLOBUTANE, 'Cyclobutane: [4]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 4;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
-		this.buttonCyclopentane = new desktop.Button(self.sketcher.id + '_button_ring_cyclopentane', imageDepot.CYCLOPENTANE, 'Cyclopentane Ring', function() {
+		this.buttonCyclopentane = new desktop.Button(self.sketcher.id + '_button_ring_cyclopentane', imageDepot.CYCLOPENTANE, 'Cyclopentane: [5]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 5;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
-		this.buttonCycloheptane = new desktop.Button(self.sketcher.id + '_button_ring_cycloheptane', imageDepot.CYCLOHEPTANE, 'Cycloheptane Ring', function() {
+		this.buttonCycloheptane = new desktop.Button(self.sketcher.id + '_button_ring_cycloheptane', imageDepot.CYCLOHEPTANE, 'Cycloheptane: [6]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 7;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
-		this.buttonCyclooctane = new desktop.Button(self.sketcher.id + '_button_ring_cyclooctane', imageDepot.CYCLOOCTANE, 'Cyclooctane Ring', function() {
+		this.buttonCyclooctane = new desktop.Button(self.sketcher.id + '_button_ring_cyclooctane', imageDepot.CYCLOOCTANE, 'Cyclooctane: [7]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 8;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
-		this.buttonRingArbitrary = new desktop.Button(self.sketcher.id + '_button_ring_arbitrary', imageDepot.RING_ARBITRARY, 'Arbitrary Ring Size Tool', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
-			self.sketcher.stateManager.STATE_NEW_RING.numSides = -1;
-			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
-		});
+		// this.buttonRingArbitrary = new desktop.Button(self.sketcher.id + '_button_ring_arbitrary', imageDepot.RING_ARBITRARY, 'Arbitrary Ring Size Tool', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
+		// 	self.sketcher.stateManager.STATE_NEW_RING.numSides = -1;
+		// 	self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		// });
 
-		this.buttonRing = new desktop.DummyButton(self.sketcher.id + '_button_ring', 'Other Ring');
+		// this.buttonRing = new desktop.DummyButton(self.sketcher.id + '_button_ring', 'Other Ring');
 		this.ringSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_ring');
-		this.ringSet.buttons.push(this.buttonCyclohexane);
+		this.ringSet.toggle = false;
 		this.ringSet.buttons.push(this.buttonBenzene);
-		this.ringSet.buttons.push(this.buttonRing);
-		this.ringSet.addDropDown('More Rings');
-		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclopropane);
-		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclobutane);
-		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclopentane);
-		this.ringSet.dropDown.defaultButton = this.buttonCyclopentane;
-		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCycloheptane);
-		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonCyclooctane);
-		this.ringSet.dropDown.buttonSet.buttons.push(this.buttonRingArbitrary);
+		this.ringSet.buttons.push(this.buttonCyclohexane);
+		// this.ringSet.buttons.push(this.buttonRing);
+		// this.ringSet.addDropDown('More Rings');
+		this.ringSet.buttons.push(this.buttonCyclopropane);
+		this.ringSet.buttons.push(this.buttonCyclobutane);
+		this.ringSet.buttons.push(this.buttonCyclopentane);
+		this.ringSet.buttons.push(this.buttonCycloheptane);
+		this.ringSet.buttons.push(this.buttonCyclooctane);
+		// this.ringSet.buttons.push(this.buttonRingArbitrary);
 	};
 	_.makeAttributeSet = function(self) {
-		this.buttonChargePlus = new desktop.Button(self.sketcher.id + '_button_attribute_charge_increment', imageDepot.INCREASE_CHARGE, 'Increase Charge', function() {
+		this.buttonChargePlus = new desktop.Button(self.sketcher.id + '_button_attribute_charge_increment', imageDepot.INCREASE_CHARGE, 'Increase Charge [+]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_CHARGE);
 			self.sketcher.stateManager.STATE_CHARGE.delta = 1;
 		});
-		this.buttonChargeMinus = new desktop.Button(self.sketcher.id + '_button_attribute_charge_decrement', imageDepot.DECREASE_CHARGE, 'Decrease Charge', function() {
+		this.buttonChargeMinus = new desktop.Button(self.sketcher.id + '_button_attribute_charge_decrement', imageDepot.DECREASE_CHARGE, 'Decrease Charge [=]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_CHARGE);
 			self.sketcher.stateManager.STATE_CHARGE.delta = -1;
 		});
-		this.buttonPairPlus = new desktop.Button(self.sketcher.id + '_button_attribute_lonePair_increment', imageDepot.ADD_LONE_PAIR, 'Add Lone Pair', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LONE_PAIR);
-			self.sketcher.stateManager.STATE_LONE_PAIR.delta = 1;
-		});
-		this.buttonPairMinus = new desktop.Button(self.sketcher.id + '_button_attribute_lonePair_decrement', imageDepot.REMOVE_LONE_PAIR, 'Remove Lone Pair', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LONE_PAIR);
-			self.sketcher.stateManager.STATE_LONE_PAIR.delta = -1;
-		});
-		this.buttonRadicalPlus = new desktop.Button(self.sketcher.id + '_button_attribute_radical_increment', imageDepot.ADD_RADICAL, 'Add Radical', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_RADICAL);
-			self.sketcher.stateManager.STATE_RADICAL.delta = 1;
-		});
-		this.buttonRadicalMinus = new desktop.Button(self.sketcher.id + '_button_attribute_radical_decrement', imageDepot.REMOVE_RADICAL, 'Remove Radical', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_RADICAL);
-			self.sketcher.stateManager.STATE_RADICAL.delta = -1;
-		});
+		// this.buttonPairPlus = new desktop.Button(self.sketcher.id + '_button_attribute_lonePair_increment', imageDepot.ADD_LONE_PAIR, 'Add Lone Pair', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LONE_PAIR);
+		// 	self.sketcher.stateManager.STATE_LONE_PAIR.delta = 1;
+		// });
+		// this.buttonPairMinus = new desktop.Button(self.sketcher.id + '_button_attribute_lonePair_decrement', imageDepot.REMOVE_LONE_PAIR, 'Remove Lone Pair', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_LONE_PAIR);
+		// 	self.sketcher.stateManager.STATE_LONE_PAIR.delta = -1;
+		// });
+		// this.buttonRadicalPlus = new desktop.Button(self.sketcher.id + '_button_attribute_radical_increment', imageDepot.ADD_RADICAL, 'Add Radical', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_RADICAL);
+		// 	self.sketcher.stateManager.STATE_RADICAL.delta = 1;
+		// });
+		// this.buttonRadicalMinus = new desktop.Button(self.sketcher.id + '_button_attribute_radical_decrement', imageDepot.REMOVE_RADICAL, 'Remove Radical', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_RADICAL);
+		// 	self.sketcher.stateManager.STATE_RADICAL.delta = -1;
+		// });
 
-		this.buttonAttribute = new desktop.DummyButton(self.sketcher.id + '_button_attribute', 'Attributes');
 		this.attributeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_attribute');
-		this.attributeSet.buttons.push(this.buttonAttribute);
-		this.attributeSet.addDropDown('More Attributes');
-		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonChargePlus);
-		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonChargeMinus);
-		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairPlus);
-		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairMinus);
-		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalPlus);
-		this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalMinus);
+		this.attributeSet.toggle = false;
+		this.attributeSet.buttons.push(this.buttonChargePlus);
+		this.attributeSet.buttons.push(this.buttonChargeMinus);
+		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairPlus);
+		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairMinus);
+		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalPlus);
+		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalMinus);
 	};
 	_.makeShapeSet = function(self) {
-		this.buttonArrowSynthetic = new desktop.Button(self.sketcher.id + '_button_shape_arrow_synthetic', imageDepot.ARROW_SYNTHETIC, 'Synthetic Arrow', function() {
+		this.buttonArrowSynthetic = new desktop.Button(self.sketcher.id + '_button_shape_arrow_synthetic', imageDepot.ARROW_SYNTHETIC, 'Arrow: [Ctrl+click]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
 			self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_SYNTHETIC;
 		});
-		this.buttonArrowRetrosynthetic = new desktop.Button(self.sketcher.id + '_button_shape_arrow_retrosynthetic', imageDepot.ARROW_RETROSYNTHETIC, 'Retrosynthetic Arrow', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
-			self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_RETROSYNTHETIC;
-		});
-		this.buttonArrowResonance = new desktop.Button(self.sketcher.id + '_button_shape_arrow_resonance', imageDepot.ARROW_RESONANCE, 'Resonance Arrow', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
-			self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_RESONANCE;
-		});
-		this.buttonArrowEquilibrum = new desktop.Button(self.sketcher.id + '_button_shape_arrow_equilibrium', imageDepot.ARROW_EQUILIBRIUM, 'Equilibrium Arrow', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
-			self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_EQUILIBRIUM;
-		});
-		this.buttonReactionMapping = new desktop.Button(self.sketcher.id + '_button_reaction_mapping', imageDepot.ATOM_REACTION_MAP, 'Reaction Mapping', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
-			self.sketcher.stateManager.STATE_PUSHER.numElectron = -10;
-		});
-		this.buttonPusher1 = new desktop.Button(self.sketcher.id + '_button_shape_pusher_1', imageDepot.PUSHER_SINGLE, 'Single Electron Pusher', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
-			self.sketcher.stateManager.STATE_PUSHER.numElectron = 1;
-		});
-		this.buttonPusher2 = new desktop.Button(self.sketcher.id + '_button_shape_pusher_2', imageDepot.PUSHER_DOUBLE, 'Electron Pair Pusher', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
-			self.sketcher.stateManager.STATE_PUSHER.numElectron = 2;
-		});
-		this.buttonPusherBond = new desktop.Button(self.sketcher.id + '_button_shape_pusher_bond_forming', imageDepot.PUSHER_BOND_FORMING, 'Bond Forming Pusher', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
-			self.sketcher.stateManager.STATE_PUSHER.numElectron = -1;
-		});
-		this.buttonReactionMapping = new desktop.Button(self.sketcher.id + '_button_reaction_mapping', imageDepot.ATOM_REACTION_MAP, 'Reaction Mapping', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
-			self.sketcher.stateManager.STATE_PUSHER.numElectron = -10;
-		});
-		this.buttonBracket = new desktop.Button(self.sketcher.id + '_button_shape_charge_bracket', imageDepot.BRACKET_CHARGE, 'Bracket', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
-			self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.BRACKET;
-			self.sketcher.repaint();
-		});
-		this.buttonDynamicBracket = new desktop.Button(self.sketcher.id + '_button_bracket_dynamic', imageDepot.BRACKET_DYNAMIC, 'Repeating Group', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_DYNAMIC_BRACKET);
-		});
-		this.buttonVAP = new desktop.Button(self.sketcher.id + '_button_vap', imageDepot.VARIABLE_ATTACHMENT_POINTS, 'Variable Attachment Points', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_VAP);
-		});
-		this.buttonShape = new desktop.DummyButton(self.sketcher.id + '_button_shape', 'Shapes');
-		this.shapeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_shape');
-		this.shapeSet.buttons.push(this.buttonShape);
-		this.shapeSet.addDropDown('More Shapes');
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowSynthetic);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowResonance);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowEquilibrum);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher1);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher2);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusherBond);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonReactionMapping);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonBracket);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonDynamicBracket);
-		this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonVAP);
+		// this.buttonArrowRetrosynthetic = new desktop.Button(self.sketcher.id + '_button_shape_arrow_retrosynthetic', imageDepot.ARROW_RETROSYNTHETIC, 'Retrosynthetic Arrow', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
+		// 	self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_RETROSYNTHETIC;
+		// });
+		// this.buttonArrowResonance = new desktop.Button(self.sketcher.id + '_button_shape_arrow_resonance', imageDepot.ARROW_RESONANCE, 'Resonance Arrow', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
+		// 	self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_RESONANCE;
+		// });
+		// this.buttonArrowEquilibrum = new desktop.Button(self.sketcher.id + '_button_shape_arrow_equilibrium', imageDepot.ARROW_EQUILIBRIUM, 'Equilibrium Arrow', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
+		// 	self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.ARROW_EQUILIBRIUM;
+		// });
+		// this.buttonReactionMapping = new desktop.Button(self.sketcher.id + '_button_reaction_mapping', imageDepot.ATOM_REACTION_MAP, 'Reaction Mapping', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
+		// 	self.sketcher.stateManager.STATE_PUSHER.numElectron = -10;
+		// });
+		// this.buttonPusher1 = new desktop.Button(self.sketcher.id + '_button_shape_pusher_1', imageDepot.PUSHER_SINGLE, 'Single Electron Pusher', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
+		// 	self.sketcher.stateManager.STATE_PUSHER.numElectron = 1;
+		// });
+		// this.buttonPusher2 = new desktop.Button(self.sketcher.id + '_button_shape_pusher_2', imageDepot.PUSHER_DOUBLE, 'Electron Pair Pusher', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
+		// 	self.sketcher.stateManager.STATE_PUSHER.numElectron = 2;
+		// });
+		// this.buttonPusherBond = new desktop.Button(self.sketcher.id + '_button_shape_pusher_bond_forming', imageDepot.PUSHER_BOND_FORMING, 'Bond Forming Pusher', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
+		// 	self.sketcher.stateManager.STATE_PUSHER.numElectron = -1;
+		// });
+		// this.buttonReactionMapping = new desktop.Button(self.sketcher.id + '_button_reaction_mapping', imageDepot.ATOM_REACTION_MAP, 'Reaction Mapping', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_PUSHER);
+		// 	self.sketcher.stateManager.STATE_PUSHER.numElectron = -10;
+		// });
+		// this.buttonBracket = new desktop.Button(self.sketcher.id + '_button_shape_charge_bracket', imageDepot.BRACKET_CHARGE, 'Bracket', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_SHAPE);
+		// 	self.sketcher.stateManager.STATE_SHAPE.shapeType = states.ShapeState.BRACKET;
+		// 	self.sketcher.repaint();
+		// });
+		// this.buttonDynamicBracket = new desktop.Button(self.sketcher.id + '_button_bracket_dynamic', imageDepot.BRACKET_DYNAMIC, 'Repeating Group', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_DYNAMIC_BRACKET);
+		// });
+		// this.buttonVAP = new desktop.Button(self.sketcher.id + '_button_vap', imageDepot.VARIABLE_ATTACHMENT_POINTS, 'Variable Attachment Points', function() {
+		// 	self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_VAP);
+		// });
+		// this.buttonShape = new desktop.DummyButton(self.sketcher.id + '_button_shape', 'Shapes');
+		// this.shapeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_shape');
+		// this.shapeSet.buttons.push(this.buttonShape);
+		// this.shapeSet.addDropDown('More Shapes');
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowSynthetic);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowRetrosynthetic);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowResonance);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonArrowEquilibrum);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher1);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusher2);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonPusherBond);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonReactionMapping);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonBracket);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonDynamicBracket);
+		// this.shapeSet.dropDown.buttonSet.buttons.push(this.buttonVAP);
 	};
 
 })(ChemDoodle, ChemDoodle.iChemLabs, ChemDoodle.io, ChemDoodle.structures, ChemDoodle.uis.actions, ChemDoodle.uis.gui, ChemDoodle.uis.gui.imageDepot, ChemDoodle.uis.gui.desktop, ChemDoodle.uis.tools, ChemDoodle.uis.states, ChemDoodle.lib.jQuery, document);
