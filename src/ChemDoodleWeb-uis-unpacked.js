@@ -2172,11 +2172,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	    if (this.innerrightmousedown) {
 			this.innerrightmousedown(e);
 		}
-        if (this.sketcher.hovering instanceof structures.Atom && this.sketcher.hovering.label != 'C') {
-			this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, 'C'));
-		} else {
-			this.sketcher.stateManager.STATE_ERASE.handleDelete();
-		}
+		this.sketcher.stateManager.STATE_ERASE.handleDelete();
 	};
 	_.mousemove = function(e) {
 		// lastMousePos is really only used for pasting
@@ -2349,11 +2345,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			}
 		} else if (e.which === 8 || e.which === 46) {
 			// delete or backspace
-			if (this.sketcher.hovering instanceof structures.Atom && this.sketcher.hovering.label != 'C') {
-				this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, 'C'));
-			} else {
-				this.sketcher.stateManager.STATE_ERASE.handleDelete();
-			}
+			this.sketcher.stateManager.STATE_ERASE.handleDelete();
 		} else if (e.which >= 48 && e.which <= 57) {
 			// digits
 			let number = e.which - 48;
@@ -2713,8 +2705,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.sketcher.lasso.empty();
 		} else if (this.sketcher.hovering) {
 			if (this.sketcher.hovering instanceof structures.Atom) {
-				let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
-				action = new actions.DeleteAction(this.sketcher, mol.atoms[0], [ this.sketcher.hovering ], mol.getBonds(this.sketcher.hovering));
+				if (this.sketcher.hovering.label != 'C') {
+					this.sketcher.historyManager.pushUndo(new actions.ChangeLabelAction(this.sketcher.hovering, 'C'));
+				} else {
+					let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
+					action = new actions.DeleteAction(this.sketcher, mol.atoms[0], [ this.sketcher.hovering ], mol.getBonds(this.sketcher.hovering));
+				}
 			} else if (this.sketcher.hovering instanceof structures.Bond) {
 				action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, undefined, [ this.sketcher.hovering ]);
 			} else if (this.sketcher.hovering instanceof d2._Shape) {
