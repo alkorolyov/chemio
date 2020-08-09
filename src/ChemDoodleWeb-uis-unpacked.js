@@ -2916,18 +2916,24 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			&& math.isBetween(y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
 	};
 	_.updateCursor = function() {
-		let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
-		let x = this.sketcher.lastMousePos.x;
-		let y = this.sketcher.lastMousePos.y;
-		if (this.inDragBoundaries(x, y))
-			this.setCursor('POINTER_DRAG');
-		else if (this.inRotateBoundaries(x, y, rotateBuffer)) {
-			this.setCursor('POINTER_ROTATE');
-			this.paintRotate = true;
-			this.sketcher.repaint();
-		}
-		else
+		if (this.sketcher.lastMousePos) {
+			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
+			let x = this.sketcher.lastMousePos.x;
+			let y = this.sketcher.lastMousePos.y;
+			if (this.inDragBoundaries(x, y)) {
+				this.setCursor('POINTER_DRAG');
+			}
+			else if (this.inRotateBoundaries(x, y, rotateBuffer)) {
+				this.setCursor('POINTER_ROTATE');
+				this.paintRotate = true;
+				this.sketcher.repaint();
+			}
+			else {
+				this.setCursor('POINTER_LASSO');
+			}
+		} else {
 			this.setCursor('POINTER_LASSO');
+		}
 	};
 	_.innerenter = function() {
 		this.updateCursor();
