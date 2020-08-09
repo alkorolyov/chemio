@@ -2348,130 +2348,41 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.sketcher.stateManager.STATE_ERASE.handleDelete();
 		} else if (e.which >= 48 && e.which <= 57) {
 			// digits
-			if (e.which == 49) {
-				// 1, focus on single bond draw
-				//this.sketcher.toolbarManager.buttonSingle.select();
+			let number = e.which - 48;
+
+			if (number == 1) {
+				// 1 change state to NewBond
 				this.sketcher.toolbarManager.buttonSingle.getElement().focus();
 				this.sketcher.toolbarManager.buttonSingle.func();
 			}
 			if (this.sketcher.hovering) {
-				let number = e.which - 48;
-				let molIdentifier;
-				let atoms = [];
-				let bonds = [];
 				if (this.sketcher.hovering instanceof structures.Atom) {
-					molIdentifier = this.sketcher.hovering;
-					if (monitor.SHIFT) {
-						if (number > 2 && number < 9) {
-							let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
-							let angles = mol.getAngles(this.sketcher.hovering);
-							let angle = 3 * m.PI / 2;
-							if (angles.length !== 0) {
-								angle = math.angleBetweenLargest(angles).angle;
-							}
-							let ring = this.sketcher.stateManager.STATE_NEW_RING.getRing(this.sketcher.hovering, number, this.sketcher.styles.bondLength_2D, angle, false);
-							if (mol.atoms.indexOf(ring[0]) === -1) {
-								atoms.push(ring[0]);
-							}
-							if (!this.sketcher.bondExists(this.sketcher.hovering, ring[0])) {
-								bonds.push(new structures.Bond(this.sketcher.hovering, ring[0]));
-							}
-							for ( let i = 1, ii = ring.length; i < ii; i++) {
-								if (mol.atoms.indexOf(ring[i]) === -1) {
-									atoms.push(ring[i]);
-								}
-								if (!this.sketcher.bondExists(ring[i - 1], ring[i])) {
-									bonds.push(new structures.Bond(ring[i - 1], ring[i]));
-								}
-							}
-							if (!this.sketcher.bondExists(ring[ring.length - 1], this.sketcher.hovering)) {
-								bonds.push(new structures.Bond(ring[ring.length - 1], this.sketcher.hovering));
-							}
-						}
-					} else {
-						if (number === 0) {
-							number = 10;
-						}
-						let p = new structures.Point(this.sketcher.hovering.x, this.sketcher.hovering.y);
-						let a = this.getOptimumAngle(this.sketcher.hovering);
-						let prev = this.sketcher.hovering;
-						for ( let k = 0; k < number; k++) {
-							let ause = a + (k % 2 === 1 ? m.PI / 3 : 0);
-							p.x += this.sketcher.styles.bondLength_2D * m.cos(ause);
-							p.y -= this.sketcher.styles.bondLength_2D * m.sin(ause);
-							let use = new structures.Atom('C', p.x, p.y);
-							let minDist = Infinity;
-							let closest;
-							for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-								let mol = this.sketcher.molecules[i];
-								for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-									let at = mol.atoms[j];
-									let dist = at.distance(use);
-									if (dist < minDist) {
-										minDist = dist;
-										closest = at;
-									}
-								}
-							}
-							if (minDist < 5) {
-								use = closest;
-							} else {
-								atoms.push(use);
-							}
-							if (!this.sketcher.bondExists(prev, use)) {
-								bonds.push(new structures.Bond(prev, use));
-							}
-							prev = use;
+					if (!monitor.SHIFT) {
+						if ( number < 3) {
+							// 1 - 2 attach chain to atom
+							this.sketcher.stateManager.STATE_NEW_BOND.attachChain(this.sketcher.hovering, number);
+						} else if (number > 2 && number < 9) {
+							// 3 -8 attach ring to atom
+							this.sketcher.stateManager.STATE_NEW_RING.attachToAtom(this.sketcher.hovering, number);
 						}
 					}
 				} else if (this.sketcher.hovering instanceof structures.Bond) {
-					molIdentifier = this.sketcher.hovering.a1;
-					if (monitor.SHIFT) {
-						if (number > 2 && number < 9) {
-							let ring = this.sketcher.stateManager.STATE_NEW_RING.getOptimalRing(this.sketcher.hovering, number);
-							let start = this.sketcher.hovering.a2;
-							let end = this.sketcher.hovering.a1;
-							let mol = this.sketcher.getMoleculeByAtom(start);
-							if (ring[0] === this.sketcher.hovering.a1) {
-								start = this.sketcher.hovering.a1;
-								end = this.sketcher.hovering.a2;
-							}
-							if (mol.atoms.indexOf(ring[1]) === -1) {
-								atoms.push(ring[1]);
-							}
-							if (!this.sketcher.bondExists(start, ring[1])) {
-								bonds.push(new structures.Bond(start, ring[1]));
-							}
-							for ( let i = 2, ii = ring.length; i < ii; i++) {
-								if (mol.atoms.indexOf(ring[i]) === -1) {
-									atoms.push(ring[i]);
-								}
-								if (!this.sketcher.bondExists(ring[i - 1], ring[i])) {
-									bonds.push(new structures.Bond(ring[i - 1], ring[i]));
-								}
-							}
-							if (!this.sketcher.bondExists(ring[ring.length - 1], end)) {
-								bonds.push(new structures.Bond(ring[ring.length - 1], end));
-							}
+					if (!monitor.SHIFT) {
+						if (number > 0 && number < 4) {
+							// 1 - 3 change bond order
+							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, number, structures.Bond.STEREO_NONE));
+						} else if (number > 3 && number < 9) {
+							// 4 - 8 attach ring to bond
+							this.sketcher.stateManager.STATE_NEW_RING.attachToBond(this.sketcher.hovering, number);
 						}
-					} else if (number > 0 && number < 4) {
-						this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, number, structures.Bond.STEREO_NONE));
-					} else if (number === 7 || number === 8) {
-						let stereo = structures.Bond.STEREO_RECESSED;
-						if(number===7){
-							stereo = structures.Bond.STEREO_PROTRUDING;
-						}
-						this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, stereo));
+					} else if (number == 3) {
+						// shift + 3, attach cyclopropane to bond
+						this.sketcher.stateManager.STATE_NEW_RING.attachToBond(this.sketcher.hovering, number);
 					}
-				}
-				if (atoms.length !== 0 || bonds.length !== 0) {
-					this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, molIdentifier, atoms, bonds));
 				}
 			}
 		} else if (e.which >= 65 && e.which <= 90) {
 			// alphabet
-
-
 			if (this.sketcher.hovering) {
 				if (this.sketcher.hovering instanceof structures.Atom) {
 					let check = String.fromCharCode(e.which);
@@ -3305,6 +3216,46 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			}
 		}
 	};
+	_.attachChain = function(atom, lengthChain) {
+		let molIdentifier = atom;
+		let atoms = [];
+		let bonds = [];
+
+		let p = new structures.Point(atom.x, atom.y);
+		let a = this.getOptimumAngle(atom);
+		let prev = atom;
+		for ( let k = 0; k < lengthChain; k++) {
+			let ause = a + (k % 2 === 1 ? m.PI / 3 : 0);
+			p.x += this.sketcher.styles.bondLength_2D * m.cos(ause);
+			p.y -= this.sketcher.styles.bondLength_2D * m.sin(ause);
+			let use = new structures.Atom('C', p.x, p.y);
+			let minDist = Infinity;
+			let closest;
+			for (let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+				let mol = this.sketcher.molecules[i];
+				for (let j = 0, jj = mol.atoms.length; j < jj; j++) {
+					let at = mol.atoms[j];
+					let dist = at.distance(use);
+					if (dist < minDist) {
+						minDist = dist;
+						closest = at;
+					}
+				}
+			}
+			if (minDist < 5) {
+				use = closest;
+			} else {
+				atoms.push(use);
+			}
+			if (!this.sketcher.bondExists(prev, use)) {
+				bonds.push(new structures.Bond(prev, use));
+			}
+			prev = use;
+		}
+
+		this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, molIdentifier, atoms, bonds));
+
+	};
 	_.innerexit = function() {
 		this.removeStartAtom();
 	};
@@ -3656,6 +3607,71 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			return ring1;
 		} else {
 			return ring2;
+		}
+	};
+	_.attachToBond = function(b, numSides) {
+		let molIdentifier = b.a1;
+		let atoms = [];
+		let bonds = [];
+		let ring = this.sketcher.stateManager.STATE_NEW_RING.getOptimalRing(b, numSides);
+		let start = b.a2;
+		let end = b.a1;
+		let mol = this.sketcher.getMoleculeByAtom(start);
+		if (ring[0] === b.a1) {
+			start = b.a1;
+			end = b.a2;
+		}
+		if (mol.atoms.indexOf(ring[1]) === -1) {
+			atoms.push(ring[1]);
+		}
+		if (!this.sketcher.bondExists(start, ring[1])) {
+			bonds.push(new structures.Bond(start, ring[1]));
+		}
+		for ( let i = 2, ii = ring.length; i < ii; i++) {
+			if (mol.atoms.indexOf(ring[i]) === -1) {
+				atoms.push(ring[i]);
+			}
+			if (!this.sketcher.bondExists(ring[i - 1], ring[i])) {
+				bonds.push(new structures.Bond(ring[i - 1], ring[i]));
+			}
+		}
+		if (!this.sketcher.bondExists(ring[ring.length - 1], end)) {
+			bonds.push(new structures.Bond(ring[ring.length - 1], end));
+		}
+		if (atoms.length !== 0 || bonds.length !== 0) {
+			this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, molIdentifier, atoms, bonds));
+		}
+	};
+	_.attachToAtom = function (a, numSides) {
+		let molIdentifier = this.sketcher.hovering;
+		let atoms = [];
+		let bonds = [];
+		let mol = this.sketcher.getMoleculeByAtom(this.sketcher.hovering);
+		let angles = mol.getAngles(this.sketcher.hovering);
+		let angle = 3 * m.PI / 2;
+		if (angles.length !== 0) {
+			angle = math.angleBetweenLargest(angles).angle;
+		}
+		let ring = this.getRing(this.sketcher.hovering, numSides, this.sketcher.styles.bondLength_2D, angle, false);
+		if (mol.atoms.indexOf(ring[0]) === -1) {
+			atoms.push(ring[0]);
+		}
+		if (!this.sketcher.bondExists(this.sketcher.hovering, ring[0])) {
+			bonds.push(new structures.Bond(this.sketcher.hovering, ring[0]));
+		}
+		for ( let i = 1, ii = ring.length; i < ii; i++) {
+			if (mol.atoms.indexOf(ring[i]) === -1) {
+				atoms.push(ring[i]);
+			}
+			if (!this.sketcher.bondExists(ring[i - 1], ring[i])) {
+				bonds.push(new structures.Bond(ring[i - 1], ring[i]));
+			}
+		}
+		if (!this.sketcher.bondExists(ring[ring.length - 1], this.sketcher.hovering)) {
+			bonds.push(new structures.Bond(ring[ring.length - 1], this.sketcher.hovering));
+		}
+		if (atoms.length !== 0 || bonds.length !== 0) {
+			this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, molIdentifier, atoms, bonds));
 		}
 	};
 
