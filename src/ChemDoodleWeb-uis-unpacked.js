@@ -1188,15 +1188,15 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 (function(informatics, structures, actions, undefined) {
 	'use strict';
-	actions.AddAction = function(sketcher, atom, atoms, bonds) {
+	actions.AddAction = function(sketcher, molIdentifier, addedAtoms, addedBonds) {
 		this.sketcher = sketcher;
-		this.atom = atom;
-		this.atoms = atoms;
-		this.bonds = bonds;
+		this.molIdentifier = molIdentifier;
+		this.atoms = addedAtoms;
+		this.bonds = addedBonds;
 	};
 	let _ = actions.AddAction.prototype = new actions._Action();
 	_.innerForward = function() {
-		let mol = this.sketcher.getMoleculeByAtom(this.atom);
+		let mol = this.sketcher.getMoleculeByAtom(this.molIdentifier);
 		if (!mol) {
 			mol = new structures.Molecule();
 			this.sketcher.molecules.push(mol);
@@ -1233,7 +1233,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innerReverse = function() {
-		let mol = this.sketcher.getMoleculeByAtom(this.atom);
+		let mol = this.sketcher.getMoleculeByAtom(this.molIdentifier);
 		if (this.atoms) {
 			let aKeep = [];
 			for ( let i = 0, ii = mol.atoms.length; i < ii; i++) {
@@ -1260,9 +1260,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (split.length > 1) {
 				this.sketcher.removeMolecule(mol);
 				for ( let i = 0, ii = split.length; i < ii; i++) {
-					// dont' add single atom molecules
+					// dont' keep single atom molecules
 					if (split[i].atoms.length != 1) {
 						this.sketcher.molecules.push(split[i]);
+					} else {
+						// keep track of deleted single atoms
+						this.atoms.push(split[i].atoms[0]);
 					}
 				}
 			}
@@ -1603,9 +1606,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 })(ChemDoodle.structures, ChemDoodle.uis.actions);
 (function(actions, undefined) {
 	'use strict';
-	actions.DeleteAction = function(sketcher, atom, atoms, bonds) {
+	actions.DeleteAction = function(sketcher, molIdentifier, atoms, bonds) {
 		this.sketcher = sketcher;
-		this.atom = atom;
+		this.molIdentifier = molIdentifier;
 		this.atoms = atoms;
 		this.bonds = bonds;
 		this.shapes = [];
@@ -2715,7 +2718,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					action = new actions.DeleteAction(this.sketcher, mol.atoms[0], [ this.sketcher.hovering ], mol.getBonds(this.sketcher.hovering));
 				}
 			} else if (this.sketcher.hovering instanceof structures.Bond) {
-				action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, undefined, [ this.sketcher.hovering ]);
+				action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, [], [ this.sketcher.hovering ]);
 			} else if (this.sketcher.hovering instanceof d2._Shape) {
 				let s = this.sketcher.hovering;
 				if(s.hoverBond){
