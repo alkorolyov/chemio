@@ -2224,7 +2224,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.innermousewheel) {
 			this.innermousewheel(e);
 		}
-		this.sketcher.styles.scale += delta / 10;
+		this.sketcher.styles.scale *= delta >= 0 ? 1.1 : (1 / 1.1);
 		this.sketcher.checkScale();
 		this.sketcher.repaint();
 	};
