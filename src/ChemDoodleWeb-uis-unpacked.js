@@ -6437,6 +6437,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// label set
 		this.makeLabelSet(this);
 
+		// attribute set
+		this.makeAttributeSet(this);
+
 		// query
 		this.buttonTextInput = new desktop.Button(sketcher.id + '_button_text_input', imageDepot.TEXT, 'Set Atom Label', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_TEXT_INPUT);
@@ -6459,9 +6462,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		});
 		this.buttonChain.toggle = true;
 
-		// attribute set
-		this.makeAttributeSet(this);
-
 		// arrows
 		this.buttonArrowSynthetic = new desktop.Button(sketcher.id + '_button_shape_arrow_synthetic', imageDepot.ARROW_SYNTHETIC, 'Arrow: [Ctrl+click]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_SHAPE);
@@ -6479,14 +6479,25 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		sb.push(this.buttonLasso.getSource());
 		// sb.push(this.buttonErase.getSource(bg));
 		sb.push(this.buttonCenter.getSource());
-		sb.push(this.flipSet.getSource());
+
+		// flipSet
+		sb.push(this.buttonFlipVert.getSource());
+		sb.push(this.buttonFlipHor.getSource());
+
 		if (this.sketcher.useServices) {
 			sb.push(this.buttonClean.getSource());
 		}
-		sb.push(this.historySet.getSource());
+
+		// history set
+		sb.push(this.buttonUndo.getSource());
+		sb.push(this.buttonRedo.getSource());
+
+		// copy set
 		sb.push(this.buttonOpen.getSource());
 		sb.push(this.buttonSave.getSource());
+
 		// sb.push(this.buttonTemplate.getSource(bg));
+
 		if (this.sketcher.useServices) {
 			sb.push(this.buttonSearch.getSource());
 			sb.push(this.buttonCalculate.getSource());
@@ -6499,15 +6510,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.includeQuery) {
 			sb.push(this.buttonQuery.getSource(bg));
 		}
-		sb.push(this.attributeSet.getSource());
 
-		// bonds
+		// attribute set
+		sb.push(this.buttonChargePlus.getSource());
+		sb.push(this.buttonChargeMinus.getSource());
+
 		sb.push(this.bondSet.getSource(bg));
-		// sb.push(this.buttonSingle.getSource());
-		// sb.push(this.buttonRecessed.getSource());
-		// sb.push(this.buttonProtruding.getSource());
-
-		//rings
 		sb.push(this.ringSet.getSource(bg));
 
 		sb.push(this.buttonChain.getSource(bg));
@@ -6527,13 +6535,23 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.useServices) {
 			this.buttonClean.setup();
 		}
-		this.flipSet.setup();
-		this.historySet.setup();
-		// 	this.copySet.setup();
+
+		// flip set
+		this.buttonFlipVert.setup();
+		this.buttonFlipHor.setup();
+
+		// history set
+		this.buttonUndo.setup();
+		this.buttonRedo.setup();
+
 		// this.scaleSet.setup();
+
+		// copy set
 		this.buttonOpen.setup();
 		this.buttonSave.setup();
+
 		// this.buttonTemplate.setup(true);
+
 		if (this.sketcher.useServices) {
 			this.buttonSearch.setup();
 			this.buttonCalculate.setup();
@@ -6545,7 +6563,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.includeQuery) {
 			this.buttonQuery.setup(true);
 		}
-		this.attributeSet.setup();
+
+		// attribute set
+		this.buttonChargePlus.setup();
+		this.buttonChargeMinus.setup();
+
 		this.bondSet.setup();
 		this.ringSet.setup();
 		this.buttonChain.setup(true);
@@ -6576,11 +6598,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.copyPasteManager.paste();
 		});
 
-		this.copySet = new desktop.ButtonSet(self.sketcher.id + '_buttons_copy');
-		this.copySet.toggle = false;
-		this.copySet.buttons.push(this.buttonCut);
-		this.copySet.buttons.push(this.buttonCopy);
-		this.copySet.buttons.push(this.buttonPaste);
+		// this.copySet = new desktop.ButtonSet(self.sketcher.id + '_buttons_copy');
+		// this.copySet.toggle = false;
+		// this.copySet.buttons.push(this.buttonCut);
+		// this.copySet.buttons.push(this.buttonCopy);
+		// this.copySet.buttons.push(this.buttonPaste);
 	};
 	_.makeScaleSet = function(self) {
 		this.buttonScalePlus = new desktop.Button(self.sketcher.id + '_button_scale_plus', imageDepot.ZOOM_IN, 'Increase Scale', function() {
@@ -6594,10 +6616,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.repaint();
 		});
 
-		this.scaleSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_scale');
-		this.scaleSet.toggle = false;
-		this.scaleSet.buttons.push(this.buttonScalePlus);
-		this.scaleSet.buttons.push(this.buttonScaleMinus);
+		// this.scaleSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_scale');
+		// this.scaleSet.toggle = false;
+		// this.scaleSet.buttons.push(this.buttonScalePlus);
+		// this.scaleSet.buttons.push(this.buttonScaleMinus);
 	};
 	_.makeFlipSet = function(self) {
 		let action = function(horizontal){
@@ -6619,10 +6641,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			action(false);
 		});
 
-		this.flipSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_flip');
-		this.flipSet.toggle = false;
-		this.flipSet.buttons.push(this.buttonFlipVert);
-		this.flipSet.buttons.push(this.buttonFlipHor);
+		// this.flipSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_flip');
+		// this.flipSet.toggle = false;
+		// this.flipSet.buttons.push(this.buttonFlipVert);
+		// this.flipSet.buttons.push(this.buttonFlipHor);
 	};
 	_.makeHistorySet = function(self) {
 		this.buttonUndo = new desktop.Button(self.sketcher.id + '_button_undo', imageDepot.UNDO, 'Undo', function() {
@@ -6632,10 +6654,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.historyManager.redo();
 		});
 
-		this.historySet = new desktop.ButtonSet(self.sketcher.id + '_buttons_history');
-		this.historySet.toggle = false;
-		this.historySet.buttons.push(this.buttonUndo);
-		this.historySet.buttons.push(this.buttonRedo);
+		// this.historySet = new desktop.ButtonSet(self.sketcher.id + '_buttons_history');
+		// this.historySet.toggle = false;
+		// this.historySet.buttons.push(this.buttonUndo);
+		// this.historySet.buttons.push(this.buttonRedo);
 	};
 	_.makeLabelSet = function(self) {
 		this.buttonLabelH = new desktop.Button(self.sketcher.id + '_button_label_h', imageDepot.HYDROGEN, 'Hydrogen', function() {
@@ -6763,12 +6785,30 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 		});
 
+		this.bondSet = [];
+		this.bondSet.push(this.buttonSingle);
+		this.bondSet.push(this.buttonRecessed);
+		this.bondSet.push(this.buttonProtruding);
+
+		this.bondSet.setup = function() {
+			self.bondSet.forEach(function(element) {
+				element.setup();
+			});
+		};
+		this.bondSet.getSource = function() {
+			let sb = [];
+			self.bondSet.forEach(function(element) {
+				sb.push(element.getSource());
+			});
+			return sb.join('');
+		}
+
 		// this.buttonBond = new desktop.DummyButton(self.sketcher.id + '_button_bond', 'Other Bond');
-		this.bondSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_bond');
-		this.bondSet.toggle = false;
-		this.bondSet.buttons.push(this.buttonSingle);
-		this.bondSet.buttons.push(this.buttonProtruding);
-		this.bondSet.buttons.push(this.buttonRecessed);
+		// this.bondSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_bond');
+		// this.bondSet.toggle = false;
+		// this.bondSet.buttons.push(this.buttonSingle);
+		// this.bondSet.buttons.push(this.buttonProtruding);
+		// this.bondSet.buttons.push(this.buttonRecessed);
 
 		// this.bondSet.buttons.push(this.buttonDouble);
 		// this.bondSet.buttons.push(this.buttonBond);
@@ -6782,15 +6822,15 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// this.bondSet.dropDown.defaultButton = this.buttonTriple;
 	};
 	_.makeRingSet = function(self) {
-		this.buttonCyclohexane = new desktop.Button(self.sketcher.id + '_button_ring_cyclohexane', imageDepot.CYCLOHEXANE, 'Cyclohexane: [6]', function() {
-			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
-			self.sketcher.stateManager.STATE_NEW_RING.numSides = 6;
-			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
-		});
 		this.buttonBenzene = new desktop.Button(self.sketcher.id + '_button_ring_benzene', imageDepot.BENZENE, 'Benzene: [V]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
 			self.sketcher.stateManager.STATE_NEW_RING.numSides = 6;
 			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = true;
+		});
+		this.buttonCyclohexane = new desktop.Button(self.sketcher.id + '_button_ring_cyclohexane', imageDepot.CYCLOHEXANE, 'Cyclohexane: [6]', function() {
+			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
+			self.sketcher.stateManager.STATE_NEW_RING.numSides = 6;
+			self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		});
 		this.buttonCyclopropane = new desktop.Button(self.sketcher.id + '_button_ring_cyclopropane', imageDepot.CYCLOPROPANE, 'Cyclopropane: [Shift+3]', function() {
 			self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_RING);
@@ -6823,18 +6863,40 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// 	self.sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
 		// });
 
+		this.ringSet = [];
+		this.ringSet.push(this.buttonBenzene);
+		this.ringSet.push(this.buttonCyclohexane);
+		this.ringSet.push(this.buttonCyclopropane);
+		this.ringSet.push(this.buttonCyclobutane);
+		this.ringSet.push(this.buttonCyclopentane);
+		this.ringSet.push(this.buttonCycloheptane);
+		this.ringSet.push(this.buttonCyclooctane);
+
+		this.ringSet.setup = function() {
+			self.ringSet.forEach(function(element) {
+				element.setup();
+			});
+		};
+		this.ringSet.getSource = function() {
+			let sb = [];
+			self.ringSet.forEach(function(element) {
+				sb.push(element.getSource());
+			});
+			return sb.join('');
+		}
+
 		// this.buttonRing = new desktop.DummyButton(self.sketcher.id + '_button_ring', 'Other Ring');
-		this.ringSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_ring');
-		this.ringSet.toggle = false;
-		this.ringSet.buttons.push(this.buttonBenzene);
-		this.ringSet.buttons.push(this.buttonCyclohexane);
+		// this.ringSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_ring');
+		// this.ringSet.toggle = false;
+		// this.ringSet.buttons.push(this.buttonBenzene);
+		// this.ringSet.buttons.push(this.buttonCyclohexane);
 		// this.ringSet.buttons.push(this.buttonRing);
 		// this.ringSet.addDropDown('More Rings');
-		this.ringSet.buttons.push(this.buttonCyclopropane);
-		this.ringSet.buttons.push(this.buttonCyclobutane);
-		this.ringSet.buttons.push(this.buttonCyclopentane);
-		this.ringSet.buttons.push(this.buttonCycloheptane);
-		this.ringSet.buttons.push(this.buttonCyclooctane);
+		// this.ringSet.buttons.push(this.buttonCyclopropane);
+		// this.ringSet.buttons.push(this.buttonCyclobutane);
+		// this.ringSet.buttons.push(this.buttonCyclopentane);
+		// this.ringSet.buttons.push(this.buttonCycloheptane);
+		// this.ringSet.buttons.push(this.buttonCyclooctane);
 		// this.ringSet.buttons.push(this.buttonRingArbitrary);
 	};
 	_.makeAttributeSet = function(self) {
@@ -6863,10 +6925,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// 	self.sketcher.stateManager.STATE_RADICAL.delta = -1;
 		// });
 
-		this.attributeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_attribute');
-		this.attributeSet.toggle = false;
-		this.attributeSet.buttons.push(this.buttonChargePlus);
-		this.attributeSet.buttons.push(this.buttonChargeMinus);
+		// this.attributeSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_attribute');
+		// this.attributeSet.toggle = false;
+		// this.attributeSet.buttons.push(this.buttonChargePlus);
+		// this.attributeSet.buttons.push(this.buttonChargeMinus);
 		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairPlus);
 		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonPairMinus);
 		// this.attributeSet.dropDown.buttonSet.buttons.push(this.buttonRadicalPlus);
