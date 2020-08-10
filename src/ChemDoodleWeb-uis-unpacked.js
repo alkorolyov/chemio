@@ -2427,7 +2427,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 						this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
 					} else if (e.which === 87) {
 						// w
-						console.log('w');
 						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_PROTRUDING)
 							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_PROTRUDING));
 						else
@@ -2440,7 +2439,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 							this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
 
 					}
-
 				}
 			}
 		}
