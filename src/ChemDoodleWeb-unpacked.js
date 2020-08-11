@@ -1795,12 +1795,12 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			return;
 		}
 		if (this.isLassoed) {
-			let grd = ctx.createRadialGradient(this.x - 1, this.y - 1, 0, this.x, this.y, 7);
-			grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-			grd.addColorStop(0.7, 'rgba(212, 99, 0, 0.8)');
-			ctx.fillStyle = grd;
+			// let grd = ctx.createRadialGradient(this.x - 1, this.y - 1, 0, this.x, this.y, 7);
+			// grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
+			// grd.addColorStop(0.7, 'rgba(212, 99, 0, 0.8)');
+			ctx.fillStyle = styles.colorSelect //grd;
 			ctx.beginPath();
-			ctx.arc(this.x, this.y, 5, 0, m.PI * 2, false);
+			ctx.arc(this.x, this.y, styles.atoms_selectRadius, 0, m.PI * 2, false);
 			ctx.fill();
 		}
 		if (this.query) {
@@ -2316,26 +2316,29 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		let y1 = this.a1.y;
 		let y2 = this.a2.y;
 		let dist = this.a1.distance(this.a2);
+		let angle = this.a1.angle(this.a2);
 		let difX = x2 - x1;
 		let difY = y2 - y1;
 		if (this.a1.isLassoed && this.a2.isLassoed) {
-			let grd = ctx.createLinearGradient(x1, y1, x2, y2);
-			grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-			grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
-			grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
-			let useDist = 2.5;
-			let perpendicular = this.a1.angle(this.a2) + m.PI / 2;
+			// let grd = ctx.createLinearGradient(x1, y1, x2, y2);
+			// grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
+			// grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
+			// grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
+			let useDist = styles.atoms_selectRadius * 0.5;
+			let perpendicular = angle + m.PI / 2;
+			let dx = styles.atoms_selectRadius * 0.9 * m.cos(angle);
+			let dy = styles.atoms_selectRadius * 0.9 * m.sin(angle);
 			let mcosp = m.cos(perpendicular);
 			let msinp = m.sin(perpendicular);
-			let cx1 = x1 - mcosp * useDist;
-			let cy1 = y1 + msinp * useDist;
-			let cx2 = x1 + mcosp * useDist;
-			let cy2 = y1 - msinp * useDist;
-			let cx3 = x2 + mcosp * useDist;
-			let cy3 = y2 - msinp * useDist;
-			let cx4 = x2 - mcosp * useDist;
-			let cy4 = y2 + msinp * useDist;
-			ctx.fillStyle = grd;
+			let cx1 = x1 - mcosp * useDist + dx;
+			let cy1 = y1 + msinp * useDist - dy;
+			let cx2 = x1 + mcosp * useDist + dx;
+			let cy2 = y1 - msinp * useDist - dy;
+			let cx3 = x2 + mcosp * useDist - dx;
+			let cy3 = y2 - msinp * useDist + dy;
+			let cx4 = x2 - mcosp * useDist - dx;
+			let cy4 = y2 + msinp * useDist + dy;
+			ctx.fillStyle = styles.colorSelect; //grd;
 			ctx.beginPath();
 			ctx.moveTo(cx1, cy1);
 			ctx.lineTo(cx2, cy2);
@@ -9784,16 +9787,17 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		// default atom properties
 		atoms_display:true,
 		atoms_color:'#000000',
-		atoms_font_size_2D:12,
+		atoms_font_size_2D:11,
 		atoms_font_families_2D:['Helvetica', 'Arial', 'Dialog'],
 		atoms_font_bold_2D:false,
 		atoms_font_italic_2D:false,
-		atoms_circles_2D:false,
+        atoms_circles_2D:false,
 		atoms_circleDiameter_2D:10,
 		atoms_circleBorderWidth_2D:1,
 		atoms_lonePairDistance_2D:8,
 		atoms_lonePairSpread_2D:4,
 		atoms_lonePairDiameter_2D:1,
+        atoms_selectRadius:6,
 		atoms_useJMOLColors:false,
 		atoms_usePYMOLColors:false,
 		atoms_HBlack_2D:true,
