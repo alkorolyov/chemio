@@ -7197,7 +7197,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.draw = function(ctx, styles) {
 		ctx.strokeStyle = styles.colorSelect;
 		ctx.lineWidth = 0.5 / styles.scale;
-		ctx.setLineDash([5]);
+		ctx.setLineDash([2]);
 		if (this.points.length > 0) {
 			if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {
 				if (this.points.length === 2) {
