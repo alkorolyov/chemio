@@ -1990,9 +1990,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		let min = Infinity;
 		let hovering;
 		let hoverdist = 10;
-		if (!this.sketcher.isMobile) {
-			hoverdist /= this.sketcher.styles.scale;
-		}
+		// if (!this.sketcher.isMobile) {
+		// 	hoverdist *= this.sketcher.styles.scale;
+		// }
 		if (includeAtoms) {
 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
 				let mol = this.sketcher.molecules[i];
