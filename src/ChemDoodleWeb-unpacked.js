@@ -2324,10 +2324,11 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			// grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
 			// grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
 			// grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
-			let useDist = styles.atoms_selectRadius * 0.5;
+            // don't change 0.5, other calculations depend on it
+            let useDist = styles.atoms_selectRadius * 0.5;
 			let perpendicular = angle + m.PI / 2;
-			let dx = styles.atoms_selectRadius * 0.9 * m.cos(angle);
-			let dy = styles.atoms_selectRadius * 0.9 * m.sin(angle);
+			let dx = styles.atoms_selectRadius * m.sqrt(3) / 2 * m.cos(angle);
+			let dy = styles.atoms_selectRadius * m.sqrt(3) / 2 * m.sin(angle);
 			let mcosp = m.cos(perpendicular);
 			let msinp = m.sin(perpendicular);
 			let cx1 = x1 - mcosp * useDist + dx;
@@ -2338,14 +2339,42 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			let cy3 = y2 - msinp * useDist + dy;
 			let cx4 = x2 - mcosp * useDist - dx;
 			let cy4 = y2 + msinp * useDist + dy;
-			ctx.fillStyle = styles.colorSelect; //grd;
-			ctx.beginPath();
-			ctx.moveTo(cx1, cy1);
-			ctx.lineTo(cx2, cy2);
-			ctx.lineTo(cx3, cy3);
-			ctx.lineTo(cx4, cy4);
-			ctx.closePath();
-			ctx.fill();
+
+            // debug rounded bonds fill
+            // ctx.beginPath();
+            // ctx.strokeStyle = 'red';
+            // //console.log(cx1, cx2);
+            // ctx.arc(cx1, cy1, 0.2, 0, m.PI *2);
+            // ctx.stroke();
+            // ctx.strokeStyle = 'black';
+            // ctx.closePath();
+            //
+            // ctx.beginPath();
+            // ctx.strokeStyle = 'blue';
+            // ctx.arc(cx2, cy2, 0.2, 0, m.PI *2);
+            // ctx.stroke();
+            // ctx.closePath();
+            //
+            // ctx.beginPath();
+            // ctx.strokeStyle = 'green';
+            // ctx.arc(cx3, cy3, 0.2, 0, m.PI *2);
+            // ctx.stroke();
+            // ctx.closePath();
+            //
+            // ctx.beginPath();
+            // ctx.strokeStyle = 'yellow';
+            // ctx.arc(cx4, cy4, 0.2, 0, m.PI *2);
+            // ctx.stroke();
+            // ctx.closePath();
+
+            ctx.moveTo(cx1, cy1);
+            ctx.beginPath();
+            ctx.fillStyle = styles.colorSelect; //grd;
+            ctx.arc(x1, y1, styles.atoms_selectRadius, -angle - m.PI / 6, -angle + m.PI / 6);
+            ctx.lineTo(cx4, cy4);
+            ctx.arc(x2, y2, styles.atoms_selectRadius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
+            ctx.fill();
+            ctx.closePath();
 		}
 		if (styles.atoms_display && !styles.atoms_circles_2D && this.a1.isLabelVisible(styles) && this.a1.textBounds) {
 			let distShrink = 0;
