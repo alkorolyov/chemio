@@ -3110,20 +3110,17 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// 	this.updateCursor();
 	};
 	_.innerdblclick = function(e) {
-		if (this.sketcher.lasso.isActive()) {
-			// select hovering molecule
-			this.findHoveredObject(e, true, true, true);
-			let hovering = this.sketcher.hovering;
-			let mol;
-			if(hovering && hovering instanceof structures.Bond ) {
-				mol = this.sketcher.getMoleculeByAtom(hovering.a1);
-				this.sketcher.lasso.selectMolecule(mol);
-			} else if (hovering && hovering instanceof structures.Atom) {
-				mol = this.sketcher.getMoleculeByAtom(hovering);
-				this.sketcher.lasso.selectMolecule(mol);
-			}
-			this.clearHover();
+		this.findHoveredObject(e, true, true, true);
+		let hovering = this.sketcher.hovering;
+		let mol;
+		if(hovering && hovering instanceof structures.Bond ) {
+			mol = this.sketcher.getMoleculeByAtom(hovering.a1);
+			this.sketcher.lasso.selectMolecule(mol);
+		} else if (hovering && hovering instanceof structures.Atom) {
+			mol = this.sketcher.getMoleculeByAtom(hovering);
+			this.sketcher.lasso.selectMolecule(mol);
 		}
+		this.clearHover();
 	};
 	_.draw = function(ctx, styles) {
 		if (this.paintRotate && this.sketcher.lasso.bounds) {
