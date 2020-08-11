@@ -1795,9 +1795,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			return;
 		}
 		if (this.isLassoed) {
-			// let grd = ctx.createRadialGradient(this.x - 1, this.y - 1, 0, this.x, this.y, 7);
-			// grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-			// grd.addColorStop(0.7, 'rgba(212, 99, 0, 0.8)');
 			ctx.fillStyle = styles.colorSelect //grd;
 			ctx.beginPath();
 			ctx.arc(this.x, this.y, styles.atoms_selectRadius, 0, m.PI * 2, false);
@@ -1841,7 +1838,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			// string
 			if (this.altLabel !== undefined) {
 				// altLabel can be 0, so check if undefined
-				ctx.fillText(this.altLabel, this.x, this.y);
+				ctx.fillText(this.altLabel, this.x, this.y + 1);
 				let symbolWidth = ctx.measureText(this.altLabel).width;
 				this.textBounds.push({
 					x: this.x - symbolWidth / 2,
@@ -1857,7 +1854,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 						if (this.error) {
 							ctx.fillStyle = styles.colorError;
 						}
-						ctx.fillText(this.label, this.x, this.y);
+						ctx.fillText(this.label, this.x, this.y + 1);
 						let symbolWidth = ctx.measureText(this.label).width;
 						this.textBounds.push({
 							x: this.x + 1,
@@ -1873,7 +1870,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 						this.condensed.draw(ctx, styles);
 					}
 				} else {
-					ctx.fillText(this.label, this.x, this.y);
+					ctx.fillText(this.label, this.x, this.y + 1);
 					let symbolWidth = ctx.measureText(this.label).width;
 					this.textBounds.push({
 						x: this.x - symbolWidth / 2,
@@ -1883,7 +1880,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 					});
 				}
 			} else {
-				ctx.fillText(this.label, this.x, this.y);
+				ctx.fillText(this.label, this.x, this.y + 1);
 				let symbolWidth = ctx.measureText(this.label).width;
 				this.textBounds.push({
 					x: this.x - symbolWidth / 2,
@@ -1948,7 +1945,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 							}
 						}
 						ctx.font = font;
-						ctx.fillText('H', this.x + xoffset, this.y + yoffset);
+						ctx.fillText('H', this.x + xoffset, this.y + yoffset + 1);
 						ctx.font = subFont;
 						ctx.fillText(numHs, this.x + xoffset + hWidth / 2 + numWidth / 2, this.y + yoffset + styles.atoms_font_size_2D * .3);
 						this.textBounds.push({
@@ -1991,7 +1988,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 								hAngle = 3 * m.PI / 2;
 							}
 						}
-						ctx.fillText('H', this.x + xoffset, this.y + yoffset);
+						ctx.fillText('H', this.x + xoffset, this.y + yoffset + 1);
 						this.textBounds.push({
 							x: this.x + xoffset - hWidth / 2,
 							y: this.y + yoffset - styles.atoms_font_size_2D / 2 + 1,
@@ -2074,7 +2071,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			}
 		}
 		// for debugging atom label dimensions
-		//ctx.strokeStyle = 'red'; for(let i = 0, ii = this.textBounds.length;i<ii; i++){ let r = this.textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
+		// ctx.strokeStyle = 'red'; for(let i = 0, ii = this.textBounds.length;i<ii; i++){ let r = this.textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
 
 	};
 	_.drawElectrons = function (ctx, styles, things, angle, largest, hAngle) {
@@ -2320,11 +2317,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		let difX = x2 - x1;
 		let difY = y2 - y1;
 		if (this.a1.isLassoed && this.a2.isLassoed) {
-			// let grd = ctx.createLinearGradient(x1, y1, x2, y2);
-			// grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-			// grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
-			// grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
-            // don't change 0.5, other calculations depend on it
             let useDist = styles.atoms_selectRadius * 0.5;
 			let perpendicular = angle + m.PI / 2;
 			let dx = styles.atoms_selectRadius * m.sqrt(3) / 2 * m.cos(angle);
@@ -2369,7 +2361,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
             ctx.moveTo(cx1, cy1);
             ctx.beginPath();
-            ctx.fillStyle = styles.colorSelect; //grd;
+            ctx.fillStyle = styles.colorSelect;
             ctx.arc(x1, y1, styles.atoms_selectRadius, -angle - m.PI / 6, -angle + m.PI / 6);
             ctx.lineTo(cx4, cy4);
             ctx.arc(x2, y2, styles.atoms_selectRadius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
