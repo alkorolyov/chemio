@@ -7380,7 +7380,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.includeToolbar = options.includeToolbar === undefined ? true : options.includeToolbar;
 		this.resizable = options.resizable === undefined ? false : options.resizable;
 		this.includeQuery = options.includeQuery === undefined ? false : options.includeQuery;
-		this.hideHelp = options.hideHelp === undefined ? true : options.includeQuery;
+		this.hideHelp = options.hideHelp === undefined ? true : options.hideHelp;
 		// save the original options object
 		this.originalOptions = options;
 		// toolbar manager needs the sketcher id to make it unique to this
