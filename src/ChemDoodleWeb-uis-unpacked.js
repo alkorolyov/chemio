@@ -2909,25 +2909,23 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.defaultCursor = 'POINTER_LASSO';
 	};
 	let _ = states.LassoState.prototype = new states._State();
-	_.inRotateBoundaries = function(x, y, rotateBuffer) {
-		if (!this.sketcher.lasso.isActive()) return false; // empty selection check
-		return (math.isBetween(x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer)
-		&& math.isBetween(y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer))
+	_.inRotateBoundaries = function(point, rotateBuffer) {
+		if (!this.sketcher.lasso.isActive()) return false;
+		return (math.isBetween(point.x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer)
+		&& math.isBetween(point.y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer))
 	};
-	_.inDragBoundaries = function(x, y) {
-		if (!this.sketcher.lasso.isActive()) return false; // empty selection check
-		return (math.isBetween(x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX)
-			&& math.isBetween(y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
+	_.inDragBoundaries = function(point) {
+		if (!this.sketcher.lasso.isActive()) return false;
+		return (math.isBetween(point.x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX)
+			&& math.isBetween(point.y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
 	};
 	_.updateCursor = function() {
-		if (this.sketcher.lastMousePos) {
+		if (this.sketcher.lastMousePos && this.sketcher.lasso.isActive()) {
 			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
-			let x = this.sketcher.lastMousePos.x;
-			let y = this.sketcher.lastMousePos.y;
-			if (this.inDragBoundaries(x, y)) {
+			if (this.inDragBoundaries(this.sketcher.lastMousePos)) {
 				this.setCursor('POINTER_DRAG');
 			}
-			else if (this.inRotateBoundaries(x, y, rotateBuffer)) {
+			else if (this.inRotateBoundaries(this.sketcher.lastMousePos, rotateBuffer)) {
 				this.setCursor('POINTER_ROTATE');
 				this.paintRotate = true;
 				this.sketcher.repaint();
@@ -2941,6 +2939,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.innerenter = function() {
 		this.updateCursor();
+	};
+	_.innerexit = function() {
+		if (this.sketcher.lasso.isActive()) {
+			this.sketcher.lasso.empty();
+		}
 	};
 	_.innerdrag = function(e) {
 		this.inDrag = true;
@@ -3035,9 +3038,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		transformType = undefined;
 		if (this.sketcher.lasso.isActive() && !monitor.SHIFT) {
 			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
-			if (math.isBetween(e.p.x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX) && math.isBetween(e.p.y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY)) {
+			if (this.inDragBoundaries(e.p)) {
 				transformType = TRANSLATE;
-			} else if (math.isBetween(e.p.x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer) && math.isBetween(e.p.y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer)) {
+			} else if (!this.inDragBoundaries(e.p) && this.inRotateBoundaries(e.p, rotateBuffer)) {
 				transformType = ROTATE;
 			}
 		} else if (!this.sketcher.hovering) {
@@ -3068,45 +3071,43 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					shapes.push(this.sketcher.hovering);
 				}
 				this.sketcher.lasso.select(atoms, shapes);
-			} else if (this.sketcher.lasso.isActive()) {
+			} else if (this.sketcher.lasso.isActive() && !monitor.SHIFT) {
 				this.sketcher.lasso.empty();
 			}
 		}
 		transformType = undefined;
 	};
 	_.innermousemove = function(e) {
-		if (!this.sketcher.lasso.isActive()) {
+		let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
+
+		if (this.inDragBoundaries(e.p) && this.cursor !== 'POINTER_DRAG') {
+			this.setCursor('POINTER_DRAG');
+			this.paintRotate = false;
+		}
+		else if (!this.inDragBoundaries(e.p) && this.inRotateBoundaries(e.p, rotateBuffer)
+			&& this.cursor !== 'POINTER_ROTATE') {
+			this.setCursor('POINTER_ROTATE');
+			this.paintRotate = true;
+			this.sketcher.repaint();
+		}
+		else if (!this.sketcher.lasso.isActive() || !this.inRotateBoundaries(e.p, rotateBuffer)) {
 			this.findHoveredObject(e, true, true, true);
-			if (this.sketcher.hovering && this.cursor != 'default')
+			if (this.sketcher.hovering && this.cursor !== 'default') {
 				this.setCursor('default');
-			else if (!this.sketcher.hovering && this.cursor != 'POINTER_LASSO')
+			} else if (!this.sketcher.hovering && this.cursor !== 'POINTER_LASSO') {
 				this.setCursor('POINTER_LASSO');
-		} else if (!monitor.SHIFT) {
-			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
-			if (this.inDragBoundaries(e.p.x, e.p.y) && this.cursor != 'POINTER_DRAG') {
-				this.setCursor('POINTER_DRAG');
-				this.paintRotate = false;
 			}
-			else if (!(this.inDragBoundaries(e.p.x, e.p.y))
-				&& this.inRotateBoundaries(e.p.x, e.p.y, rotateBuffer) && this.cursor != 'POINTER_ROTATE') {
-				this.setCursor('POINTER_ROTATE');
-				this.paintRotate = true;
-				this.sketcher.repaint();
-			}
-			else if (!(this.inRotateBoundaries(e.p.x, e.p.y, rotateBuffer)) && this.cursor != 'POINTER_LASSO') {
-				this.setCursor('POINTER_LASSO');
-				this.paintRotate = false;
-			}
+			this.paintRotate = false;
 		}
 	};
 	_.innerkeydown = function(e) {
-		if (monitor.SHIFT && this.cursor != 'POINTER_LASSO' && !this.sketcher.hovering) {
-			this.setCursor('POINTER_LASSO');
-		}
+		// if (monitor.SHIFT && this.cursor != 'POINTER_LASSO' && this.) {
+		// 	this.setCursor('POINTER_LASSO');
+		// }
 	};
 	_.innerkeyup = function(e) {
-		if (!monitor.SHIFT && this.sketcher.lasso.isActive())
-			this.updateCursor();
+		// if (!monitor.SHIFT && this.sketcher.lasso.isActive())
+		// 	this.updateCursor();
 	};
 	_.innerdblclick = function(e) {
 		if (this.sketcher.lasso.isActive()) {
@@ -7191,7 +7192,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.shapes = [];
 		this.bounds = undefined;
 		this.enableButtons();
-		// if deselection caused by State change - change to new states default cursor
+		// if deselection caused by State change - change to new state default cursor
 		let cursor = this.sketcher.stateManager.getCurrentState().defaultCursor;
 		this.sketcher.stateManager.getCurrentState().setCursor(cursor);
 		this.sketcher.repaint();
