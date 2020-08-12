@@ -2232,67 +2232,68 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.innerdrag) {
 			this.innerdrag(e);
 		}
-		if (!this.sketcher.hovering && !this.dontTranslateOnDrag) {
-			if (monitor.SHIFT) {
-				// rotate structure
-				if (this.parentAction) {
-					let center = this.parentAction.center;
-					let oldAngle = center.angle(this.sketcher.lastPoint);
-					let newAngle = center.angle(e.p);
-					let rot = newAngle - oldAngle;
-					this.parentAction.dif += rot;
-					for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
-						let a = this.parentAction.ps[i];
-						let dist = center.distance(a);
-						let angle = center.angle(a) + rot;
-						a.x = center.x + dist * m.cos(angle);
-						a.y = center.y - dist * m.sin(angle);
-					}
-					// must check here as change is outside of an action
-					for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-						this.sketcher.molecules[i].check();
-					}
-				} else {
-					let center = new structures.Point(this.sketcher.width / 2, this.sketcher.height / 2);
-					let oldAngle = center.angle(this.sketcher.lastPoint);
-					let newAngle = center.angle(e.p);
-					let rot = newAngle - oldAngle;
-					this.parentAction = new actions.RotateAction(this.sketcher.getAllPoints(), rot, center);
-					this.sketcher.historyManager.pushUndo(this.parentAction);
-				}
-			} else {
-				if (!this.sketcher.lastPoint) {
-					// this prevents the structure from being rotated and
-					// translated at the same time while a gesture is occuring,
-					// which is preferable based on use cases since the rotation
-					// center is the canvas center
-					return;
-				}
-				// move structure
-				let dif = new structures.Point(e.p.x, e.p.y);
-				dif.sub(this.sketcher.lastPoint);
-				if (this.parentAction) {
-					this.parentAction.dif.add(dif);
-					for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
-						this.parentAction.ps[i].add(dif);
-					}
-					if (this.sketcher.lasso && this.sketcher.lasso.isActive()) {
-						this.sketcher.lasso.bounds.minX += dif.x;
-						this.sketcher.lasso.bounds.maxX += dif.x;
-						this.sketcher.lasso.bounds.minY += dif.y;
-						this.sketcher.lasso.bounds.maxY += dif.y;
-					}
-					// must check here as change is outside of an action
-					for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-						this.sketcher.molecules[i].check();
-					}
-				} else {
-					this.parentAction = new actions.MoveAction(this.sketcher.getAllPoints(), dif);
-					this.sketcher.historyManager.pushUndo(this.parentAction);
-				}
-			}
-			this.sketcher.repaint();
-		}
+		// parent action for single molecule mode?
+		// if (!this.sketcher.hovering && !this.dontTranslateOnDrag) {
+		// 	if (monitor.SHIFT) {
+		// 		// rotate structure
+		// 		if (this.parentAction) {
+		// 			let center = this.parentAction.center;
+		// 			let oldAngle = center.angle(this.sketcher.lastPoint);
+		// 			let newAngle = center.angle(e.p);
+		// 			let rot = newAngle - oldAngle;
+		// 			this.parentAction.dif += rot;
+		// 			for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
+		// 				let a = this.parentAction.ps[i];
+		// 				let dist = center.distance(a);
+		// 				let angle = center.angle(a) + rot;
+		// 				a.x = center.x + dist * m.cos(angle);
+		// 				a.y = center.y - dist * m.sin(angle);
+		// 			}
+		// 			// must check here as change is outside of an action
+		// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+		// 				this.sketcher.molecules[i].check();
+		// 			}
+		// 		} else {
+		// 			let center = new structures.Point(this.sketcher.width / 2, this.sketcher.height / 2);
+		// 			let oldAngle = center.angle(this.sketcher.lastPoint);
+		// 			let newAngle = center.angle(e.p);
+		// 			let rot = newAngle - oldAngle;
+		// 			this.parentAction = new actions.RotateAction(this.sketcher.getAllPoints(), rot, center);
+		// 			this.sketcher.historyManager.pushUndo(this.parentAction);
+		// 		}
+		// 	} else {
+		// 		if (!this.sketcher.lastPoint) {
+		// 			// this prevents the structure from being rotated and
+		// 			// translated at the same time while a gesture is occuring,
+		// 			// which is preferable based on use cases since the rotation
+		// 			// center is the canvas center
+		// 			return;
+		// 		}
+		// 		// move structure
+		// 		let dif = new structures.Point(e.p.x, e.p.y);
+		// 		dif.sub(this.sketcher.lastPoint);
+		// 		if (this.parentAction) {
+		// 			this.parentAction.dif.add(dif);
+		// 			for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
+		// 				this.parentAction.ps[i].add(dif);
+		// 			}
+		// 			if (this.sketcher.lasso && this.sketcher.lasso.isActive()) {
+		// 				this.sketcher.lasso.bounds.minX += dif.x;
+		// 				this.sketcher.lasso.bounds.maxX += dif.x;
+		// 				this.sketcher.lasso.bounds.minY += dif.y;
+		// 				this.sketcher.lasso.bounds.maxY += dif.y;
+		// 			}
+		// 			// must check here as change is outside of an action
+		// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+		// 				this.sketcher.molecules[i].check();
+		// 			}
+		// 		} else {
+		// 			this.parentAction = new actions.MoveAction(this.sketcher.getAllPoints(), dif);
+		// 			this.sketcher.historyManager.pushUndo(this.parentAction);
+		// 		}
+		// 	}
+		// 	this.sketcher.repaint();
+		// }
 		this.sketcher.lastPoint = e.p;
 	};
 	_.keydown = function(e) {
@@ -2902,7 +2903,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	let transformType = undefined;
 	let rotateBufferConst = 25;
 	let paintRotate = false;
-
 	states.LassoState = function(sketcher) {
 		this.setup(sketcher);
 		this.dontTranslateOnDrag = true;
@@ -2929,6 +2929,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.setCursor('default');
 		} else if (!this.sketcher.hovering && this.cursor !== 'POINTER_LASSO') {
 			this.setCursor('POINTER_LASSO');
+			paintRotate = false;
+			this.sketcher.repaint();
 		}
 	};
 	_.updateCursor = function(point) {
@@ -2952,11 +2954,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			}
 			else if (!this.inRotateBoundaries(point, rotateBuffer)) {
 				this.updateHoverCursor(point);
-				paintRotate = false;
 			}
 		} else {
 			this.updateHoverCursor(point);
-			paintRotate = false;
 		}
 	};
 	_.innerenter = function() {
@@ -3032,9 +3032,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (!this.parentAction) {
 				let ps;
 				if (this.sketcher.hovering instanceof structures.Atom) {
-					ps = monitor.SHIFT ? [ this.sketcher.hovering ] : this.sketcher.getMoleculeByAtom(this.sketcher.hovering).atoms;
+					ps = [ this.sketcher.hovering ];
 				} else if (this.sketcher.hovering instanceof structures.Bond) {
-					ps =  monitor.SHIFT ? [ this.sketcher.hovering.a1, this.sketcher.hovering.a2 ] : this.sketcher.getMoleculeByAtom(this.sketcher.hovering.a1).atoms;
+					ps =  [ this.sketcher.hovering.a1, this.sketcher.hovering.a2 ];
 				} else if (this.sketcher.hovering instanceof d2._Shape) {
 					ps = this.sketcher.hovering.hoverPoint ? [ this.sketcher.hovering.hoverPoint ] : this.sketcher.hovering.getPoints();
 				}
@@ -3072,10 +3072,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermouseup = function(e) {
-		if (!transformType) {
-			if (!this.sketcher.hovering) {
-				this.sketcher.lasso.select();
-			}
+		if (!transformType && !this.sketcher.hovering) {
+			this.sketcher.lasso.select();
 		}
 		this.updateCursor(e.p);
 	};
@@ -3097,16 +3095,17 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				this.sketcher.lasso.empty();
 			}
 		}
+		this.updateCursor(e.p);
 		transformType = undefined;
 	};
 	_.innermousemove = function(e) {
 		this.updateCursor(e.p);
 	};
 	_.innerkeydown = function(e) {
-		this.updateCursor(this.sketcher.lastPoint);
+		this.updateCursor(this.sketcher.lastMousePos);
 	};
 	_.innerkeyup = function(e) {
-		this.updateCursor(this.sketcher.lastPoint);
+		this.updateCursor(this.sketcher.lastMousePos);
 	};
 	_.innerdblclick = function(e) {
 		this.findHoveredObject(e.p, true, true, true);
@@ -7129,7 +7128,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 		this.points = [];
 		this.sketcher.stateManager.STATE_LASSO.clearHover();
-		this.sketcher.stateManager.STATE_LASSO.updateCursor();
+		this.sketcher.stateManager.STATE_LASSO.updateCursor(this.sketcher.lastMousePos);
 		this.enableButtons();
 		this.sketcher.repaint();
 	};
