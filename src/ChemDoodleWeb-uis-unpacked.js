@@ -7353,7 +7353,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 
-
 })(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, ChemDoodle.uis.tools);
 
 (function(informatics, io, structures, uis, actions, undefined) {

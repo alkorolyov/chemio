@@ -5058,10 +5058,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
 	_.bottomText = undefined;
 	_.draw = function(ctx, styles) {
 		if (this.isLassoed) {
-			let grd = ctx.createLinearGradient(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
-			grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-			grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
-			grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
 			let useDist = 2.5;
 			let perpendicular = this.p1.angle(this.p2) + m.PI / 2;
 			let mcosp = m.cos(perpendicular);
@@ -5074,7 +5070,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			let cy3 = this.p2.y - msinp * useDist;
 			let cx4 = this.p2.x - mcosp * useDist;
 			let cy4 = this.p2.y + msinp * useDist;
-			ctx.fillStyle = grd;
+			ctx.fillStyle = styles.colorSelect;
 			ctx.beginPath();
 			ctx.moveTo(cx1, cy1);
 			ctx.lineTo(cx2, cy2);
