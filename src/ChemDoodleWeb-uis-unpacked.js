@@ -1985,7 +1985,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			this.sketcher.hovering = undefined;
 		}
 	};
-	_.findHoveredObject = function(e, includeAtoms, includeBonds, includeShapes) {
+	_.findHoveredObject = function(point, includeAtoms, includeBonds, includeShapes) {
 		this.clearHover();
 		let min = Infinity;
 		let hovering;
@@ -1999,7 +1999,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
 					let a = mol.atoms[j];
 					a.isHover = false;
-					let dist = e.p.distance(a);
+					let dist = point.distance(a);
 					if (dist < hoverdist && dist < min) {
 						min = dist;
 						hovering = a;
@@ -2013,7 +2013,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				for ( let j = 0, jj = mol.bonds.length; j < jj; j++) {
 					let b = mol.bonds[j];
 					b.isHover = false;
-					let dist = math.distanceFromPointToLineInclusive(e.p, b.a1, b.a2, hoverdist/2);
+					let dist = math.distanceFromPointToLineInclusive(point, b.a1, b.a2, hoverdist/2);
 					if (dist !== -1 && dist < hoverdist && dist < min) {
 						min = dist;
 						hovering = b;
@@ -2032,7 +2032,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				let sps = s.getPoints();
 				for ( let j = 0, jj = sps.length; j < jj; j++) {
 					let p = sps[j];
-					let dist = e.p.distance(p);
+					let dist = point.distance(p);
 					if (dist < hoverdist && dist < min) {
 						min = dist;
 						hovering = s;
@@ -2044,7 +2044,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					// check vap bonds only in the erase state
 					if(s.substituent){
 						let att = s.substituent;
-						let dist = e.p.distance(new structures.Point((s.asterisk.x + att.x) / 2, (s.asterisk.y + att.y) / 2));
+						let dist = point.distance(new structures.Point((s.asterisk.x + att.x) / 2, (s.asterisk.y + att.y) / 2));
 						if (dist < hoverdist && dist < min) {
 							min = dist;
 							s.hoverBond = att;
@@ -2053,7 +2053,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					}
 					for ( let j = 0, jj = s.attachments.length; j < jj; j++) {
 						let att = s.attachments[j];
-						let dist = e.p.distance(new structures.Point((s.asterisk.x + att.x) / 2, (s.asterisk.y + att.y) / 2));
+						let dist = point.distance(new structures.Point((s.asterisk.x + att.x) / 2, (s.asterisk.y + att.y) / 2));
 						if (dist < hoverdist && dist < min) {
 							min = dist;
 							s.hoverBond = att;
@@ -2066,7 +2066,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				// find smallest shape pointer is over
 				for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
 					let s = this.sketcher.shapes[i];
-					if (s.isOver(e.p, hoverdist)) {
+					if (s.isOver(point, hoverdist)) {
 						hovering = s;
 					}
 				}
@@ -2479,7 +2479,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, false);
+		this.findHoveredObject(e.p, true, false);
 	};
 
 })(ChemDoodle.uis.actions, ChemDoodle.uis.states);
@@ -2539,7 +2539,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.control = undefined;
 		if (this.start) {
 			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e, false, true);
+			this.findHoveredObject(e.p, false, true);
 			this.sketcher.repaint();
 		}
 	};
@@ -2621,7 +2621,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if(this.control){
 			this.clearHover();
 		}else{
-			this.findHoveredObject(e, false, true, true);
+			this.findHoveredObject(e.p, false, true, true);
 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2._Shape && !(this.sketcher.hovering instanceof d2.DynamicBracket)){
 				this.clearHover();
 			}
@@ -2818,7 +2818,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.handleDelete();
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, true, true);
+		this.findHoveredObject(e.p, true, true, true);
 	};
 
 })(ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.structures, ChemDoodle.structures.d2);
@@ -2857,7 +2857,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, false);
+		this.findHoveredObject(e.p, true, false);
 	};
 	_.innerdrag = function(e) {
 		if(this.downPoint && this.downPoint.distance(e.p)>3){
@@ -2901,11 +2901,11 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	//let SCALE = 3;
 	let transformType = undefined;
 	let rotateBufferConst = 25;
+	let paintRotate = false;
 
 	states.LassoState = function(sketcher) {
 		this.setup(sketcher);
 		this.dontTranslateOnDrag = true;
-		this.paintRotate = false;
 		this.defaultCursor = 'POINTER_LASSO';
 	};
 	let _ = states.LassoState.prototype = new states._State();
@@ -2919,26 +2919,48 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		return (math.isBetween(point.x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX)
 			&& math.isBetween(point.y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
 	};
-	_.updateCursor = function() {
-		if (this.sketcher.lastMousePos && this.sketcher.lasso.isActive()) {
-			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
-			if (this.inDragBoundaries(this.sketcher.lastMousePos)) {
-				this.setCursor('POINTER_DRAG');
-			}
-			else if (this.inRotateBoundaries(this.sketcher.lastMousePos, rotateBuffer)) {
-				this.setCursor('POINTER_ROTATE');
-				this.paintRotate = true;
-				this.sketcher.repaint();
-			}
-			else {
-				this.setCursor('POINTER_LASSO');
-			}
-		} else {
+	_.updateHoverCursor = function(point) {
+		if (!point) {
+			this.setCursor('POINTER_LASSO');
+			return;
+		}
+		this.findHoveredObject(point, true, true, true);
+		if (this.sketcher.hovering && this.cursor !== 'default') {
+			this.setCursor('default');
+		} else if (!this.sketcher.hovering && this.cursor !== 'POINTER_LASSO') {
 			this.setCursor('POINTER_LASSO');
 		}
 	};
+	_.updateCursor = function(point) {
+		let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
+		if (!point) {
+			this.setCursor('POINTER_LASSO');
+			return;
+		}
+		if (!monitor.SHIFT) {
+			if (this.inDragBoundaries(point) && this.cursor !== 'POINTER_DRAG') {
+				this.setCursor('POINTER_DRAG');
+				this.clearHover();
+				paintRotate = false;
+			}
+			else if (!this.inDragBoundaries(point) && this.inRotateBoundaries(point, rotateBuffer)
+				&& this.cursor !== 'POINTER_ROTATE') {
+				this.setCursor('POINTER_ROTATE');
+				this.clearHover();
+				paintRotate = true;
+				this.sketcher.repaint();
+			}
+			else if (!this.inRotateBoundaries(point, rotateBuffer)) {
+				this.updateHoverCursor(point);
+				paintRotate = false;
+			}
+		} else {
+			this.updateHoverCursor(point);
+			paintRotate = false;
+		}
+	};
 	_.innerenter = function() {
-		this.updateCursor();
+		this.updateCursor(this.sketcher.lastPoint);
 	};
 	_.innerexit = function() {
 		if (this.sketcher.lasso.isActive()) {
@@ -3055,7 +3077,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				this.sketcher.lasso.select();
 			}
 		}
-		this.innermousemove(e);
+		this.updateCursor(e.p);
 	};
 	_.innerclick = function(e) {
 		if (!transformType && !this.inDrag) {
@@ -3078,39 +3100,16 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		transformType = undefined;
 	};
 	_.innermousemove = function(e) {
-		let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
-
-		if (this.inDragBoundaries(e.p) && this.cursor !== 'POINTER_DRAG') {
-			this.setCursor('POINTER_DRAG');
-			this.paintRotate = false;
-		}
-		else if (!this.inDragBoundaries(e.p) && this.inRotateBoundaries(e.p, rotateBuffer)
-			&& this.cursor !== 'POINTER_ROTATE') {
-			this.setCursor('POINTER_ROTATE');
-			this.paintRotate = true;
-			this.sketcher.repaint();
-		}
-		else if (!this.sketcher.lasso.isActive() || !this.inRotateBoundaries(e.p, rotateBuffer)) {
-			this.findHoveredObject(e, true, true, true);
-			if (this.sketcher.hovering && this.cursor !== 'default') {
-				this.setCursor('default');
-			} else if (!this.sketcher.hovering && this.cursor !== 'POINTER_LASSO') {
-				this.setCursor('POINTER_LASSO');
-			}
-			this.paintRotate = false;
-		}
+		this.updateCursor(e.p);
 	};
 	_.innerkeydown = function(e) {
-		// if (monitor.SHIFT && this.cursor != 'POINTER_LASSO' && this.) {
-		// 	this.setCursor('POINTER_LASSO');
-		// }
+		this.updateCursor(this.sketcher.lastPoint);
 	};
 	_.innerkeyup = function(e) {
-		// if (!monitor.SHIFT && this.sketcher.lasso.isActive())
-		// 	this.updateCursor();
+		this.updateCursor(this.sketcher.lastPoint);
 	};
 	_.innerdblclick = function(e) {
-		this.findHoveredObject(e, true, true, true);
+		this.findHoveredObject(e.p, true, true, true);
 		let hovering = this.sketcher.hovering;
 		let mol;
 		if(hovering && hovering instanceof structures.Bond ) {
@@ -3123,7 +3122,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.clearHover();
 	};
 	_.draw = function(ctx, styles) {
-		if (this.paintRotate && this.sketcher.lasso.bounds) {
+		if (paintRotate && this.sketcher.lasso.bounds) {
 			ctx.fillStyle = styles.colorSelect;
 			ctx.globalAlpha = .1;
 			let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
@@ -3157,7 +3156,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, false);
+		this.findHoveredObject(e.p, true, false);
 	};
 
 })(ChemDoodle.uis.actions, ChemDoodle.uis.states);
@@ -3198,7 +3197,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, true);
+		this.findHoveredObject(e.p, true, true);
 	};
 	_.innermouseup = function(e) {
 		this.action = undefined;
@@ -3388,7 +3387,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.tempAtom) {
 			return;
 		}
-		this.findHoveredObject(e, true, true);
+		this.findHoveredObject(e.p, true, true);
 		if (this.sketcher.startAtom) {
 			if (this.sketcher.hovering) {
 				this.sketcher.startAtom.x = -10;
@@ -3534,7 +3533,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.tempAtom) {
 			return;
 		}
-		this.findHoveredObject(e, true);
+		this.findHoveredObject(e.p, true);
 		if (this.sketcher.startAtom) {
 			if (this.sketcher.hovering) {
 				this.sketcher.startAtom.x = -10;
@@ -3871,7 +3870,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.tempAtom) {
 			return;
 		}
-		this.findHoveredObject(e, true, true);
+		this.findHoveredObject(e.p, true, true);
 		if (this.sketcher.startAtom) {
 			if (this.sketcher.hovering) {
 				this.sketcher.startAtom.x = -10;
@@ -4055,7 +4054,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.sketcher.tempAtom) {
 			return;
 		}
-		this.findHoveredObject(e, true);
+		this.findHoveredObject(e.p, true);
 		if (this.sketcher.startAtom) {
 			if (this.sketcher.hovering) {
 				this.sketcher.startAtom.x = -10;
@@ -4094,7 +4093,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.innerdrag = function(e) {
 		if (this.start) {
 			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e, true, this.numElectron!=-10);
+			this.findHoveredObject(e.p, true, this.numElectron!=-10);
 			this.sketcher.repaint();
 		}
 	};
@@ -4146,7 +4145,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if(this.start){
 			this.end = new structures.Point(e.p.x, e.p.y);
 		}
-		this.findHoveredObject(e, true, this.numElectron!=-10);
+		this.findHoveredObject(e.p, true, this.numElectron!=-10);
 		this.sketcher.repaint();
 	};
 	_.draw = function(ctx, styles) {
@@ -4188,7 +4187,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, true, false);
+		this.findHoveredObject(e.p, true, true, false);
 	};
 
 })(ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.structures, ChemDoodle.structures.d2);
@@ -4209,7 +4208,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 	};
 	_.innermousemove = function(e) {
-		this.findHoveredObject(e, true, false);
+		this.findHoveredObject(e.p, true, false);
 	};
 
 })(ChemDoodle.uis.actions, ChemDoodle.uis.states);
@@ -4478,7 +4477,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.innerdrag = function(e) {
 		if (this.start) {
 			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
+			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
 			this.sketcher.repaint();
 		}
 	};
@@ -4506,9 +4505,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	_.innermousemove = function(e) {
 		if(this.start){
 			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
+			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
 		}else{
-			this.findHoveredObject(e, true, true, true);
+			this.findHoveredObject(e.p, true, true, true);
 		}
 		this.sketcher.repaint();
 	};
