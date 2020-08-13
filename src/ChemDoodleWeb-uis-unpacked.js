@@ -2998,9 +2998,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					let newAngle = center.angle(e.p);
 					let rot = newAngle - oldAngle;
 					// handle corner case if dragging through the 2pi border
-					if (rot > m.PI && newAngle > oldAngle) {
+					if (m.abs(rot) && newAngle > oldAngle) {
 						rot = rot - 2 * m.PI;
-					} else if ( rot > m.PI && newAngle < oldAngle) {
+					} else if ( m.abs(rot) && newAngle < oldAngle) {
 						rot = 2 * m.PI - rot;
 					}
 					this.parentAction.dif += rot / 2;
@@ -3020,9 +3020,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					let newAngle = center.angle(e.p);
 					let rot = newAngle - oldAngle;
 					// handle corner case if dragging through the 2pi border
-					if (rot > m.PI && newAngle > oldAngle) {
+					if (m.abs(rot) > m.PI && newAngle > oldAngle) {
 						rot = rot - 2 * m.PI;
-					} else if ( rot > m.PI && newAngle < oldAngle) {
+					} else if ( m.abs(rot) && newAngle < oldAngle) {
 						rot = 2 * m.PI - rot;
 					}
 					rot = rot / 2;
