@@ -1838,6 +1838,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.center = center;
 	};
 	let _ = actions.RotateAction.prototype = new actions._Action();
+	_.angles = Array.from(Array(121), (x, index) => index * m.PI /60 ); // 3° angles
 	_.innerForward = function() {
 		for ( let i = 0, ii = this.ps.length; i < ii; i++) {
 			let p = this.ps[i];
@@ -2232,67 +2233,67 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (this.innerdrag) {
 			this.innerdrag(e);
 		}
-		if (!this.sketcher.hovering && !this.dontTranslateOnDrag) {
-			if (monitor.SHIFT) {
-				// rotate structure
-				if (this.parentAction) {
-					let center = this.parentAction.center;
-					let oldAngle = center.angle(this.sketcher.lastPoint);
-					let newAngle = center.angle(e.p);
-					let rot = newAngle - oldAngle;
-					this.parentAction.dif += rot;
-					for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
-						let a = this.parentAction.ps[i];
-						let dist = center.distance(a);
-						let angle = center.angle(a) + rot;
-						a.x = center.x + dist * m.cos(angle);
-						a.y = center.y - dist * m.sin(angle);
-					}
-					// must check here as change is outside of an action
-					for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-						this.sketcher.molecules[i].check();
-					}
-				} else {
-					let center = new structures.Point(this.sketcher.width / 2, this.sketcher.height / 2);
-					let oldAngle = center.angle(this.sketcher.lastPoint);
-					let newAngle = center.angle(e.p);
-					let rot = newAngle - oldAngle;
-					this.parentAction = new actions.RotateAction(this.sketcher.getAllPoints(), rot, center);
-					this.sketcher.historyManager.pushUndo(this.parentAction);
-				}
-			} else {
-				if (!this.sketcher.lastPoint) {
-					// this prevents the structure from being rotated and
-					// translated at the same time while a gesture is occuring,
-					// which is preferable based on use cases since the rotation
-					// center is the canvas center
-					return;
-				}
-				// move structure
-				let dif = new structures.Point(e.p.x, e.p.y);
-				dif.sub(this.sketcher.lastPoint);
-				if (this.parentAction) {
-					this.parentAction.dif.add(dif);
-					for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
-						this.parentAction.ps[i].add(dif);
-					}
-					if (this.sketcher.lasso && this.sketcher.lasso.isActive()) {
-						this.sketcher.lasso.bounds.minX += dif.x;
-						this.sketcher.lasso.bounds.maxX += dif.x;
-						this.sketcher.lasso.bounds.minY += dif.y;
-						this.sketcher.lasso.bounds.maxY += dif.y;
-					}
-					// must check here as change is outside of an action
-					for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-						this.sketcher.molecules[i].check();
-					}
-				} else {
-					this.parentAction = new actions.MoveAction(this.sketcher.getAllPoints(), dif);
-					this.sketcher.historyManager.pushUndo(this.parentAction);
-				}
-			}
-			this.sketcher.repaint();
-		}
+		// if (!this.sketcher.hovering && !this.dontTranslateOnDrag) {
+		// 	if (monitor.SHIFT) {
+		// 		// rotate structure
+		// 		if (this.parentAction) {
+		// 			let center = this.parentAction.center;
+		// 			let oldAngle = center.angle(this.sketcher.lastPoint);
+		// 			let newAngle = center.angle(e.p);
+		// 			let rot = newAngle - oldAngle;
+		// 			this.parentAction.dif += rot;
+		// 			for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
+		// 				let a = this.parentAction.ps[i];
+		// 				let dist = center.distance(a);
+		// 				let angle = center.angle(a) + rot;
+		// 				a.x = center.x + dist * m.cos(angle);
+		// 				a.y = center.y - dist * m.sin(angle);
+		// 			}
+		// 			// must check here as change is outside of an action
+		// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+		// 				this.sketcher.molecules[i].check();
+		// 			}
+		// 		} else {
+		// 			let center = new structures.Point(this.sketcher.width / 2, this.sketcher.height / 2);
+		// 			let oldAngle = center.angle(this.sketcher.lastPoint);
+		// 			let newAngle = center.angle(e.p);
+		// 			let rot = newAngle - oldAngle;
+		// 			this.parentAction = new actions.RotateAction(this.sketcher.getAllPoints(), rot, center);
+		// 			this.sketcher.historyManager.pushUndo(this.parentAction);
+		// 		}
+		// 	} else {
+		// 		if (!this.sketcher.lastPoint) {
+		// 			// this prevents the structure from being rotated and
+		// 			// translated at the same time while a gesture is occuring,
+		// 			// which is preferable based on use cases since the rotation
+		// 			// center is the canvas center
+		// 			return;
+		// 		}
+		// 		// move structure
+		// 		let dif = new structures.Point(e.p.x, e.p.y);
+		// 		dif.sub(this.sketcher.lastPoint);
+		// 		if (this.parentAction) {
+		// 			this.parentAction.dif.add(dif);
+		// 			for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
+		// 				this.parentAction.ps[i].add(dif);
+		// 			}
+		// 			if (this.sketcher.lasso && this.sketcher.lasso.isActive()) {
+		// 				this.sketcher.lasso.bounds.minX += dif.x;
+		// 				this.sketcher.lasso.bounds.maxX += dif.x;
+		// 				this.sketcher.lasso.bounds.minY += dif.y;
+		// 				this.sketcher.lasso.bounds.maxY += dif.y;
+		// 			}
+		// 			// must check here as change is outside of an action
+		// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+		// 				this.sketcher.molecules[i].check();
+		// 			}
+		// 		} else {
+		// 			this.parentAction = new actions.MoveAction(this.sketcher.getAllPoints(), dif);
+		// 			this.sketcher.historyManager.pushUndo(this.parentAction);
+		// 		}
+		// 	}
+		// 	this.sketcher.repaint();
+		// }
 		this.sketcher.lastPoint = e.p;
 	};
 	_.keydown = function(e) {
@@ -2996,11 +2997,18 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					let oldAngle = center.angle(this.sketcher.lastPoint);
 					let newAngle = center.angle(e.p);
 					let rot = newAngle - oldAngle;
-					this.parentAction.dif += rot;
+					// handle corner case if dragging through the 2pi border
+					if (rot > m.PI && newAngle > oldAngle) {
+						rot = rot - 2 * m.PI;
+					} else if ( rot > m.PI && newAngle < oldAngle) {
+						rot = 2 * m.PI - rot;
+					}
+					this.parentAction.dif += rot / 2;
+
 					for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
 						let a = this.parentAction.ps[i];
 						let dist = center.distance(a);
-						let angle = center.angle(a) + rot;
+						let angle = center.angle(a) + rot / 2;
 						a.x = center.x + dist * m.cos(angle);
 						a.y = center.y - dist * m.sin(angle);
 					}
@@ -3011,6 +3019,13 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					let oldAngle = center.angle(this.sketcher.lastPoint);
 					let newAngle = center.angle(e.p);
 					let rot = newAngle - oldAngle;
+					// handle corner case if dragging through the 2pi border
+					if (rot > m.PI && newAngle > oldAngle) {
+						rot = rot - 2 * m.PI;
+					} else if ( rot > m.PI && newAngle < oldAngle) {
+						rot = 2 * m.PI - rot;
+					}
+					rot = rot / 2;
 					this.parentAction = new actions.RotateAction(this.sketcher.lasso.getAllPoints(), rot, center);
 					this.sketcher.historyManager.pushUndo(this.parentAction);
 				}
