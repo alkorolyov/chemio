@@ -422,11 +422,20 @@ test('Check clamp', function(){
 
 test('Check angleBounds', function(){
 	expect(4);
-	equal(Math.PI, ChemDoodle.math.angleBounds(-Math.PI), 'Check less');
-	equal(Math.PI, ChemDoodle.math.angleBounds(3*Math.PI), 'Check more');
-	equal(180, ChemDoodle.math.angleBounds(-Math.PI, true), 'Check convert to degrees less');
-	equal(180, ChemDoodle.math.angleBounds(3*Math.PI, true), 'Check convert to degrees more');
+	equal(1.5*Math.PI, ChemDoodle.math.angleBounds(-2.5*Math.PI, false), 'Check less 2pi');
+	equal(1.5*Math.PI, ChemDoodle.math.angleBounds(3.5*Math.PI, false), 'Check more 2pi');
+    equal(-0.5*Math.PI, ChemDoodle.math.angleBounds(-2.5*Math.PI, true), 'Check less limit to pi');
+    equal(0.5*Math.PI, ChemDoodle.math.angleBounds(3.5*Math.PI, true), 'Check more limit to pi');
 });
+
+test('Check center', function(){
+    expect(4);
+    equal(0.5, ChemDoodle.math.center([{x: 1, y: 1},{x: 0, y: 0}]).x, 'check x positive');
+    equal(0.5, ChemDoodle.math.center([{x: 1, y: 1},{x: 0, y: 0}]).y, 'check y positive');
+    equal(-0.5, ChemDoodle.math.center([{x: 0, y: 0},{x: -1, y: -1}]).x, 'check x negative');
+    equal(-0.5, ChemDoodle.math.center([{x: 0, y: 0},{x: -1, y: -1}]).y, 'check y negative');
+});
+
 module('ElementalData');
 
 test('Check ELEMENT array exists', function() {
@@ -941,7 +950,7 @@ test('Check creation absorbs defaults', function() {
 	equal(styles.colorSelect, ChemDoodle.DEFAULT_STYLES.colorSelect, 'Check colorSelect');
 	equal(styles.colorError, ChemDoodle.DEFAULT_STYLES.colorError, 'Check colorError');
 	equal(styles.colorPreview, ChemDoodle.DEFAULT_STYLES.colorPreview, 'Check colorPreview');
-	
+
 	// 3D shaders
 	equal(styles.ssao_3D, ChemDoodle.DEFAULT_STYLES.ssao_3D, 'Check ssao_3D');
 	equal(styles.ssao_kernel_radius, ChemDoodle.DEFAULT_STYLES.ssao_kernel_radius, 'Check ssao_kernel_radius');
@@ -1022,7 +1031,7 @@ test('Check creation absorbs defaults', function() {
 	equal(styles.bonds_materialAmbientColor_3D, ChemDoodle.DEFAULT_STYLES.bonds_materialAmbientColor_3D, 'Check bonds_materialAmbientColor_3D');
 	equal(styles.bonds_materialSpecularColor_3D, ChemDoodle.DEFAULT_STYLES.bonds_materialSpecularColor_3D, 'Check bonds_materialSpecularColor_3D');
 	equal(styles.bonds_materialShininess_3D, ChemDoodle.DEFAULT_STYLES.bonds_materialShininess_3D, 'Check bonds_materialShininess_3D');
-	
+
 	// macromolecular properties
 	equal(styles.proteins_displayRibbon, ChemDoodle.DEFAULT_STYLES.proteins_displayRibbon, 'Check proteins_displayRibbon');
 	equal(styles.proteins_displayBackbone, ChemDoodle.DEFAULT_STYLES.proteins_displayBackbone, 'Check proteins_displayBackbone');
@@ -1063,7 +1072,7 @@ test('Check creation absorbs defaults', function() {
 	equal(styles.macro_showWater, ChemDoodle.DEFAULT_STYLES.macro_showWater, 'Check macro_showWater');
 	equal(styles.macro_colorByChain, ChemDoodle.DEFAULT_STYLES.macro_colorByChain, 'Check macro_colorByChain');
 	deepEqual(styles.macro_rainbowColors, ChemDoodle.DEFAULT_STYLES.macro_rainbowColors, 'Check macro_rainbowColors');
-	
+
 	// surface properties
 	equal(styles.surfaces_display, ChemDoodle.DEFAULT_STYLES.surfaces_display, 'Check surfaces_display');
 	equal(styles.surfaces_alpha, ChemDoodle.DEFAULT_STYLES.surfaces_alpha, 'Check surfaces_alpha');
@@ -1072,7 +1081,7 @@ test('Check creation absorbs defaults', function() {
 	equal(styles.surfaces_materialAmbientColor_3D, ChemDoodle.DEFAULT_STYLES.surfaces_materialAmbientColor_3D, 'Check surfaces_materialAmbientColor_3D');
 	equal(styles.surfaces_materialSpecularColor_3D, ChemDoodle.DEFAULT_STYLES.surfaces_materialSpecularColor_3D, 'Check surfaces_materialSpecularColor_3D');
 	equal(styles.surfaces_materialShininess_3D, ChemDoodle.DEFAULT_STYLES.surfaces_materialShininess_3D, 'Check surfaces_materialShininess_3D');
-	
+
 	// spectrum properties
 	equal(styles.plots_color, ChemDoodle.DEFAULT_STYLES.plots_color, 'Check plots_color');
 	equal(styles.plots_width, ChemDoodle.DEFAULT_STYLES.plots_width, 'Check plots_width');
@@ -1084,7 +1093,7 @@ test('Check creation absorbs defaults', function() {
 	equal(styles.plots_gridLineWidth, ChemDoodle.DEFAULT_STYLES.plots_gridLineWidth, 'Check plots_gridLineWidth');
 	equal(styles.plots_showYAxis, ChemDoodle.DEFAULT_STYLES.plots_showYAxis, 'Check plots_showYAxis');
 	equal(styles.plots_flipXAxis, ChemDoodle.DEFAULT_STYLES.plots_flipXAxis, 'Check plots_flipXAxis');
-	
+
 	// shape properties
 	equal(styles.text_font_size, ChemDoodle.DEFAULT_STYLES.text_font_size, 'Check text_font_size');
 	deepEqual(styles.text_font_families, ChemDoodle.DEFAULT_STYLES.text_font_families, 'Check text_font_families');
@@ -1133,7 +1142,7 @@ test('Check set3DRepresentation with Stick', function() {
 	styles.set3DRepresentation('Stick');
 	ok(styles.atoms_useVDWDiameters_3D == false, 'Dont use VDWDiameters for atoms');
 	ok(styles.bonds_showBondOrders_3D == false, 'Dont show bond orders');
-	equal(.8, styles.bonds_cylinderDiameter_3D, 'Check bond cylinder diameter'); 
+	equal(.8, styles.bonds_cylinderDiameter_3D, 'Check bond cylinder diameter');
 	equal(.8, styles.atoms_sphereDiameter_3D, 'Check atom sphere diameter');
 	equal(styles.bonds_materialAmbientColor_3D, styles.atoms_materialAmbientColor_3D, 'Check that bond and atom material ambient colors are equal');
 });
@@ -2570,7 +2579,7 @@ test('Check contains function', function(){
 	ok(b.contains(a2), 'Check contains a2');
 	ok(!b.contains(a3), 'Check not contains a3');
 });
-	
+
 test('Check getNeighbor function', function(){
 	let a1 = new ChemDoodle.structures.Atom();
 	let a2 = new ChemDoodle.structures.Atom();
@@ -2674,7 +2683,7 @@ test('Check non elemental labels handled correctly', function(){
 	equal('Ph', new ChemDoodle.structures.Atom('Ph').label, 'Check abbreviation');
 	equal('das\[f34adfs', new ChemDoodle.structures.Atom('das\[f34adfs').label, 'Check insensible');
 });
-	
+
 test('Check addition 3D function', function(){
 	let p1 = new ChemDoodle.structures.Atom('C', 13, 17, -2);
 	let p2 = new ChemDoodle.structures.Atom('C', -9, 44, -10);
@@ -4785,7 +4794,7 @@ test('Check UnitCell survives', function() {
 	equal(22, content.shapes[0].unitCell.xyz[0], 'Check index 22');
 	equal(23, content.shapes[0].unitCell.xyz[1], 'Check index 23');
 	equal(24, content.shapes[0].unitCell.xyz[2], 'Check index 24');
-	
+
 });
 
 test('Check content can be stringified', function() {
@@ -5180,19 +5189,19 @@ test('Check unit cell vectors are correctly generated for orthorhombic unit cell
 	equal(-4.525500000000002, content.unitCell.unitCell.o[0], 'Unit cell origin vector x calculated correctly');
 	ok(Math.abs(-7.838395929652956-content.unitCell.unitCell.o[1])<.00001, 'Unit cell origin vector y calculated correctly');
 	equal(-3.809, content.unitCell.unitCell.o[2], 'Unit cell origin vector z calculated correctly');
-	
+
 	equal(13.5765, content.unitCell.unitCell.x[0], 'Unit cell x vector x calculated correctly');
 	ok(Math.abs(-7.838395929652956-content.unitCell.unitCell.x[1])<.00001, 'Unit cell x vector y calculated correctly');
 	equal(-3.809, content.unitCell.unitCell.x[2], 'Unit cell x vector z calculated correctly');
-	
+
 	equal(-13.5765, content.unitCell.unitCell.y[0], 'Unit cell y vector x calculated correctly');
 	ok(Math.abs(7.838395929652956-content.unitCell.unitCell.y[1])<.00001, 'Unit cell y vector y calculated correctly');
 	equal(-3.809, content.unitCell.unitCell.y[2], 'Unit cell y vector z calculated correctly');
-	
+
 	equal(-4.525500000000002, content.unitCell.unitCell.z[0], 'Unit cell z vector x calculated correctly');
 	ok(Math.abs(-7.838395929652956-content.unitCell.unitCell.z[1])<.00001, 'Unit cell z vector y calculated correctly');
 	equal(3.809, content.unitCell.unitCell.z[2], 'Unit cell z vector z calculated correctly');
-	
+
 	equal(4.525500000000002, content.unitCell.unitCell.xyz[0], 'Unit cell xyz vector x calculated correctly');
 	ok(Math.abs(7.838395929652956-content.unitCell.unitCell.xyz[1])<.00001, 'Unit cell xyz vector y calculated correctly');
 	equal(3.809, content.unitCell.unitCell.xyz[2], 'Unit cell xyz vector z calculated correctly');
@@ -5705,23 +5714,23 @@ test('Check bond orders are reversible', function(){
         if (mol.bonds[i].bondOrder === 1 && mol.bonds[i].stereo === ChemDoodle.structures.Bond.STEREO_NONE) {
             booleans[0] = true;
         }
-        else 
+        else
             if (mol.bonds[i].bondOrder === 1 && mol.bonds[i].stereo === ChemDoodle.structures.Bond.STEREO_PROTRUDING) {
                 booleans[1] = true;
             }
-            else 
+            else
                 if (mol.bonds[i].bondOrder === 1 && mol.bonds[i].stereo === ChemDoodle.structures.Bond.STEREO_RECESSED) {
                     booleans[2] = true;
                 }
-                else 
+                else
                     if (mol.bonds[i].bondOrder === 2 && mol.bonds[i].stereo === ChemDoodle.structures.Bond.STEREO_NONE) {
                         booleans[3] = true;
                     }
-                    else 
+                    else
                         if (mol.bonds[i].bondOrder === 2 && mol.bonds[i].stereo === ChemDoodle.structures.Bond.STEREO_AMBIGUOUS) {
                             booleans[4] = true;
                         }
-                        else 
+                        else
                             if (mol.bonds[i].bondOrder === 3 && mol.bonds[i].stereo === ChemDoodle.structures.Bond.STEREO_NONE) {
                                 booleans[5] = true;
                             }
@@ -6052,7 +6061,7 @@ test('Check removeMolecule', function(){
 	c.removeMolecule(m2);
 	equal(1, c.molecules.length, 'Array molecules contains one less molecule');
 	ok(m===c.getMolecules()[0], 'First molecule object is identical');
-	
+
 	c.clear();
 	c.addMolecule(m);
 	c.addMolecule(m2);
@@ -6076,7 +6085,7 @@ test('Check removeShape', function(){
 	c.removeShape(s2);
 	equal(1, c.shapes.length, 'Array shapes contains one less line');
 	ok(s===c.getShapes()[0], 'First shape object is identical');
-	
+
 	c.clear();
 	c.addShape(s);
 	c.addShape(s2);
