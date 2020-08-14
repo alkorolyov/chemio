@@ -2130,9 +2130,9 @@ ChemDoodle.RESIDUE = (function(undefined) {
 	_.drawDecorations = function (ctx, styles) {
 		if (this.isHover || this.isSelected) {
 			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-			ctx.lineWidth = 1.2;
+			ctx.lineWidth = styles.hoverLineWidth;
 			ctx.beginPath();
-			let radius = this.isHover ? 7 : 15;
+			let radius = this.isHover ? styles.atoms_selectRadius * 1.1 : 15;
 			ctx.arc(this.x, this.y, radius, 0, m.PI * 2, false);
 			ctx.stroke();
 		}
@@ -2345,10 +2345,11 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		let difX = x2 - x1;
 		let difY = y2 - y1;
 		if (this.a1.isLassoed && this.a2.isLassoed) {
-            let useDist = styles.atoms_selectRadius * 0.5;
+            let radius = styles.atoms_selectRadius;
+            let useDist = radius * 0.5;
 			let perpendicular = angle + m.PI / 2;
-			let dx = styles.atoms_selectRadius * m.sqrt(3) / 2 * m.cos(angle);
-			let dy = styles.atoms_selectRadius * m.sqrt(3) / 2 * m.sin(angle);
+			let dx = radius * m.sqrt(3) / 2 * m.cos(angle);
+			let dy = radius * m.sqrt(3) / 2 * m.sin(angle);
 			let mcosp = m.cos(perpendicular);
 			let msinp = m.sin(perpendicular);
 			let cx1 = x1 - mcosp * useDist + dx;
@@ -2390,11 +2391,12 @@ ChemDoodle.RESIDUE = (function(undefined) {
             ctx.moveTo(cx1, cy1);
             ctx.beginPath();
             ctx.fillStyle = styles.colorSelect;
-            ctx.arc(x1, y1, styles.atoms_selectRadius, -angle - m.PI / 6, -angle + m.PI / 6);
+            ctx.arc(x1, y1, radius, -angle - m.PI / 6, -angle + m.PI / 6);
             ctx.lineTo(cx4, cy4);
-            ctx.arc(x2, y2, styles.atoms_selectRadius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
-            ctx.fill();
+            ctx.arc(x2, y2, radius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
             ctx.closePath();
+            ctx.fill();
+
 		}
 		if (styles.atoms_display && !styles.atoms_circles_2D && this.a1.isLabelVisible(styles) && this.a1.textBounds) {
 			let distShrink = 0;
@@ -2677,20 +2679,56 @@ ChemDoodle.RESIDUE = (function(undefined) {
 	};
 	_.drawDecorations = function(ctx, styles) {
 		if (this.isHover || this.isSelected) {
-			let pi2 = 2 * m.PI;
-			let angle = (this.a1.angleForStupidCanvasArcs(this.a2) + m.PI / 2) % pi2;
-			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-			ctx.lineWidth = 1.2;
-			ctx.beginPath();
-			let angleTo = (angle + m.PI) % pi2;
-			angleTo = angleTo % (m.PI * 2);
-			ctx.arc(this.a1.x, this.a1.y, 7, angle, angleTo, false);
-			ctx.stroke();
-			ctx.beginPath();
-			angle += m.PI;
-			angleTo = (angle + m.PI) % pi2;
-			ctx.arc(this.a2.x, this.a2.y, 7, angle, angleTo, false);
-			ctx.stroke();
+            let x1 = this.a1.x;
+            let x2 = this.a2.x;
+            let y1 = this.a1.y;
+            let y2 = this.a2.y;
+
+            let angle = this.a1.angle(this.a2);
+            let radius = styles.atoms_selectRadius * 1.1;
+		    let useDist = radius * 0.5;
+            let perpendicular = angle + m.PI / 2;
+            let dx = radius * m.sqrt(3) / 2 * m.cos(angle);
+            let dy = radius * m.sqrt(3) / 2 * m.sin(angle);
+            let mcosp = m.cos(perpendicular);
+            let msinp = m.sin(perpendicular);
+            let cx1 = x1 - mcosp * useDist + dx;
+            let cy1 = y1 + msinp * useDist - dy;
+            let cx2 = x1 + mcosp * useDist + dx;
+            let cy2 = y1 - msinp * useDist - dy;
+            let cx3 = x2 + mcosp * useDist - dx;
+            let cy3 = y2 - msinp * useDist + dy;
+            let cx4 = x2 - mcosp * useDist - dx;
+            let cy4 = y2 + msinp * useDist + dy;
+
+            ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
+            ctx.lineWidth = styles.hoverLineWidth;
+
+            ctx.moveTo(cx1, cy1);
+            ctx.beginPath();
+            ctx.arc(x1, y1, radius, -angle - m.PI / 6, -angle + m.PI / 6, true);
+            ctx.lineTo(cx4, cy4);
+            ctx.arc(x2, y2, radius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI, true);
+            ctx.closePath();
+            ctx.stroke();
+
+
+
+
+            // let pi2 = 2 * m.PI;
+			// let angle = (this.a1.angleForStupidCanvasArcs(this.a2) + m.PI / 2) % pi2;
+			// ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
+			// ctx.lineWidth = 1.2;
+			// ctx.beginPath();
+			// let angleTo = (angle + m.PI) % pi2;
+			// angleTo = angleTo % (m.PI * 2);
+			// ctx.arc(this.a1.x, this.a1.y, 7, angle, angleTo, false);
+			// ctx.stroke();
+			// ctx.beginPath();
+			// angle += m.PI;
+			// angleTo = (angle + m.PI) % pi2;
+			// ctx.arc(this.a2.x, this.a2.y, 7, angle, angleTo, false);
+			// ctx.stroke();
 		}
 	};
 	_.drawLewisStyle = function(ctx, styles, x1, y1, x2, y2) {
@@ -9785,6 +9823,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		rotateAngle:0,
 		bondLength_2D:20,
 		angstromsPerBondLength:1.25,
+        hoverLineWidth: 0.5,
 		lightDirection_3D:[-.1, -.1, -1],
 		lightDiffuseColor_3D:'#FFFFFF',
 		lightSpecularColor_3D:'#FFFFFF',
