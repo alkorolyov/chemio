@@ -837,6 +837,8 @@ ChemDoodle.math = (function(c, structures, q, m, undefined) {
 		};
 	};
 
+
+
 	pack.isBetween = function(x, left, right) {
 		if (left > right) {
 			let tmp = left;
@@ -1042,22 +1044,37 @@ ChemDoodle.math = (function(c, structures, q, m, undefined) {
 		return 'rgb(' + lerpColor.join(',') + ')';
 	};
 
-	pack.angleBounds = function(angle, convertToDegrees, limitToPi) {
-		let full = m.PI*2;
-		while(angle<0){
-			angle+=full;
-		}
-		while(angle>full){
+	pack.angleBounds = function(angle, limitToPi, zeroCenter) {
+		limitToPi = limitToPi === undefined ? true : limitToPi;
+	    zeroCenter = zeroCenter === undefined ? true : zeroCenter;
+
+	    let full = m.PI*2;
+
+	    while(angle>full){
 			angle-=full;
 		}
-		if(limitToPi && angle>m.PI){
-			angle = 2*m.PI-angle;
-		}
-		if(convertToDegrees){
-			angle = 180*angle/m.PI;
-		}
+        while(angle<0){
+            angle+=full;
+        }
+
+        if (!limitToPi) return angle;
+
+        if(zeroCenter && angle>m.PI){
+            angle = angle-full;
+		} else if (angle>m.PI) {
+            angle = full-angle;
+        }
+
 		return angle;
 	};
+
+	pack.toDeg = function(angle){
+	    return 180*angle/m.PI;
+    }
+
+    pack.toRad = function(angle){
+	    return angle*m.PI/180;
+    }
 
 	pack.isPointInPoly = function(poly, pt) {
 		// this function needs var to work properly
@@ -1066,6 +1083,17 @@ ChemDoodle.math = (function(c, structures, q, m, undefined) {
 		}
 		return c;
 	};
+
+	pack.center = function(points) {
+	    let center = new structures.Point(0, 0);
+	    for (let i = 0, ii = points.length; i < ii; i++) {
+	        center.x += points[i].x;
+            center.y += points[i].y;
+        }
+	    center.x /= points.length;
+        center.y /= points.length;
+        return center;
+    };
 
 	return pack;
 
@@ -5748,7 +5776,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		let vecCenter = v3.scale(v3.normalize(v3.add(this.vec1, this.vec2, [])), this.distUse + 0.3);
 		return {
 			pos : [ this.a2.x + vecCenter[0], this.a2.y + vecCenter[1], this.a2.z + vecCenter[2] ],
-			value : [ math.angleBounds(this.angle, true).toFixed(2), ' \u00b0' ].join('')
+			value : [ math.angleBounds(this.angle, true, false).toFixed(2), ' \u00b0' ].join('')
 		};
 	};
 
