@@ -1531,40 +1531,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		let dy = p.y - this.y;
 		return m.sqrt(dx * dx + dy * dy);
 	};
-	_.angleForStupidCanvasArcs = function(p) {
-		let dx = p.x - this.x;
-		let dy = p.y - this.y;
-		let angle = 0;
-		// Calculate angle
-		if (dx === 0) {
-			if (dy === 0) {
-				angle = 0;
-			} else if (dy > 0) {
-				angle = m.PI / 2;
-			} else {
-				angle = 3 * m.PI / 2;
-			}
-		} else if (dy === 0) {
-			if (dx > 0) {
-				angle = 0;
-			} else {
-				angle = m.PI;
-			}
-		} else {
-			if (dx < 0) {
-				angle = m.atan(dy / dx) + m.PI;
-			} else if (dy < 0) {
-				angle = m.atan(dy / dx) + 2 * m.PI;
-			} else {
-				angle = m.atan(dy / dx);
-			}
-		}
-		while (angle < 0) {
-			angle += m.PI * 2;
-		}
-		angle = angle % (m.PI * 2);
-		return angle;
-	};
 	_.angle = function(p) {
 		// y is upside down to account for inverted canvas
 		let dx = p.x - this.x;
@@ -2396,7 +2362,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
             ctx.arc(x2, y2, radius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
             ctx.closePath();
             ctx.fill();
-
 		}
 		if (styles.atoms_display && !styles.atoms_circles_2D && this.a1.isLabelVisible(styles) && this.a1.textBounds) {
 			let distShrink = 0;
@@ -2677,6 +2642,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 			}
 		}
 	};
+
 	_.drawDecorations = function(ctx, styles) {
 		if (this.isHover || this.isSelected) {
             let x1 = this.a1.x;
@@ -2711,24 +2677,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
             ctx.arc(x2, y2, radius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI, true);
             ctx.closePath();
             ctx.stroke();
-
-
-
-
-            // let pi2 = 2 * m.PI;
-			// let angle = (this.a1.angleForStupidCanvasArcs(this.a2) + m.PI / 2) % pi2;
-			// ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-			// ctx.lineWidth = 1.2;
-			// ctx.beginPath();
-			// let angleTo = (angle + m.PI) % pi2;
-			// angleTo = angleTo % (m.PI * 2);
-			// ctx.arc(this.a1.x, this.a1.y, 7, angle, angleTo, false);
-			// ctx.stroke();
-			// ctx.beginPath();
-			// angle += m.PI;
-			// angleTo = (angle + m.PI) % pi2;
-			// ctx.arc(this.a2.x, this.a2.y, 7, angle, angleTo, false);
-			// ctx.stroke();
 		}
 	};
 	_.drawLewisStyle = function(ctx, styles, x1, y1, x2, y2) {
