@@ -1838,7 +1838,6 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.center = center;
 	};
 	let _ = actions.RotateAction.prototype = new actions._Action();
-	_.angles = Array.from(Array(121), (x, index) => index * m.PI /60 ); // 3° angles
 	_.innerForward = function() {
 		for ( let i = 0, ii = this.ps.length; i < ii; i++) {
 			let p = this.ps[i];
@@ -2903,6 +2902,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	let transformType = undefined;
 	let rotateBufferConst = 25;
 	let paintRotate = false;
+
+	let rotateDif = 0;
+	let initialPoints = [];
+	let delta = math.toRad(6);
+	let angleChanged = false;
+
 	states.LassoState = function(sketcher) {
 		this.setup(sketcher);
 		this.dontTranslateOnDrag = true;
@@ -2996,37 +3001,47 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					let center = this.parentAction.center;
 					let oldAngle = center.angle(this.sketcher.lastPoint);
 					let newAngle = center.angle(e.p);
-					let rot = newAngle - oldAngle;
-					// handle corner case if dragging through the 2pi border
-					if (m.abs(rot) && newAngle > oldAngle) {
-						rot = rot - 2 * m.PI;
-					} else if ( m.abs(rot) && newAngle < oldAngle) {
-						rot = 2 * m.PI - rot;
+					let rot = math.angleBounds(newAngle - oldAngle);
+					rotateDif = math.angleBounds(rotateDif + rot);
+					if (!monitor.ALT) {
+						let deltaDif =  m.floor(rotateDif / delta) - m.floor(this.parentAction.dif / delta);
+						if (deltaDif != 0) {
+							this.parentAction.dif = m.floor(rotateDif / delta) * delta;
+							rot = deltaDif * delta;
+							angleChanged = true;
+						} else {
+							rot = 0;
+							angleChanged = false;
+						}
+					} else {
+						this.parentAction.dif = math.angleBounds(this.parentAction.dif + rot);
+						angleChanged = true;
 					}
-					this.parentAction.dif += rot / 2;
-
-					for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
-						let a = this.parentAction.ps[i];
-						let dist = center.distance(a);
-						let angle = center.angle(a) + rot / 2;
-						a.x = center.x + dist * m.cos(angle);
-						a.y = center.y - dist * m.sin(angle);
+					if (angleChanged) {
+						for ( let i = 0, ii = this.parentAction.ps.length; i < ii; i++) {
+							let newAngle = center.angle(initialPoints[i]) + this.parentAction.dif;
+							let dist = center.distance(initialPoints[i]);
+							this.parentAction.ps[i].x = center.x + dist * m.cos(newAngle);
+							this.parentAction.ps[i].y = center.y - dist * m.sin(newAngle);
+						}
 					}
 					// must check here as change is outside of an action
 					this.parentAction.checks(this.sketcher);
 				} else {
-					let center = new structures.Point((this.sketcher.lasso.bounds.minX + this.sketcher.lasso.bounds.maxX) / 2, (this.sketcher.lasso.bounds.minY + this.sketcher.lasso.bounds.maxY) / 2);
+					let points = this.sketcher.lasso.getAllPoints();
+					let center = math.center(points);
 					let oldAngle = center.angle(this.sketcher.lastPoint);
 					let newAngle = center.angle(e.p);
-					let rot = newAngle - oldAngle;
-					// handle corner case if dragging through the 2pi border
-					if (m.abs(rot) > m.PI && newAngle > oldAngle) {
-						rot = rot - 2 * m.PI;
-					} else if ( m.abs(rot) && newAngle < oldAngle) {
-						rot = 2 * m.PI - rot;
-					}
-					rot = rot / 2;
-					this.parentAction = new actions.RotateAction(this.sketcher.lasso.getAllPoints(), rot, center);
+					let rot = math.angleBounds(newAngle - oldAngle);
+					rotateDif = rot;
+
+					// save initial points
+					initialPoints = [];
+					for ( let i = 0, ii = points.length; i < ii; i++) {
+						initialPoints.push(new structures.Point(points[i].x, points[i].y));
+					};
+
+					this.parentAction = new actions.RotateAction(points, m.floor(rotateDif/delta)*delta, center);
 					this.sketcher.historyManager.pushUndo(this.parentAction);
 				}
 			}
