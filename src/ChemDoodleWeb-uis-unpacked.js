@@ -3014,7 +3014,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 							angleChanged = false;
 						}
 					} else {
-						this.parentAction.dif = math.angleBounds(this.parentAction.dif + rot);
+						this.parentAction.dif = rotateDif;
 						angleChanged = true;
 					}
 					if (angleChanged) {
@@ -5968,138 +5968,138 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 })(ChemDoodle, ChemDoodle.io, ChemDoodle.uis.gui.desktop, ChemDoodle.uis.gui.templateDepot, ChemDoodle.lib.jQuery, Math, document, JSON, localStorage);
 
-(function(c, actions, gui, desktop, q, undefined) {
-	'use strict';
-	gui.DialogManager = function(sketcher) {
-		let self = this;
-
-		if (sketcher.useServices) {
-			this.saveDialog = new desktop.SaveFileDialog(sketcher.id + '_save_dialog', sketcher);
-		} else {
-			this.saveDialog = new desktop.Dialog(sketcher.id, '_save_dialog', 'Save Molecule');
-			this.saveDialog.message = 'Copy and paste the content of the textarea into a file and save it with the extension <strong>.mol</strong>.';
-			this.saveDialog.includeTextArea = true;
-			// You must keep this link displayed at all times to abide by the
-			// license
-			// Contact us for permission to remove it,
-			// http://www.ichemlabs.com/contact-us
-			this.saveDialog.afterMessage = '<a href="http://www.chemdoodle.com" target="_blank">How do I use MOLFiles?</a>';
-		}
-		this.saveDialog.setup();
-
-		this.openPopup = new desktop.Popover(sketcher, sketcher.id+'_open_popover');
-		this.openPopup.getContentSource = function(){
-			let sb = ['<div style="width:320px;">'];
-			//sb.push('<div width="100%">Open chemical file from your computer:</div><br><form action="demo_form.asp">'];
-  			//sb.push('<input type="file" name="file" accept="image/*">');
-  			//sb.push('<input onclick="alert(\'include your form code here.\');" type="button" value="Open" /*type="submit"*/>');
-			//sb.push('</form>');
-			//sb.push('<hr>
-			// You must keep this link displayed at all times to abide by the
-			// license
-			// Contact us for permission to remove it,
-			// http://www.ichemlabs.com/contact-us
-			sb.push('<div width="100%">Or paste <em>MOLFile</em> or <em>ChemDoodle JSON</em> text and press the <strong>Load</strong> button.<br><br><center><a href="http://www.chemdoodle.com" target="_blank">Where do I get MOLFiles or ChemDoodle JSON?</a></center><br></div>');
-			sb.push('<textarea rows="12" id="'+sketcher.id+'_open_text" style="width:100%;"></textarea>');
-			sb.push('<br><button type="button" style="margin-left:270px;" id="'+sketcher.id+'_open_load">Load</button></div>');
-			return sb.join('');
-		};
-		this.openPopup.setupContent = function(){
-			q('#'+sketcher.id+'_open_load').click(function(){
-				self.openPopup.close();
-				let s = q('#'+sketcher.id+'_open_text').val();
-				let newContent;
-				if (s.indexOf('v2000') !== -1 || s.indexOf('V2000') !== -1) {
-					newContent = {
-						molecules : [ c.readMOL(s) ],
-						shapes : []
-					};
-				} else if (s.charAt(0) === '{') {
-					newContent = c.readJSON(s);
-				}
-				if (newContent && (newContent.molecules.length > 0 || newContent.shapes.length > 0)) {
-					sketcher.historyManager.pushUndo(new actions.SwitchContentAction(sketcher, newContent.molecules, newContent.shapes));
-				} else {
-					alert('No chemical content was recognized.');
-				}
-			});
-		};
-		this.openPopup.setup();
-
-		this.atomQueryDialog = new desktop.AtomQueryDialog(sketcher, '_atom_query_dialog');
-		this.atomQueryDialog.setup();
-
-		this.bondQueryDialog = new desktop.BondQueryDialog(sketcher, '_bond_query_dialog');
-		this.bondQueryDialog.setup();
-
-		this.templateDialog = new desktop.TemplateDialog(sketcher, '_templates_dialog');
-		this.templateDialog.setup();
-
-		this.searchDialog = new desktop.MolGrabberDialog(sketcher.id, '_search_dialog');
-		this.searchDialog.buttons = {
-			'Load' : function() {
-				let newMol = self.searchDialog.canvas.molecules[0];
-				if (newMol && newMol.atoms.length > 0) {
-					q(this).dialog('close');
-					sketcher.historyManager.pushUndo(new actions.AddContentAction(sketcher, self.searchDialog.canvas.molecules, self.searchDialog.canvas.shapes));
-					sketcher.toolbarManager.buttonLasso.getElement().click();
-					let atoms = [];
-					for(let i = 0, ii = self.searchDialog.canvas.molecules.length; i<ii; i++){
-						atoms = atoms.concat(self.searchDialog.canvas.molecules[i].atoms);
-					}
-					sketcher.lasso.select(atoms, self.searchDialog.canvas.shapes);
-				}else{
-					alert('After entering a search term, press the "Show Molecule" button to show it before loading. To close this dialog, press the "X" button to the top-right.');
-				}
-			}
-		};
-		this.searchDialog.setup();
-
-		if (sketcher.setupScene) {
-			this.stylesDialog = new desktop.SpecsDialog(sketcher, '_styles_dialog');
-			this.stylesDialog.buttons = {
-				'Done' : function() {
-					q(this).dialog('close');
-				}
-			};
-			this.stylesDialog.setup(this.stylesDialog, sketcher);
-		}
-
-		this.periodicTableDialog = new desktop.PeriodicTableDialog(sketcher, '_periodicTable_dialog');
-		this.periodicTableDialog.buttons = {
-			'Close' : function() {
-				q(this).dialog('close');
-			}
-		};
-		this.periodicTableDialog.setup();
-
-		this.calculateDialog = new desktop.Dialog(sketcher.id, '_calculate_dialog', 'Calculations');
-		this.calculateDialog.includeTextArea = true;
-		// You must keep this link displayed at all times to abide by the license
-		// Contact us for permission to remove it,
-		// http://www.ichemlabs.com/contact-us
-		this.calculateDialog.afterMessage = '<a href="http://www.chemdoodle.com" target="_blank">Want more calculations?</a>';
-		this.calculateDialog.setup();
-
-		this.inputDialog = new desktop.Dialog(sketcher.id, '_input_dialog', 'Input');
-		this.inputDialog.message = 'Please input the rgroup number (must be a positive integer). Input "-1" to remove the rgroup.';
-		this.inputDialog.includeTextField = true;
-		this.inputDialog.buttons = {
-			'Done' : function() {
-				q(this).dialog('close');
-				if (self.inputDialog.doneFunction) {
-					self.inputDialog.doneFunction(self.inputDialog.getTextField().val());
-				}
-			}
-		};
-		this.inputDialog.setup();
-
-		if(this.makeOtherDialogs){
-			this.makeOtherDialogs(sketcher);
-		}
-	};
-
-})(ChemDoodle, ChemDoodle.uis.actions, ChemDoodle.uis.gui, ChemDoodle.uis.gui.desktop, ChemDoodle.lib.jQuery);
+// (function(c, actions, gui, desktop, q, undefined) {
+// 	'use strict';
+// 	gui.DialogManager = function(sketcher) {
+// 		let self = this;
+//
+// 		if (sketcher.useServices) {
+// 			this.saveDialog = new desktop.SaveFileDialog(sketcher.id + '_save_dialog', sketcher);
+// 		} else {
+// 			this.saveDialog = new desktop.Dialog(sketcher.id, '_save_dialog', 'Save Molecule');
+// 			this.saveDialog.message = 'Copy and paste the content of the textarea into a file and save it with the extension <strong>.mol</strong>.';
+// 			this.saveDialog.includeTextArea = true;
+// 			// You must keep this link displayed at all times to abide by the
+// 			// license
+// 			// Contact us for permission to remove it,
+// 			// http://www.ichemlabs.com/contact-us
+// 			this.saveDialog.afterMessage = '<a href="http://www.chemdoodle.com" target="_blank">How do I use MOLFiles?</a>';
+// 		}
+// 		this.saveDialog.setup();
+//
+// 		this.openPopup = new desktop.Popover(sketcher, sketcher.id+'_open_popover');
+// 		this.openPopup.getContentSource = function(){
+// 			let sb = ['<div style="width:320px;">'];
+// 			//sb.push('<div width="100%">Open chemical file from your computer:</div><br><form action="demo_form.asp">'];
+//   			//sb.push('<input type="file" name="file" accept="image/*">');
+//   			//sb.push('<input onclick="alert(\'include your form code here.\');" type="button" value="Open" /*type="submit"*/>');
+// 			//sb.push('</form>');
+// 			//sb.push('<hr>
+// 			// You must keep this link displayed at all times to abide by the
+// 			// license
+// 			// Contact us for permission to remove it,
+// 			// http://www.ichemlabs.com/contact-us
+// 			sb.push('<div width="100%">Or paste <em>MOLFile</em> or <em>ChemDoodle JSON</em> text and press the <strong>Load</strong> button.<br><br><center><a href="http://www.chemdoodle.com" target="_blank">Where do I get MOLFiles or ChemDoodle JSON?</a></center><br></div>');
+// 			sb.push('<textarea rows="12" id="'+sketcher.id+'_open_text" style="width:100%;"></textarea>');
+// 			sb.push('<br><button type="button" style="margin-left:270px;" id="'+sketcher.id+'_open_load">Load</button></div>');
+// 			return sb.join('');
+// 		};
+// 		this.openPopup.setupContent = function(){
+// 			q('#'+sketcher.id+'_open_load').click(function(){
+// 				self.openPopup.close();
+// 				let s = q('#'+sketcher.id+'_open_text').val();
+// 				let newContent;
+// 				if (s.indexOf('v2000') !== -1 || s.indexOf('V2000') !== -1) {
+// 					newContent = {
+// 						molecules : [ c.readMOL(s) ],
+// 						shapes : []
+// 					};
+// 				} else if (s.charAt(0) === '{') {
+// 					newContent = c.readJSON(s);
+// 				}
+// 				if (newContent && (newContent.molecules.length > 0 || newContent.shapes.length > 0)) {
+// 					sketcher.historyManager.pushUndo(new actions.SwitchContentAction(sketcher, newContent.molecules, newContent.shapes));
+// 				} else {
+// 					alert('No chemical content was recognized.');
+// 				}
+// 			});
+// 		};
+// 		this.openPopup.setup();
+//
+// 		this.atomQueryDialog = new desktop.AtomQueryDialog(sketcher, '_atom_query_dialog');
+// 		this.atomQueryDialog.setup();
+//
+// 		this.bondQueryDialog = new desktop.BondQueryDialog(sketcher, '_bond_query_dialog');
+// 		this.bondQueryDialog.setup();
+//
+// 		this.templateDialog = new desktop.TemplateDialog(sketcher, '_templates_dialog');
+// 		this.templateDialog.setup();
+//
+// 		this.searchDialog = new desktop.MolGrabberDialog(sketcher.id, '_search_dialog');
+// 		this.searchDialog.buttons = {
+// 			'Load' : function() {
+// 				let newMol = self.searchDialog.canvas.molecules[0];
+// 				if (newMol && newMol.atoms.length > 0) {
+// 					q(this).dialog('close');
+// 					sketcher.historyManager.pushUndo(new actions.AddContentAction(sketcher, self.searchDialog.canvas.molecules, self.searchDialog.canvas.shapes));
+// 					sketcher.toolbarManager.buttonLasso.getElement().click();
+// 					let atoms = [];
+// 					for(let i = 0, ii = self.searchDialog.canvas.molecules.length; i<ii; i++){
+// 						atoms = atoms.concat(self.searchDialog.canvas.molecules[i].atoms);
+// 					}
+// 					sketcher.lasso.select(atoms, self.searchDialog.canvas.shapes);
+// 				}else{
+// 					alert('After entering a search term, press the "Show Molecule" button to show it before loading. To close this dialog, press the "X" button to the top-right.');
+// 				}
+// 			}
+// 		};
+// 		this.searchDialog.setup();
+//
+// 		if (sketcher.setupScene) {
+// 			this.stylesDialog = new desktop.SpecsDialog(sketcher, '_styles_dialog');
+// 			this.stylesDialog.buttons = {
+// 				'Done' : function() {
+// 					q(this).dialog('close');
+// 				}
+// 			};
+// 			this.stylesDialog.setup(this.stylesDialog, sketcher);
+// 		}
+//
+// 		this.periodicTableDialog = new desktop.PeriodicTableDialog(sketcher, '_periodicTable_dialog');
+// 		this.periodicTableDialog.buttons = {
+// 			'Close' : function() {
+// 				q(this).dialog('close');
+// 			}
+// 		};
+// 		this.periodicTableDialog.setup();
+//
+// 		this.calculateDialog = new desktop.Dialog(sketcher.id, '_calculate_dialog', 'Calculations');
+// 		this.calculateDialog.includeTextArea = true;
+// 		// You must keep this link displayed at all times to abide by the license
+// 		// Contact us for permission to remove it,
+// 		// http://www.ichemlabs.com/contact-us
+// 		this.calculateDialog.afterMessage = '<a href="http://www.chemdoodle.com" target="_blank">Want more calculations?</a>';
+// 		this.calculateDialog.setup();
+//
+// 		this.inputDialog = new desktop.Dialog(sketcher.id, '_input_dialog', 'Input');
+// 		this.inputDialog.message = 'Please input the rgroup number (must be a positive integer). Input "-1" to remove the rgroup.';
+// 		this.inputDialog.includeTextField = true;
+// 		this.inputDialog.buttons = {
+// 			'Done' : function() {
+// 				q(this).dialog('close');
+// 				if (self.inputDialog.doneFunction) {
+// 					self.inputDialog.doneFunction(self.inputDialog.getTextField().val());
+// 				}
+// 			}
+// 		};
+// 		this.inputDialog.setup();
+//
+// 		if(this.makeOtherDialogs){
+// 			this.makeOtherDialogs(sketcher);
+// 		}
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.uis.actions, ChemDoodle.uis.gui, ChemDoodle.uis.gui.desktop, ChemDoodle.lib.jQuery);
 (function(desktop, imageDepot, q, document, undefined) {
 	'use strict';
 	desktop.DropDown = function(id, tooltip, dummy) {
@@ -7471,7 +7471,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 					self.toolbarManager.setup();
 				});
 			}
-			this.dialogManager = new sketcherPack.gui.DialogManager(this);
+			this.dialogManager = {}; //new sketcherPack.gui.DialogManager(this);
 		}
 		if(sketcherPack.gui.desktop.TextInput){
 			this.textInput = new sketcherPack.gui.desktop.TextInput(this, this.id+'_textInput');
