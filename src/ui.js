@@ -27,8 +27,6 @@
 ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 	'use strict';
 
-	iChemLabs.INFO.v_jQuery_ui = q.ui.version;
-
 	let p = {};
 
 	p.actions = {};

@@ -53,9 +53,9 @@ Downloaded zip file contents:
   - webgl_transformer_MAZ_3D_Crystal.html      ==> A TransformCanvas3D component showing an interactive model of the zeolite MAZ. WebGL is required.
 
 - src                                   ==> folder containing the unpacked Javascript source
-  - ChemDoodleWeb-unpacked.js           ==> ChemDoodle Web Components library Javascript (unpacked)
-  - ChemDoodleWeb-uis-unpacked.js       ==> SketcherCanvas and EditorCanvas3D plugin library Javascript (unpacked)
-  
+  - core.js           ==> ChemDoodle Web Components library Javascript (unpacked)
+  - ui.js       ==> SketcherCanvas and EditorCanvas3D plugin library Javascript (unpacked)
+
 - tests                       ==> folder containing the qUnit testing suite
   - ChemDoodleWeb-tests.js    ==> ChemDoodle Web Components testing suite, requires qUnit (http://docs.jquery.com/Qunit)
 

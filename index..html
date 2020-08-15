@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="install/ChemDoodleWeb.css" type="text/css">
+    <link rel="stylesheet" href="install/uis/jquery-ui-1.11.4.css" type="text/css">
+
+    <script type="text/javascript" src="src/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="src/jquery-ui.js"></script>
+    <script type="text/javascript" src="src/jquery.mousewheel.js"></script>
+    <script type="text/javascript" src="src/jsbezier.js"></script>
+    <script type="text/javascript" src="src/io.js"></script>
+    <script type="text/javascript" src="src/core.js"></script>
+    <script type="text/javascript" src="src/ui.js"></script>
+
+    <meta charset="UTF-8">
+    <title>ChemDoodle Web Component Sketcher</title>
+</head>
+<body>
+<div id= "editor" oncontextmenu="return false;" style="text-align: center">
+    <script>
+        let sketcher = new ChemDoodle.SketcherCanvas('sketcher', 640, 480,{});
+    </script>
+</div>
+</body>
+</html>
