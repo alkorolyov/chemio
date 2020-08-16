@@ -24,7 +24,7 @@
 // alternate licensing options.
 //
 
-ChemDoodle.uis = (function(iChemLabs, q, undefined) {
+ChemDoodle.uis = (function(undefined) {
 	'use strict';
 
 	let p = {};
@@ -38,19 +38,17 @@ ChemDoodle.uis = (function(iChemLabs, q, undefined) {
 
 	return p;
 
-})(ChemDoodle.iChemLabs, ChemDoodle.lib.jQuery);
+})();
 
-ChemDoodle.uis.gui.imageDepot = (function (ext, undefined) {
+ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 	'use strict';
 	let d = {};
 	d.getURI = function (s) {
-		// for PNG, but all internal images are SVG now
-		// return 'data:image/png;base64,' + s;
-		// for SVG
 		return 'data:image/svg+xml;base64,' + s;
 	};
+
 	d.getCursor = function(cursor) {
-		return 'url(\"data:image/png;base64,' + cursor[0] + '\") '+ cursor[1] + ' ' + cursor[2] + ', auto';
+		return 'url("data:image/png;base64,' + cursor[0] + '") '+ cursor[1] + ' ' + cursor[2] + ', auto';
 	};
 
 	// PNG pointers, image and coords for hotspot correction
@@ -146,7 +144,7 @@ ChemDoodle.uis.gui.imageDepot = (function (ext, undefined) {
 	}
 	return d;
 
-})(ChemDoodle.extensions);
+})();
 
 ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	'use strict';
@@ -4636,7 +4634,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 })(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states);
 
-(function(states, q, imageDepot, undefined) {
+(function(states, imageDepot, undefined) {
 	'use strict';
 	states.StateManager = function(sketcher) {
 		this.STATE_NEW_BOND = new states.NewBondState(sketcher);
@@ -4665,20 +4663,16 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				currentState = nextState;
 				currentState.enter();
 			}
-			if(sketcher.openTray && q('#'+sketcher.openTray.dummy.id+'_label').attr('aria-pressed')==='false'){
-				// due to weirdness in how radio buttons in groups, but outside of jquery ui buttonsets are treated, we check for the aria-pressed attribute on the button label to determine select state
-				sketcher.openTray.close();
-			}
 		};
 		this.getCurrentState = function() {
 			return currentState;
 		};
 	};
 
-})(ChemDoodle.uis.states, ChemDoodle.lib.jQuery, ChemDoodle.uis.gui.imageDepot);
+})(ChemDoodle.uis.states, ChemDoodle.uis.gui.imageDepot);
 
 
-(function(desktop, imageDepot, q, undefined) {
+(function(desktop, imageDepot, undefined) {
 	'use strict';
 	desktop.Button = function(id, icon, tooltip, func) {
 		this.id = id;
@@ -4689,86 +4683,55 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	let _ = desktop.Button.prototype;
 	_.getElement = function() {
-		return q('#' + this.id);
-	};
-	_.getLabelElement = function() {
-		if(this.toggle){
-			return q('#' + this.id + '_label');
-		}
-		return undefined;
+		return document.getElementById(this.id);
 	};
 	_.getSource = function(buttonGroup) {
 		let sb = [];
-		let spacingStyles = 'box-sizing:border-box;margin-top:0px; margin-bottom:1px; padding:0px; height:28px; width:28px;';
-		if (this.toggle) {
-			sb.push('<input type="radio" name="');
-			sb.push(buttonGroup);
-			sb.push('" id="');
-			sb.push(this.id);
-			sb.push('" title="');
-			sb.push(this.tooltip);
-			sb.push('" /><label id="');
-			sb.push(this.id);
-			sb.push('_label" for="');
-			sb.push(this.id);
-			sb.push('" style="');
-			sb.push(spacingStyles);
-			sb.push('"><img id="');
-			sb.push(this.id);
-			sb.push('_icon" title="');
-			sb.push(this.tooltip);
-			sb.push('" width="20" height="20');
-			if(this.icon){
-				sb.push('" src="');
-				sb.push(imageDepot.getURI(this.icon));
-			}
-			sb.push('"></label>');
-		} else {
-			sb.push('<button type="button" id="');
-			sb.push(this.id);
-			sb.push('" onclick="return false;" title="');
-			sb.push(this.tooltip);
-			sb.push('" style="');
-			sb.push(spacingStyles);
-			sb.push('"><img title="');
-			sb.push(this.tooltip);
-			sb.push('" width="20" height="20');
-			if(this.icon){
-				sb.push('" src="');
-				sb.push(imageDepot.getURI(this.icon));
-			}
-			sb.push('"></button>');
+		sb.push('<span class="button"');
+		sb.push(' id="'+this.id+'"');
+		sb.push(' title="'+this.tooltip+'"');
+		if (this.icon) {
+			sb.push('<div class="icon">');
+			sb.push(this.icon);
+			sb.push('</div>');
 		}
+		sb.push('</span>');
 		return sb.join('');
 	};
-	_.setup = function(lone) {
+	_.setup = function() {
 		let element = this.getElement();
-		if (!this.toggle || lone) {
-			element.button();
+		let self = this;
+		element.onclick = function() {
+			element.classList.add('button-select');
+			self.func();
 		}
-		element.click(this.func);
+		element.onmouseover = function(e){
+			element.classList.add('button-hover');
+		}
+		element.onmouseout  = function(e){
+			element.classList.remove('button-hover');
+		}
 	};
 	_.disable = function() {
 		let element = this.getElement();
-		element.mouseout();
-		element.button('disable');
+		element.onmouseout();
+		element.classList.remove('button-select');
+		element.classList.add('button-disable');
 	};
 	_.enable = function() {
-		this.getElement().button('enable');
+		let element = this.getElement();
+		element.classList.remove('button-disable');
+		//this.getElement().button('enable');
 	};
 	_.select = function() {
 		// WARNING: this function will autofocus the element and move the page view to the button, use click() instead to avoid this behavior
 		// getElement().click() - executes its function (same as just calling .func())
 		// getLabelElement().click() - selects a toggle button (based on radio), similar to this call
 		let element = this.getElement();
-		element.attr('checked', true);
-		element.button('refresh');
-		if(this.toggle){
-			this.getLabelElement().click();
-		}
+		element.classList.add('button-select');
 	};
 
-})(ChemDoodle.uis.gui.desktop, ChemDoodle.uis.gui.imageDepot, ChemDoodle.lib.jQuery);
+})(ChemDoodle.uis.gui.desktop, ChemDoodle.uis.gui.imageDepot);
 (function(desktop, q, undefined) {
 	'use strict';
 	desktop.ButtonSet = function(id) {
@@ -6098,6 +6061,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 // 	};
 //
 // })(ChemDoodle, ChemDoodle.uis.actions, ChemDoodle.uis.gui, ChemDoodle.uis.gui.desktop, ChemDoodle.lib.jQuery);
+
 (function(desktop, imageDepot, q, document, undefined) {
 	'use strict';
 	desktop.DropDown = function(id, tooltip, dummy) {
@@ -7827,7 +7791,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.scaleEvent = function(e) {
 		e.op = new structures.Point(e.p.x, e.p.y);
-		if (this.styles.scale !== 1) {
+		if (this.styles.scale !== 1)
+		{
 			e.p.x = this.width / 2 + (e.p.x - this.width / 2) / this.styles.scale;
 			e.p.y = this.height / 2 + (e.p.y - this.height / 2) / this.styles.scale;
 		}

@@ -273,7 +273,7 @@ ChemDoodle.extensions = (function(structures, v3, m, undefined) {
 
 })(Object, Math);
 
-ChemDoodle.math = (function(c, structures, q, m, undefined) {
+ChemDoodle.math = (function(c, structures, m, undefined) {
 	'use strict';
 	let pack = {};
 
@@ -706,7 +706,7 @@ ChemDoodle.math = (function(c, structures, q, m, undefined) {
 
 	return pack;
 
-})(ChemDoodle, ChemDoodle.structures, ChemDoodle.lib.jQuery, Math);
+})(ChemDoodle, ChemDoodle.structures, Math);
 
 (function(math, m, undefined) {
 	'use strict';
@@ -761,7 +761,7 @@ ChemDoodle.math = (function(c, structures, q, m, undefined) {
 
 })(ChemDoodle.math, Math);
 
-ChemDoodle.featureDetection = (function (iChemLabs, q, document, window, undefined) {
+ChemDoodle.featureDetection = (function (document, window, undefined) {
 	'use strict';
 	let features = {};
 
@@ -792,10 +792,6 @@ ChemDoodle.featureDetection = (function (iChemLabs, q, document, window, undefin
 		return false;
 	};
 
-	features.supports_xhr2 = function () {
-		return q.support.cors;
-	};
-
 	features.supports_touch = function () {
 		// check the mobile os so we don't interfere with hybrid pcs
 		let isMobile = (/iPhone|iPad|iPod|Android|BlackBerry|BB10/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
@@ -808,7 +804,7 @@ ChemDoodle.featureDetection = (function (iChemLabs, q, document, window, undefin
 
 	return features;
 
-})(ChemDoodle.iChemLabs, ChemDoodle.lib.jQuery, document, window);
+})(document, window);
 
 // attach jsBezier
 jsBezierAttach(ChemDoodle.math);
@@ -3865,7 +3861,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
 })(ChemDoodle.structures, Math, ChemDoodle.lib.mat4, ChemDoodle.lib.vec3);
 
-(function(extensions, structures, math, q, m, undefined) {
+(function(extensions, structures, math, m, undefined) {
 	'use strict';
 	structures.Spectrum = function() {
 		this.data = [];
@@ -4286,7 +4282,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		return new ChemDoodle.structures.Point(p.x, p.y * 100);
 	};
 
-})(ChemDoodle.extensions, ChemDoodle.structures, ChemDoodle.math, ChemDoodle.lib.jQuery, Math);
+})(ChemDoodle.extensions, ChemDoodle.structures, ChemDoodle.math, Math);
 
 (function(math, d2, m, undefined) {
 	'use strict';
@@ -6020,7 +6016,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
 attachIO(ChemDoodle);
 
-ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
+ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 	'use strict';
 	let m = {};
 
@@ -6031,9 +6027,9 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 	m.META = false;
 
 	if (!featureDetection.supports_touch()) {
-		q(document).ready(function() {
+		document.addEventListener('DOMContentLoaded', function() {
 			// handles dragging beyond the canvas bounds
-			q(document).mousemove(function(e) {
+			document.addEventListener('mousemove', function(e) {
 				if (m.CANVAS_DRAGGING) {
 					if (m.CANVAS_DRAGGING.drag) {
 						m.CANVAS_DRAGGING.prehandleEvent(e);
@@ -6041,7 +6037,7 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 					}
 				}
 			});
-			q(document).mouseup(function(e) {
+			document.addEventListener('mouseup', function(e) {
 				if (m.CANVAS_DRAGGING && m.CANVAS_DRAGGING !== m.CANVAS_OVER) {
 					if (m.CANVAS_DRAGGING.mouseup) {
 						m.CANVAS_DRAGGING.prehandleEvent(e);
@@ -6050,8 +6046,9 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 				}
 				m.CANVAS_DRAGGING = undefined;
 			});
+
 			// handles modifier keys from a single keyboard
-			q(document).keydown(function(e) {
+			document.addEventListener('keydown', function(e) {
 				m.SHIFT = e.shiftKey;
 				m.ALT = e.altKey;
 				m.META = e.metaKey || e.ctrlKey;
@@ -6066,7 +6063,7 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 					}
 				}
 			});
-			q(document).keypress(function(e) {
+			document.addEventListener('keypress', function(e) {
 				let affecting = m.CANVAS_OVER;
 				if (m.CANVAS_DRAGGING) {
 					affecting = m.CANVAS_DRAGGING;
@@ -6078,7 +6075,7 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 					}
 				}
 			});
-			q(document).keyup(function(e) {
+			document.addEventListener('keyup', function(e) {
 				m.SHIFT = e.shiftKey;
 				m.ALT = e.altKey;
 				m.META = e.metaKey || e.ctrlKey;
@@ -6093,14 +6090,81 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 					}
 				}
 			});
+
+			// TODO remove jQuery after testing
+			// q(document).mousemove(function(e) {
+			// 	if (m.CANVAS_DRAGGING) {
+			// 		if (m.CANVAS_DRAGGING.drag) {
+			// 			m.CANVAS_DRAGGING.prehandleEvent(e);
+			// 			m.CANVAS_DRAGGING.drag(e);
+			// 		}
+			// 	}
+			// });
+
+			// q(document).mouseup(function(e) {
+			// 	if (m.CANVAS_DRAGGING && m.CANVAS_DRAGGING !== m.CANVAS_OVER) {
+			// 		if (m.CANVAS_DRAGGING.mouseup) {
+			// 			m.CANVAS_DRAGGING.prehandleEvent(e);
+			// 			m.CANVAS_DRAGGING.mouseup(e);
+			// 		}
+			// 	}
+			// 	m.CANVAS_DRAGGING = undefined;
+			// });
+
+			// handles modifier keys from a single keyboard
+
+			// q(document).keydown(function(e) {
+			// 	m.SHIFT = e.shiftKey;
+			// 	m.ALT = e.altKey;
+			// 	m.META = e.metaKey || e.ctrlKey;
+			// 	let affecting = m.CANVAS_OVER;
+			// 	if (m.CANVAS_DRAGGING) {
+			// 		affecting = m.CANVAS_DRAGGING;
+			// 	}
+			// 	if (affecting) {
+			// 		if (affecting.keydown) {
+			// 			affecting.prehandleEvent(e);
+			// 			affecting.keydown(e);
+			// 		}
+			// 	}
+			// });
+
+			// q(document).keypress(function(e) {
+			// 	let affecting = m.CANVAS_OVER;
+			// 	if (m.CANVAS_DRAGGING) {
+			// 		affecting = m.CANVAS_DRAGGING;
+			// 	}
+			// 	if (affecting) {
+			// 		if (affecting.keypress) {
+			// 			affecting.prehandleEvent(e);
+			// 			affecting.keypress(e);
+			// 		}
+			// 	}
+			// });
+
+			//q(document).keyup(function(e) {
+			// 	m.SHIFT = e.shiftKey;
+			// 	m.ALT = e.altKey;
+			// 	m.META = e.metaKey || e.ctrlKey;
+			// 	let affecting = m.CANVAS_OVER;
+			// 	if (m.CANVAS_DRAGGING) {
+			// 		affecting = m.CANVAS_DRAGGING;
+			// 	}
+			// 	if (affecting) {
+			// 		if (affecting.keyup) {
+			// 			affecting.prehandleEvent(e);
+			// 			affecting.keyup(e);
+			// 		}
+			// 	}
+			// });
 		});
 	}
 
 	return m;
 
-})(ChemDoodle.featureDetection, ChemDoodle.lib.jQuery, document);
+})(ChemDoodle.featureDetection, document);
 
-(function(c, featureDetection, math, monitor, structures, q, m, document, window, userAgent, undefined) {
+(function(c, featureDetection, math, monitor, structures, m, document, window, userAgent, undefined) {
 	'use strict';
 	c._Canvas = function() {
 	};
@@ -6177,13 +6241,22 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 		}
 	};
 	_.resize = function(w, h) {
-		let cap = q('#' + this.id);
-		cap.attr({
-			width : w,
-			height : h
-		});
-		cap.css('width', w);
-		cap.css('height', h);
+
+		let cap = document.querySelector('#' + this.id);
+		cap.setAttribute('width', w);
+		cap.setAttribute('height', h);
+		cap.style.width = w;
+		cap.style.height = h;
+
+		// TODO remove jQuery after testing
+		// let cap = q('#' + this.id);
+		// cap.attr({
+		// 	width : w,
+		// 	height : h
+		// });
+		// cap.css('width', w);
+		// cap.css('height', h);
+
 		this.width = w;
 		this.height = h;
 		if (c._Canvas3D && this instanceof c._Canvas3D) {
@@ -6253,9 +6326,13 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 		this.repaint();
 	};
 	_.removeMolecule = function(mol) {
-		this.molecules = q.grep(this.molecules, function(value) {
+		this.molecules = this.molecules.filter(function(value) {
 			return value !== mol;
 		});
+		// TODO remove jQuery after testing
+		// this.molecules = q.grep(this.molecules, function(value) {
+		// 	return value !== mol;
+		// });
 		this.repaint();
 	};
 	_.getMolecule = function() {
@@ -6269,9 +6346,13 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 		this.repaint();
 	};
 	_.removeShape = function(shape) {
-		this.shapes = q.grep(this.shapes, function(value) {
+		this.shapes = this.shapes.filter(function(value) {
 			return value !== shape;
 		});
+		// TODO remove jQuery after testing
+		// this.shapes = q.grep(this.shapes, function(value) {
+		// 	return value !== shape;
+		// });
 		this.repaint();
 	};
 	_.getShapes = function() {
@@ -6380,33 +6461,25 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 		this.height = height;
 		this.molecules = [];
 		this.shapes = [];
-		if (document.getElementById(id)) {
-			let canvas = q('#' + id);
-			if (!width) {
-				this.width = parseInt(canvas.attr('width'));
-			} else {
-				canvas.attr('width', width);
-			}
-			if (!height) {
-				this.height = parseInt(canvas.attr('height'));
-			} else {
-				canvas.attr('height', height);
-			}
-			// If the canvas is pre-created, make sure that the class attribute
-			// is specified.
-			canvas.attr('class', 'ChemDoodleWebComponent');
-		} else if (!c.featureDetection.supports_canvas_text() && userAgent.indexOf("MSIE") != -1) {
-			// Install Google Chrome Frame
-			document.writeln('<div style="border: 1px solid black;" width="' + width + '" height="' + height + '">Please install <a href="http://code.google.com/chrome/chromeframe/">Google Chrome Frame</a>, then restart Internet Explorer.</div>');
-			return;
-		} else {
-			document.writeln('<canvas class="ChemDoodleWebComponent" id="' + id + '" width="' + width + '" height="' + height + '" alt="ChemDoodle Web Component">This browser does not support HTML5/Canvas.</canvas>');
-		}
-		let jqCapsule = q('#' + id);
-		jqCapsule.css('width', this.width);
-		jqCapsule.css('height', this.height);
+
 		this.pixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
 		this.styles = new structures.Styles();
+
+		if (!document.getElementById(id)) {
+			document.writeln('<canvas class="ChemDoodleWebComponent" id="' + id + '" width="' + width + '" height="' + height + '" alt="ChemDoodle Web Component">This browser does not support HTML5/Canvas.</canvas>');
+		} else {
+			// if canvas was precreated
+			let canvas = document.getElementById(id);
+			canvas.setAttribute('width', width);
+			canvas.setAttribute('height', height);
+			canvas.className = "ChemDoodleWebComponent";
+		}
+
+		let canvas = document.getElementById(id);
+		canvas.style.width = width;
+		canvas.style.height = height;
+		this.repaint();
+
 		// setup input events
 		// make sure prehandle events are only in if statements if handled, so
 		// as not to block browser events
@@ -6556,133 +6629,260 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 			// these
 			// events if mobile, or it will interfere with the handling of touch
 			// events
-			jqCapsule.click(function(e) {
+			canvas.addEventListener('click', function(e) {
 				switch (e.which) {
-				case 1:
-					// left mouse button pressed
-					if (me.click) {
-						me.prehandleEvent(e);
-						me.click(e);
-					}
-					break;
-				case 2:
-					// middle mouse button pressed
-					if (me.middleclick) {
-						me.prehandleEvent(e);
-						me.middleclick(e);
-					}
-					break;
-				case 3:
-					// right mouse button pressed
-					if (me.rightclick) {
-						me.prehandleEvent(e);
-						me.rightclick(e);
-					}
-					break;
+					case 1:
+						// left mouse button pressed
+						if (me.click) {
+							me.prehandleEvent(e);
+							me.click(e);
+						}
+						break;
+					case 2:
+						// middle mouse button pressed
+						if (me.middleclick) {
+							me.prehandleEvent(e);
+							me.middleclick(e);
+						}
+						break;
+					case 3:
+						// right mouse button pressed
+						if (me.rightclick) {
+							me.prehandleEvent(e);
+							me.rightclick(e);
+						}
+						break;
 				}
 			});
-			jqCapsule.dblclick(function(e) {
+
+			canvas.addEventListener('dblclick', function(e) {
 				if (me.dblclick) {
 					me.prehandleEvent(e);
 					me.dblclick(e);
 				}
 			});
-			jqCapsule.mousedown(function(e) {
+
+			canvas.addEventListener('mousedown', function(e) {
 				switch (e.which) {
-				case 1:
-					// left mouse button pressed
-					monitor.CANVAS_DRAGGING = me;
-					if (me.mousedown) {
-						me.prehandleEvent(e);
-						me.mousedown(e);
-					}
-					break;
-				case 2:
-					// middle mouse button pressed
-					if (me.middlemousedown) {
-						me.prehandleEvent(e);
-						me.middlemousedown(e);
-					}
-					break;
-				case 3:
-					// right mouse button pressed
-					if (me.rightmousedown) {
-						me.prehandleEvent(e);
-						me.rightmousedown(e);
-					}
-					break;
+					case 1:
+						// left mouse button pressed
+						monitor.CANVAS_DRAGGING = me;
+						if (me.mousedown) {
+							me.prehandleEvent(e);
+							me.mousedown(e);
+						}
+						break;
+					case 2:
+						// middle mouse button pressed
+						if (me.middlemousedown) {
+							me.prehandleEvent(e);
+							me.middlemousedown(e);
+						}
+						break;
+					case 3:
+						// right mouse button pressed
+						if (me.rightmousedown) {
+							me.prehandleEvent(e);
+							me.rightmousedown(e);
+						}
+						break;
 				}
 			});
-			jqCapsule.mousemove(function(e) {
+
+			canvas.addEventListener('mousemove', function(e) {
 				if (!monitor.CANVAS_DRAGGING && me.mousemove) {
 					me.prehandleEvent(e);
 					me.mousemove(e);
 				}
 			});
-			jqCapsule.mouseout(function(e) {
+
+			canvas.addEventListener('mouseout', function(e) {
 				monitor.CANVAS_OVER = undefined;
 				if (me.mouseout) {
 					me.prehandleEvent(e);
 					me.mouseout(e);
 				}
 			});
-			jqCapsule.mouseover(function(e) {
+
+			canvas.addEventListener('mouseover', function(e) {
 				monitor.CANVAS_OVER = me;
 				if (me.mouseover) {
 					me.prehandleEvent(e);
 					me.mouseover(e);
 				}
 			});
-			jqCapsule.mouseup(function(e) {
+
+			canvas.addEventListener('mouseup', function(e) {
 				switch (e.which) {
-				case 1:
-					// left mouse button pressed
-					if (me.mouseup) {
-						me.prehandleEvent(e);
-						me.mouseup(e);
-					}
-					break;
-				case 2:
-					// middle mouse button pressed
-					if (me.middlemouseup) {
-						me.prehandleEvent(e);
-						me.middlemouseup(e);
-					}
-					break;
-				case 3:
-					// right mouse button pressed
-					if (me.rightmouseup) {
-						me.prehandleEvent(e);
-						me.rightmouseup(e);
-					}
-					break;
+					case 1:
+						// left mouse button pressed
+						if (me.mouseup) {
+							me.prehandleEvent(e);
+							me.mouseup(e);
+						}
+						break;
+					case 2:
+						// middle mouse button pressed
+						if (me.middlemouseup) {
+							me.prehandleEvent(e);
+							me.middlemouseup(e);
+						}
+						break;
+					case 3:
+						// right mouse button pressed
+						if (me.rightmouseup) {
+							me.prehandleEvent(e);
+							me.rightmouseup(e);
+						}
+						break;
 				}
 			});
-			jqCapsule.mousewheel(function(e, delta) {
+
+			canvas.addEventListener('wheel', function(e) {
 				if (me.mousewheel) {
 					me.prehandleEvent(e);
-					me.mousewheel(e, delta);
+					me.mousewheel(e, -e.deltaY);
 				}
 			});
+
+			// jqCapsule.click(function(e) {
+			// 	switch (e.which) {
+			// 	case 1:
+			// 		// left mouse button pressed
+			// 		if (me.click) {
+			// 			me.prehandleEvent(e);
+			// 			me.click(e);
+			// 		}
+			// 		break;
+			// 	case 2:
+			// 		// middle mouse button pressed
+			// 		if (me.middleclick) {
+			// 			me.prehandleEvent(e);
+			// 			me.middleclick(e);
+			// 		}
+			// 		break;
+			// 	case 3:
+			// 		// right mouse button pressed
+			// 		if (me.rightclick) {
+			// 			me.prehandleEvent(e);
+			// 			me.rightclick(e);
+			// 		}
+			// 		break;
+			// 	}
+			// });
+
+			// jqCapsule.dblclick(function(e) {
+			// 	if (me.dblclick) {
+			// 		me.prehandleEvent(e);
+			// 		me.dblclick(e);
+			// 	}
+			// });
+
+			// jqCapsule.mousedown(function(e) {
+			// 	switch (e.which) {
+			// 	case 1:
+			// 		// left mouse button pressed
+			// 		monitor.CANVAS_DRAGGING = me;
+			// 		if (me.mousedown) {
+			// 			me.prehandleEvent(e);
+			// 			me.mousedown(e);
+			// 		}
+			// 		break;
+			// 	case 2:
+			// 		// middle mouse button pressed
+			// 		if (me.middlemousedown) {
+			// 			me.prehandleEvent(e);
+			// 			me.middlemousedown(e);
+			// 		}
+			// 		break;
+			// 	case 3:
+			// 		// right mouse button pressed
+			// 		if (me.rightmousedown) {
+			// 			me.prehandleEvent(e);
+			// 			me.rightmousedown(e);
+			// 		}
+			// 		break;
+			// 	}
+			// });
+
+			// jqCapsule.mousemove(function(e) {
+			// 	if (!monitor.CANVAS_DRAGGING && me.mousemove) {
+			// 		me.prehandleEvent(e);
+			// 		me.mousemove(e);
+			// 	}
+			// });
+
+			// jqCapsule.mouseout(function(e) {
+			// 	monitor.CANVAS_OVER = undefined;
+			// 	if (me.mouseout) {
+			// 		me.prehandleEvent(e);
+			// 		me.mouseout(e);
+			// 	}
+			// });
+
+			// jqCapsule.mouseover(function(e) {
+			// 	monitor.CANVAS_OVER = me;
+			// 	if (me.mouseover) {
+			// 		me.prehandleEvent(e);
+			// 		me.mouseover(e);
+			// 	}
+			// });
+
+			// jqCapsule.mouseup(function(e) {
+			// 	switch (e.which) {
+			// 	case 1:
+			// 		// left mouse button pressed
+			// 		if (me.mouseup) {
+			// 			me.prehandleEvent(e);
+			// 			me.mouseup(e);
+			// 		}
+			// 		break;
+			// 	case 2:
+			// 		// middle mouse button pressed
+			// 		if (me.middlemouseup) {
+			// 			me.prehandleEvent(e);
+			// 			me.middlemouseup(e);
+			// 		}
+			// 		break;
+			// 	case 3:
+			// 		// right mouse button pressed
+			// 		if (me.rightmouseup) {
+			// 			me.prehandleEvent(e);
+			// 			me.rightmouseup(e);
+			// 		}
+			// 		break;
+			// 	}
+			// });
+
+			// jqCapsule.mousewheel(function(e, delta) {
+			// 	if (me.mousewheel) {
+			// 		me.prehandleEvent(e);
+			// 		me.mousewheel(e, delta);
+			// 	}
+			// });
 		}
 		if (this.subCreate) {
 			this.subCreate();
 		}
 	};
 	_.prehandleEvent = function(e) {
-		if (e.originalEvent.changedTouches) {
-			e.pageX = e.originalEvent.changedTouches[0].pageX;
-			e.pageY = e.originalEvent.changedTouches[0].pageY;
-		}
 		if(!this.doEventDefault){
 			e.preventDefault();
 			e.returnValue = false;
 		}
-		e.offset = q('#' + this.id).offset();
-		e.p = new structures.Point(e.pageX - e.offset.left, e.pageY - e.offset.top);
+		let rect = document.getElementById(this.id).getBoundingClientRect();
+		e.offset = {
+			top: rect.top + window.scrollY,
+			left: rect.left + window.scrollX,
+		};
+		// TODO remove jQuery after testing
+		//e.offset = q('#' + this.id).offset();
+		// e.p = new structures.Point(e.pageX - e.offsetX, e.pageY - e.offsetY);
+
+		e.p = new structures.Point((e.pageX - e.offset.left) / this.pixelRatio, (e.pageY - e.offset.top) / this.pixelRatio);
 	};
 
-})(ChemDoodle, ChemDoodle.featureDetection, ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, ChemDoodle.lib.jQuery, Math, document, window, navigator.userAgent);
+})(ChemDoodle, ChemDoodle.featureDetection, ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, Math, document, window, navigator.userAgent);
 
 (function(c, animations, undefined) {
 	'use strict';
@@ -6788,69 +6988,69 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 
 })(ChemDoodle);
 
-(function(c, iChemLabs, q, document, undefined) {
-	'use strict';
-	c.MolGrabberCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-		let sb = [];
-		sb.push('<br><input type="text" id="');
-		sb.push(id);
-		sb.push('_query" size="32" value="" />');
-		sb.push(this.getInputFields());
-
-		// Don't use document.writeln here, it breaks the whole page after
-		// document is closed.
-		document.getElementById(id);
-		let canvas = q('#' + id);
-		canvas.after(sb.join(''));
-
-		let self = this;
-		q('#' + id + '_submit').click(function() {
-			self.search();
-		});
-		q('#' + id + '_query').keypress(function(e) {
-			if (e.which === 13) {
-				self.search();
-			}
-		});
-		this.emptyMessage = 'Enter search term below';
-		this.repaint();
-	};
-	let _ = c.MolGrabberCanvas.prototype = new c._Canvas();
-	_.setSearchTerm = function(term) {
-		q('#' + this.id + '_query').val(term);
-		this.search();
-	};
-	_.getInputFields = function(){
-		let sb = [];
-		sb.push('<br><nobr>');
-		sb.push('<select id="');
-		sb.push(this.id);
-		sb.push('_select">');
-		sb.push('<option value="chemexper">ChemExper');
-		sb.push('<option value="chemspider">ChemSpider');
-		sb.push('<option value="pubchem" selected>PubChem');
-		sb.push('</select>');
-		sb.push('<button type="button" id="');
-		sb.push(this.id);
-		sb.push('_submit">Show Molecule</button>');
-		sb.push('</nobr>');
-		return sb.join('');
-	};
-	_.search = function() {
-		this.emptyMessage = 'Searching...';
-		this.clear();
-		let self = this;
-		iChemLabs.getMoleculeFromDatabase(q('#' + this.id + '_query').val(), {
-			database : q('#' + this.id + '_select').val()
-		}, function(mol) {
-			self.loadMolecule(mol);
-		});
-	};
-
-})(ChemDoodle, ChemDoodle.iChemLabs, ChemDoodle.lib.jQuery, document);
+// (function(c, iChemLabs, q, document, undefined) {
+// 	'use strict';
+// 	c.MolGrabberCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 		let sb = [];
+// 		sb.push('<br><input type="text" id="');
+// 		sb.push(id);
+// 		sb.push('_query" size="32" value="" />');
+// 		sb.push(this.getInputFields());
+//
+// 		// Don't use document.writeln here, it breaks the whole page after
+// 		// document is closed.
+// 		document.getElementById(id);
+// 		let canvas = q('#' + id);
+// 		canvas.after(sb.join(''));
+//
+// 		let self = this;
+// 		q('#' + id + '_submit').click(function() {
+// 			self.search();
+// 		});
+// 		q('#' + id + '_query').keypress(function(e) {
+// 			if (e.which === 13) {
+// 				self.search();
+// 			}
+// 		});
+// 		this.emptyMessage = 'Enter search term below';
+// 		this.repaint();
+// 	};
+// 	let _ = c.MolGrabberCanvas.prototype = new c._Canvas();
+// 	_.setSearchTerm = function(term) {
+// 		q('#' + this.id + '_query').val(term);
+// 		this.search();
+// 	};
+// 	_.getInputFields = function(){
+// 		let sb = [];
+// 		sb.push('<br><nobr>');
+// 		sb.push('<select id="');
+// 		sb.push(this.id);
+// 		sb.push('_select">');
+// 		sb.push('<option value="chemexper">ChemExper');
+// 		sb.push('<option value="chemspider">ChemSpider');
+// 		sb.push('<option value="pubchem" selected>PubChem');
+// 		sb.push('</select>');
+// 		sb.push('<button type="button" id="');
+// 		sb.push(this.id);
+// 		sb.push('_submit">Show Molecule</button>');
+// 		sb.push('</nobr>');
+// 		return sb.join('');
+// 	};
+// 	_.search = function() {
+// 		this.emptyMessage = 'Searching...';
+// 		this.clear();
+// 		let self = this;
+// 		iChemLabs.getMoleculeFromDatabase(q('#' + this.id + '_query').val(), {
+// 			database : q('#' + this.id + '_select').val()
+// 		}, function(mol) {
+// 			self.loadMolecule(mol);
+// 		});
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.iChemLabs, ChemDoodle.lib.jQuery, document);
 
 (function(c, m, m4, undefined) {
 	'use strict';
@@ -7424,7 +7624,6 @@ ChemDoodle.monitor = (function(featureDetection, q, document, undefined) {
 	c.SeekerCanvas.SEEK_PEAK = 'peak';
 
 })(ChemDoodle, ChemDoodle.extensions, Math);
-
 
 (function(c, extensions, math, document, undefined) {
 	'use strict';
