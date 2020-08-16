@@ -6298,7 +6298,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.sketcher = sketcher;
 
 		// lasso
-		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso_lasso', imageDepot.LASSO, 'Lasso: [Space]', function() {
+		this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso', imageDepot.LASSO, 'Lasso: [Space]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_LASSO);
 			sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
 			if (!sketcher.lasso.isActive()) {
