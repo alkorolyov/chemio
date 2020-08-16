@@ -160,9 +160,8 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
             sb.push('<div id="');
             sb.push(this.id);
             sb.push('" ');
-            sb.push('style="display: grid;');
 
-            sb.push('grid-template-columns: repeat(');
+            sb.push('style="grid-template-columns: repeat(');
             if(this.columnCount===-1) {
                 sb.push(this.buttons.length);
             } else {
@@ -201,140 +200,136 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 
 (function(desktop, imageDepot, undefined) {
 
-    let currentDOM = document.getElementsByTagName('script')[0];
+    let sketcher = {id:'sketcher'};
 
-    window.onload = function() {
-        let sketcher = {id:'sketcher'};
+    // lasso
+    this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso', imageDepot.LASSO, 'Lasso: [Space]', function() {
+        // sketcher.stateManager.setState(sketcher.stateManager.STATE_LASSO);
+        // sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
+        // if (!sketcher.lasso.isActive()) {
+        //     sketcher.lasso.selectNextMolecule();
+        // }
+    });
+    // single bond
+    this.buttonSingle = new desktop.Button(sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond [1]', function() {
+        // sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
+        // sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
+        // sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
+        // if (sketcher.lasso.isActive()) sketcher.lasso.empty();
+    });
+    // wedged bond
+    this.buttonProtruding = new desktop.Button(sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Wedged Bond [W]', function() {
+        // sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
+        // sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
+        // sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_PROTRUDING;
+        // if (sketcher.lasso.isActive()) sketcher.lasso.empty();
+    });
+    // hashed bond
+    this.buttonRecessed = new desktop.Button(sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Hashed Bond [H]', function() {
+        // sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
+        // sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
+        // sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_RECESSED;
+        // if (sketcher.lasso.isActive()) sketcher.lasso.empty();
+    });
 
-        // lasso
-        this.buttonLasso = new desktop.Button(sketcher.id + '_button_lasso', imageDepot.LASSO, 'Lasso: [Space]', function() {
-            // sketcher.stateManager.setState(sketcher.stateManager.STATE_LASSO);
-            // sketcher.lasso.mode = tools.Lasso.MODE_LASSO;
-            // if (!sketcher.lasso.isActive()) {
-            //     sketcher.lasso.selectNextMolecule();
-            // }
-        });
-        // single bond
-        this.buttonSingle = new desktop.Button(sketcher.id + '_button_bond_single', imageDepot.BOND_SINGLE, 'Single Bond [1]', function() {
-            // sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
-            // sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-            // sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
-            // if (sketcher.lasso.isActive()) sketcher.lasso.empty();
-        });
-        // wedged bond
-        this.buttonProtruding = new desktop.Button(sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Wedged Bond [W]', function() {
-            // sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
-            // sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-            // sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_PROTRUDING;
-            // if (sketcher.lasso.isActive()) sketcher.lasso.empty();
-        });
-        // hashed bond
-        this.buttonRecessed = new desktop.Button(sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Hashed Bond [H]', function() {
-            // sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
-            // sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-            // sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_RECESSED;
-            // if (sketcher.lasso.isActive()) sketcher.lasso.empty();
-        });
+    let leftToolBar =  new desktop.ButtonSet(sketcher.id + '_left_toolbar');
+    leftToolBar.buttons.push(buttonLasso);
+    leftToolBar.buttons.push(buttonRecessed);
+    leftToolBar.buttons.push(buttonSingle);
+    leftToolBar.buttons.push(buttonProtruding);
+    leftToolBar.toggle = true;
+    leftToolBar.columnCount = 2;
 
-        let leftToolBar =  new desktop.ButtonSet(sketcher.id + '_left_toolbar');
-        leftToolBar.buttons.push(buttonLasso);
-        leftToolBar.buttons.push(buttonRecessed);
-        leftToolBar.buttons.push(buttonSingle);
-        leftToolBar.buttons.push(buttonProtruding);
-        leftToolBar.toggle = true;
-        leftToolBar.columnCount = 2;
+    // clear
+    this.buttonClear = new desktop.Button(sketcher.id + '_button_clear', imageDepot.CLEAR, 'Clear', function() {
+        console.log(this);
+        // let clear = true;
+        // if (sketcher.oneMolecule) {
+        //     if (sketcher.molecules[0].atoms.length === 1) {
+        //         let a = sketcher.molecules[0].atoms[0];
+        //         if (a.label === 'C' && a.charge === 0 && a.mass === -1) {
+        //             clear = false;
+        //         }
+        //     }
+        // } else {
+        //     if (sketcher.molecules.length === 0 && sketcher.shapes.length === 0) {
+        //         clear = false;
+        //     }
+        // }
+        // if (clear) {
+        //     sketcher.stateManager.getCurrentState().clearHover();
+        //     if (sketcher.lasso && sketcher.lasso.isActive()) {
+        //         sketcher.lasso.empty();
+        //     }
+        //     sketcher.historyManager.pushUndo(new actions.ClearAction(sketcher));
+        // }
+    });
+    // center
+    this.buttonCenter = new desktop.Button(sketcher.id + '_button_center', imageDepot.CENTER, 'Center: [Space]', function() {
+        console.log(this);
+        // let dif = new structures.Point(sketcher.width / 2, sketcher.height / 2);
+        // let bounds = sketcher.getContentBounds();
+        // dif.x -= (bounds.maxX + bounds.minX) / 2;
+        // dif.y -= (bounds.maxY + bounds.minY) / 2;
+        // sketcher.historyManager.pushUndo(new actions.MoveAction(sketcher.getAllPoints(), dif));
+    });
+    // open
+    this.buttonOpen = new desktop.Button(sketcher.id + '_button_open', imageDepot.OPEN, 'Open: [Ctrl + O]', function() {
+        // sketcher.dialogManager.openPopup.show();
+    });
+    // save
+    this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save: [Ctrl + S]', function() {
+        // if (sketcher.useServices) {
+        //     sketcher.dialogManager.saveDialog.clear();
+        // } else if (sketcher.lasso.isActive()) {
+        //     sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.lasso.getFirstMolecule()));
+        // }
+        // sketcher.dialogManager.saveDialog.open();
+    });
+    // undo
+    this.buttonUndo = new desktop.Button(sketcher.id + '_button_undo', imageDepot.UNDO, 'Undo', function() {
+        //sketcher.historyManager.undo();
+    });
+    // redo
+    this.buttonRedo = new desktop.Button(sketcher.id + '_button_redo', imageDepot.REDO, 'Redo', function() {
+        //sketcher.historyManager.redo();
+    });
 
-        // clear
-        this.buttonClear = new desktop.Button(sketcher.id + '_button_clear', imageDepot.CLEAR, 'Clear', function() {
-            console.log(this);
-            // let clear = true;
-            // if (sketcher.oneMolecule) {
-            //     if (sketcher.molecules[0].atoms.length === 1) {
-            //         let a = sketcher.molecules[0].atoms[0];
-            //         if (a.label === 'C' && a.charge === 0 && a.mass === -1) {
-            //             clear = false;
-            //         }
-            //     }
-            // } else {
-            //     if (sketcher.molecules.length === 0 && sketcher.shapes.length === 0) {
-            //         clear = false;
-            //     }
-            // }
-            // if (clear) {
-            //     sketcher.stateManager.getCurrentState().clearHover();
-            //     if (sketcher.lasso && sketcher.lasso.isActive()) {
-            //         sketcher.lasso.empty();
-            //     }
-            //     sketcher.historyManager.pushUndo(new actions.ClearAction(sketcher));
-            // }
-        });
-        // center
-        this.buttonCenter = new desktop.Button(sketcher.id + '_button_center', imageDepot.CENTER, 'Center: [Space]', function() {
-            console.log(this);
-            // let dif = new structures.Point(sketcher.width / 2, sketcher.height / 2);
-            // let bounds = sketcher.getContentBounds();
-            // dif.x -= (bounds.maxX + bounds.minX) / 2;
-            // dif.y -= (bounds.maxY + bounds.minY) / 2;
-            // sketcher.historyManager.pushUndo(new actions.MoveAction(sketcher.getAllPoints(), dif));
-        });
-        // open
-        this.buttonOpen = new desktop.Button(sketcher.id + '_button_open', imageDepot.OPEN, 'Open: [Ctrl + O]', function() {
-            // sketcher.dialogManager.openPopup.show();
-        });
-        // save
-        this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save: [Ctrl + S]', function() {
-            // if (sketcher.useServices) {
-            //     sketcher.dialogManager.saveDialog.clear();
-            // } else if (sketcher.lasso.isActive()) {
-            //     sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.lasso.getFirstMolecule()));
-            // }
-            // sketcher.dialogManager.saveDialog.open();
-        });
-        // undo
-        this.buttonUndo = new desktop.Button(sketcher.id + '_button_undo', imageDepot.UNDO, 'Undo', function() {
-            //sketcher.historyManager.undo();
-        });
-        // redo
-        this.buttonRedo = new desktop.Button(sketcher.id + '_button_redo', imageDepot.REDO, 'Redo', function() {
-            //sketcher.historyManager.redo();
-        });
-
-        let bottomToolBar = new desktop.ButtonSet(sketcher.id + '_bottom_toolbar');
-        bottomToolBar.buttons.push(buttonClear);
-        bottomToolBar.buttons.push(buttonCenter);
-        bottomToolBar.buttons.push(buttonOpen);
-        bottomToolBar.buttons.push(buttonSave);
-        bottomToolBar.buttons.push(buttonUndo);
-        bottomToolBar.buttons.push(buttonRedo);
-        bottomToolBar.toggle = false;
-        bottomToolBar.columnCount = -1;
+    let bottomToolBar = new desktop.ButtonSet(sketcher.id + '_bottom_toolbar');
+    bottomToolBar.buttons.push(buttonClear);
+    bottomToolBar.buttons.push(buttonCenter);
+    bottomToolBar.buttons.push(buttonOpen);
+    bottomToolBar.buttons.push(buttonSave);
+    bottomToolBar.buttons.push(buttonUndo);
+    bottomToolBar.buttons.push(buttonRedo);
+    bottomToolBar.toggle = false;
+    bottomToolBar.columnCount = -1;
 
 
-        let sb = [];
+    let sb = [];
 
-        sb.push('<div class="left-toolbar">');
+    sb.push('<div class="left-toolbar">');
         sb.push(leftToolBar.getSource());
-        sb.push('</div>');
+    sb.push('</div>');
 
-        sb.push('<div class="canvas-group">');
-        sb.push('<div class="canvas">');
-        sb.push('<canvas class="ChemDoodleWebComponent"></canvas>');
-        sb.push('</div>');
+    sb.push('<div class="canvas-group">');
+        sb.push('<canvas class="ChemDoodleWebComponent canvas"></canvas>');
         sb.push(bottomToolBar.getSource());
-        sb.push('<div>');
+    sb.push('<div>');
 
-        let editor = document.createElement('div');
-        editor.classList.add('editor');
-        editor.innerHTML = sb.join('');
+    let editor = document.createElement('div');
+    editor.classList.add('editor');
+    editor.innerHTML = sb.join('');
 
-        currentDOM.parentNode.insertBefore(editor, currentDOM);
+    let currentDOM = document.getElementsByTagName('script')[0];
+    currentDOM.parentNode.insertBefore(editor, currentDOM);
 
-        leftToolBar.setup();
-        leftToolBar.getElement().classList.add('left-toolbar');
+    leftToolBar.setup();
+    leftToolBar.getElement().classList.add('left-toolbar');
 
-        bottomToolBar.setup();
-        bottomToolBar.getElement().classList.add('bottom-toolbar');
-    }
+    bottomToolBar.setup();
+    bottomToolBar.getElement().classList.add('bottom-toolbar');
+
 
 })(ChemDoodle.uis.gui.desktop, ChemDoodle.uis.gui.imageDepot);
 
