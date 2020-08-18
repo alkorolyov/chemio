@@ -96,7 +96,7 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
         let self = this;
         if (this.toggle) {
             element.onclick = function () {
-                if (self.enabled && !self.pressed) {
+                if (self.enabled && !self.selected) {
                     element.classList.add('button-select');
                     self.func();
                     self.pressed = true;
@@ -111,13 +111,13 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
                 }
             }
             element.onmouseup = function () {
-                if (self.enabled && self.pressed) {
+                if (self.enabled && self.selected) {
                     self.pressed = false;
                     element.classList.remove('button-select');
                 }
             }
             element.onmouseout = function () {
-                if (self.enabled && self.pressed) {
+                if (self.enabled && self.selected) {
                     self.pressed = false;
                     element.classList.remove('button-select');
                 }

@@ -4699,7 +4699,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.func = func ? func : undefined;
 
 		this.enabled = true;
-		this.pressed = false;
+		this.selected = false;
 	};
 	let _ = desktop.Button.prototype;
 	_.getElement = function() {
@@ -4723,30 +4723,29 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		let element = this.getElement();
 
 		if (this.toggle) {
-			element.onclick = function () {
-				if (self.enabled && !self.pressed) {
-					element.classList.add('button-select');
-					self.func();
-					self.pressed = true;
+			element.onclick = function (e) {
+				e.btn = self;
+				if (self.enabled && !self.selected) {
+					self.select();
 				}
 			}
 		} else {
 			element.onmousedown = function () {
 				if (self.enabled) {
 					element.classList.add('button-select');
-					self.pressed = true;
+					self.selected = true;
 					self.func();
 				}
 			}
 			element.onmouseup = function () {
-				if (self.enabled && self.pressed) {
-					self.pressed = false;
+				if (self.enabled && self.selected) {
+					self.selected = false;
 					element.classList.remove('button-select');
 				}
 			}
 			element.onmouseout = function () {
-				if (self.enabled && self.pressed) {
-					self.pressed = false;
+				if (self.enabled && self.selected) {
+					self.selected = false;
 					element.classList.remove('button-select');
 				}
 			}
@@ -4754,7 +4753,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.disable = function() {
 		this.enabled = false;
-		this.pressed = false;
+		this.selected = false;
 		let element = this.getElement();
 		element.classList.remove('button-select');
 		element.classList.add('button-disable');
@@ -4765,10 +4764,16 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		element.classList.remove('button-disable');
 	};
 	_.select = function() {
+		this.selected = true;
 		this.func();
 		let element = this.getElement();
 		element.classList.add('button-select');
 	};
+	_.deselect = function() {
+		this.selected = false;
+		let element = this.getElement();
+		element.classList.remove('button-select');
+	}
 })(ChemDoodle.uis.gui.desktop, ChemDoodle.uis.gui.imageDepot);
 (function(desktop, undefined) {
 	'use strict';
@@ -4809,8 +4814,28 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	 * @param {string} style classname for styling
 	 */
 	_.setup = function(style) {
+		let self = this;
+		let element = this.getElement();
 		if (style) {
 			this.getElement().classList.add(style);
+		}
+		if (this.toggle) {
+			element.onclick = function(e) {
+				if (!e.btn) return;
+
+				for (let i = 0, ii = self.buttons.length; i < ii; i++) {
+					let btn = self.buttons[i];
+					if (e.btn === btn) {
+						// find previous and deselect it
+						let oldBtn = undefined;
+						for (let j = 0, jj = self.buttons.length; j < jj; j++) {
+							oldBtn = self.buttons[j];
+							if (oldBtn !== btn && oldBtn.selected) break;
+						}
+						if (oldBtn) oldBtn.deselect();
+					}
+				}
+			}
 		}
 		for ( let i = 0, ii = this.buttons.length; i < ii; i++) {
 			this.buttons[i].toggle = this.toggle;
