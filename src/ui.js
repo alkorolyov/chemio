@@ -4718,7 +4718,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		sb.push('</div>');
 		return sb.join('');
 	};
-	_.setup = function() {
+	_.setup = function(single) {
 		let self = this;
 		let element = this.getElement();
 
@@ -4727,6 +4727,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				e.btn = self;
 				if (self.enabled && !self.selected) {
 					self.select();
+				} else if (self.enabled && self.selected && single) {
+					self.deselect();
 				}
 			}
 		} else {
