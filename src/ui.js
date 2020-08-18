@@ -4719,8 +4719,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		return sb.join('');
 	};
 	_.setup = function() {
-		let element = this.getElement();
 		let self = this;
+		let element = this.getElement();
+
 		if (this.toggle) {
 			element.onclick = function () {
 				if (self.enabled && !self.pressed) {
@@ -4803,7 +4804,14 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 		return sb.join('');
 	};
-	_.setup = function() {
+	/**
+	 * Setup for whole buttonset
+	 * @param {string} style classname for styling
+	 */
+	_.setup = function(style) {
+		if (style) {
+			this.getElement().classList.add(style);
+		}
 		for ( let i = 0, ii = this.buttons.length; i < ii; i++) {
 			this.buttons[i].toggle = this.toggle;
 			this.buttons[i].setup();
@@ -6607,30 +6615,17 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		let sb = [];
 
 		sb.push(this.leftToolBar.getSource());
-
 		sb.push('<div class="canvas-group" id="'+ this.sketcher.id + '_canvas_group">');
-		sb.push('<canvas class="ChemDoodleWebComponent" id="' + this.sketcher.id + '" alt="ChemDoodle Web Component">This browser does not support HTML5/Canvas.</canvas>');
-		sb.push(this.bottomToolBar.getSource());
+			sb.push('<canvas class="ChemDoodleWebComponent" id="' + this.sketcher.id + '" alt="ChemDoodle Web Component">This browser does not support HTML5/Canvas.</canvas>');
+			sb.push(this.bottomToolBar.getSource());
 		sb.push('<div>');
 
 		let container = document.createElement('div');
-		container.addEventListener('contextmenu', event => event.preventDefault());
+		container.setAttribute('id', this.sketcher.id + '_container');
 		container.innerHTML = sb.join('');
 
 		let currentDOM = document.getElementById('editor');
 		currentDOM.parentNode.insertBefore(container, currentDOM);
-
-		// after elements created set styles
-		let leftToolBar = this.leftToolBar.getElement();
-		let bottomToolBar = this.bottomToolBar.getElement();
-		leftToolBar.classList.add('left-toolbar');
-		bottomToolBar.classList.add('bottom-toolbar');
-
-		// adjust containers width/height
-		let canvasGroup = document.getElementById(this.sketcher.id + '_canvas_group')
-		canvasGroup.style.width = this.sketcher.width.toString()+ 'px';
-		container.style.width = (this.sketcher.width + leftToolBar.offsetWidth).toString() + 'px';
-		container.style.height = (this.sketcher.height + bottomToolBar.offsetHeight).toString() + 'px';
 
 		// let sb = ['<div style="font-size:10px;">'];
 		// let bg = this.sketcher.id + '_main_group';
@@ -6687,8 +6682,18 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		// }
 	};
 	_.setup = function() {
-		this.leftToolBar.setup();
-		this.bottomToolBar.setup();
+		this.leftToolBar.setup('left-toolbar');
+		this.bottomToolBar.setup('bottom-toolbar');
+
+		// adjust width/height
+		let canvasGroup = document.getElementById(this.sketcher.id + '_canvas_group')
+		canvasGroup.style.width = this.sketcher.width.toString()+ 'px';
+
+		let container = document.getElementById(this.sketcher.id + '_container');
+		container.style.width = (this.sketcher.width + this.leftToolBar.offsetWidth).toString() + 'px';
+		container.style.height = (this.sketcher.height + this.bottomToolBar.offsetHeight).toString() + 'px';
+
+		container.addEventListener('contextmenu', event => event.preventDefault());
 
 		// this.buttonLasso.setup();
 		// // this.buttonErase.setup(true);
@@ -7592,15 +7597,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			// If pre-created, wait until the last button image loads before
 			// calling setup.
 			let self = this;
-			if (document.getElementById(this.id)) {
-				q('#' + id + '_button_chain_icon').load(function() {
-					self.toolbarManager.setup();
-				});
-			} else {
-				q(window).load(function() {
-					self.toolbarManager.setup();
-				});
-			}
+			document.addEventListener("DOMContentLoaded", function() {
+				self.toolbarManager.setup();
+			});
 			this.dialogManager = {}; //new sketcherPack.gui.DialogManager(this);
 		}
 		if(sketcherPack.gui.desktop.TextInput){

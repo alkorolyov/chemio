@@ -314,7 +314,9 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 
     sb.push('<div class="canvas-group">');
         sb.push('<canvas class="ChemDoodleWebComponent canvas"></canvas>');
-        sb.push(bottomToolBar.getSource());
+        sb.push('<div class="bottom-toolbar">');
+            sb.push(bottomToolBar.getSource());
+        sb.push('</div>');
     sb.push('<div>');
 
     let editor = document.createElement('div');

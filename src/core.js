@@ -6467,6 +6467,10 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		this.styles = new structures.Styles();
 	}
 	_.create = function(id, width, height) {
+		// input width/height and this.width/height - in css pixels
+		// canvas.width/height - in device pixels
+		// device pixels = css pixels * devicePixelRatio
+
 		this.init(id, width, height);
 
 		if (!document.getElementById(id)) {
@@ -6477,12 +6481,12 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			if (width) {
 				canvas.setAttribute('width', width);
 			} else {
-				// this.width = parseInt(canvas.width)/this.pixelRatio;
+				this.width = parseInt(canvas.width)/this.pixelRatio;
 			}
 			if (height) {
 				canvas.setAttribute('height', height);
 			} else {
-				// this.height = parseInt(canvas.height);
+				this.height = parseInt(canvas.height)/this.pixelRatio;
 			}
 			canvas.className = "ChemDoodleWebComponent";
 		}
