@@ -2330,8 +2330,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 				this.sketcher.toolbarManager.buttonOpen.func();
 			} else if (e.which === 65) {
 				// a
-				this.sketcher.toolbarManager.buttonLasso.getElement().focus();
-				this.sketcher.toolbarManager.buttonLasso.func();
+				this.sketcher.toolbarManager.buttonLasso.getElement().click();
 				this.sketcher.lasso.select(this.sketcher.getAllAtoms(), this.sketcher.shapes);
 			} else if (e.which === 88) {
 				// x
@@ -2349,7 +2348,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (this.sketcher.lasso.isActive()) {
 				this.sketcher.lasso.empty();
 			} else {
-				this.sketcher.toolbarManager.buttonLasso.getElement().focus();
+				this.sketcher.toolbarManager.buttonLasso.getElement().click();
 				this.sketcher.toolbarManager.buttonLasso.func();
 			}
 		} else if (e.which === 13) {
@@ -2370,8 +2369,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			let number = e.which - 48;
 			if (number == 1) {
 				// 1 change state to NewBond
-				this.sketcher.toolbarManager.buttonSingle.getElement().focus();
-				this.sketcher.toolbarManager.buttonSingle.func();
+				this.sketcher.toolbarManager.buttonSingle.getElement().click();
 			}
 			if (this.sketcher.hovering) {
 				if (this.sketcher.hovering instanceof structures.Atom) {

@@ -65,11 +65,10 @@ canvas.ChemDoodleWebComponent {
 	fill: #0080fc;
 }
 .button-disable {
-	background: #f2f2f2;
-	fill: #b8b8b8;
+	fill: #cccccc;
 }
 .button-disable:hover {
-	background: #f2f2f2;
+	background: white;
 }
 .icon {
 	width: 25px;
