@@ -6402,57 +6402,55 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 
 		// clear
 		this.buttonClear = new desktop.Button(sketcher.id + '_button_clear', imageDepot.CLEAR, 'Clear', function() {
-			console.log(this);
-			// let clear = true;
-			// if (sketcher.oneMolecule) {
-			//     if (sketcher.molecules[0].atoms.length === 1) {
-			//         let a = sketcher.molecules[0].atoms[0];
-			//         if (a.label === 'C' && a.charge === 0 && a.mass === -1) {
-			//             clear = false;
-			//         }
-			//     }
-			// } else {
-			//     if (sketcher.molecules.length === 0 && sketcher.shapes.length === 0) {
-			//         clear = false;
-			//     }
-			// }
-			// if (clear) {
-			//     sketcher.stateManager.getCurrentState().clearHover();
-			//     if (sketcher.lasso && sketcher.lasso.isActive()) {
-			//         sketcher.lasso.empty();
-			//     }
-			//     sketcher.historyManager.pushUndo(new actions.ClearAction(sketcher));
-			// }
+			let clear = true;
+			if (sketcher.oneMolecule) {
+			    if (sketcher.molecules[0].atoms.length === 1) {
+			        let a = sketcher.molecules[0].atoms[0];
+			        if (a.label === 'C' && a.charge === 0 && a.mass === -1) {
+			            clear = false;
+			        }
+			    }
+			} else {
+			    if (sketcher.molecules.length === 0 && sketcher.shapes.length === 0) {
+			        clear = false;
+			    }
+			}
+			if (clear) {
+			    sketcher.stateManager.getCurrentState().clearHover();
+			    if (sketcher.lasso && sketcher.lasso.isActive()) {
+			        sketcher.lasso.empty();
+			    }
+			    sketcher.historyManager.pushUndo(new actions.ClearAction(sketcher));
+			}
 		});
 		// center
 		this.buttonCenter = new desktop.Button(sketcher.id + '_button_center', imageDepot.CENTER, 'Center: [Space]', function() {
-			console.log(this);
-			// let dif = new structures.Point(sketcher.width / 2, sketcher.height / 2);
-			// let bounds = sketcher.getContentBounds();
-			// dif.x -= (bounds.maxX + bounds.minX) / 2;
-			// dif.y -= (bounds.maxY + bounds.minY) / 2;
-			// sketcher.historyManager.pushUndo(new actions.MoveAction(sketcher.getAllPoints(), dif));
+			let dif = new structures.Point(sketcher.width / 2, sketcher.height / 2);
+			let bounds = sketcher.getContentBounds();
+			dif.x -= (bounds.maxX + bounds.minX) / 2;
+			dif.y -= (bounds.maxY + bounds.minY) / 2;
+			sketcher.historyManager.pushUndo(new actions.MoveAction(sketcher.getAllPoints(), dif));
 		});
 		// open
 		this.buttonOpen = new desktop.Button(sketcher.id + '_button_open', imageDepot.OPEN, 'Open: [Ctrl + O]', function() {
-			// sketcher.dialogManager.openPopup.show();
+			sketcher.dialogManager.openPopup.show();
 		});
 		// save
 		this.buttonSave = new desktop.Button(sketcher.id + '_button_save', imageDepot.SAVE, 'Save: [Ctrl + S]', function() {
-			// if (sketcher.useServices) {
-			//     sketcher.dialogManager.saveDialog.clear();
-			// } else if (sketcher.lasso.isActive()) {
-			//     sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.lasso.getFirstMolecule()));
-			// }
-			// sketcher.dialogManager.saveDialog.open();
+			if (sketcher.useServices) {
+			    sketcher.dialogManager.saveDialog.clear();
+			} else if (sketcher.lasso.isActive()) {
+			    sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.lasso.getFirstMolecule()));
+			}
+			sketcher.dialogManager.saveDialog.open();
 		});
 		// undo
 		this.buttonUndo = new desktop.Button(sketcher.id + '_button_undo', imageDepot.UNDO, 'Undo', function() {
-			//sketcher.historyManager.undo();
+			sketcher.historyManager.undo();
 		});
 		// redo
 		this.buttonRedo = new desktop.Button(sketcher.id + '_button_redo', imageDepot.REDO, 'Redo', function() {
-			//sketcher.historyManager.redo();
+			sketcher.historyManager.redo();
 		});
 
 		this.bottomToolBar = new desktop.ButtonSet(sketcher.id + '_bottom_toolbar');

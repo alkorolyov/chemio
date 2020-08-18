@@ -5806,6 +5806,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 	};
 
 })(ChemDoodle.informatics);
+
 (function(informatics, structures, undefined) {
 	'use strict';
 	function Finger(a, from) {
@@ -6091,73 +6092,6 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 					}
 				}
 			});
-
-			// TODO remove jQuery after testing
-			// q(document).mousemove(function(e) {
-			// 	if (m.CANVAS_DRAGGING) {
-			// 		if (m.CANVAS_DRAGGING.drag) {
-			// 			m.CANVAS_DRAGGING.prehandleEvent(e);
-			// 			m.CANVAS_DRAGGING.drag(e);
-			// 		}
-			// 	}
-			// });
-
-			// q(document).mouseup(function(e) {
-			// 	if (m.CANVAS_DRAGGING && m.CANVAS_DRAGGING !== m.CANVAS_OVER) {
-			// 		if (m.CANVAS_DRAGGING.mouseup) {
-			// 			m.CANVAS_DRAGGING.prehandleEvent(e);
-			// 			m.CANVAS_DRAGGING.mouseup(e);
-			// 		}
-			// 	}
-			// 	m.CANVAS_DRAGGING = undefined;
-			// });
-
-			// handles modifier keys from a single keyboard
-
-			// q(document).keydown(function(e) {
-			// 	m.SHIFT = e.shiftKey;
-			// 	m.ALT = e.altKey;
-			// 	m.META = e.metaKey || e.ctrlKey;
-			// 	let affecting = m.CANVAS_OVER;
-			// 	if (m.CANVAS_DRAGGING) {
-			// 		affecting = m.CANVAS_DRAGGING;
-			// 	}
-			// 	if (affecting) {
-			// 		if (affecting.keydown) {
-			// 			affecting.prehandleEvent(e);
-			// 			affecting.keydown(e);
-			// 		}
-			// 	}
-			// });
-
-			// q(document).keypress(function(e) {
-			// 	let affecting = m.CANVAS_OVER;
-			// 	if (m.CANVAS_DRAGGING) {
-			// 		affecting = m.CANVAS_DRAGGING;
-			// 	}
-			// 	if (affecting) {
-			// 		if (affecting.keypress) {
-			// 			affecting.prehandleEvent(e);
-			// 			affecting.keypress(e);
-			// 		}
-			// 	}
-			// });
-
-			//q(document).keyup(function(e) {
-			// 	m.SHIFT = e.shiftKey;
-			// 	m.ALT = e.altKey;
-			// 	m.META = e.metaKey || e.ctrlKey;
-			// 	let affecting = m.CANVAS_OVER;
-			// 	if (m.CANVAS_DRAGGING) {
-			// 		affecting = m.CANVAS_DRAGGING;
-			// 	}
-			// 	if (affecting) {
-			// 		if (affecting.keyup) {
-			// 			affecting.prehandleEvent(e);
-			// 			affecting.keyup(e);
-			// 		}
-			// 	}
-			// });
 		});
 	}
 
@@ -6249,15 +6183,6 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		cap.style.width = w;
 		cap.style.height = h;
 
-		// TODO remove jQuery after testing
-		// let cap = q('#' + this.id);
-		// cap.attr({
-		// 	width : w,
-		// 	height : h
-		// });
-		// cap.css('width', w);
-		// cap.css('height', h);
-
 		this.width = w;
 		this.height = h;
 		if (c._Canvas3D && this instanceof c._Canvas3D) {
@@ -6330,10 +6255,6 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		this.molecules = this.molecules.filter(function(value) {
 			return value !== mol;
 		});
-		// TODO remove jQuery after testing
-		// this.molecules = q.grep(this.molecules, function(value) {
-		// 	return value !== mol;
-		// });
 		this.repaint();
 	};
 	_.getMolecule = function() {
@@ -6350,10 +6271,6 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		this.shapes = this.shapes.filter(function(value) {
 			return value !== shape;
 		});
-		// TODO remove jQuery after testing
-		// this.shapes = q.grep(this.shapes, function(value) {
-		// 	return value !== shape;
-		// });
 		this.repaint();
 	};
 	_.getShapes = function() {
@@ -6891,10 +6808,6 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			top: rect.top + window.scrollY,
 			left: rect.left + window.scrollX,
 		};
-		// TODO remove jQuery after testing
-		//e.offset = q('#' + this.id).offset();
-		// e.p = new structures.Point(e.pageX - e.offsetX, e.pageY - e.offsetY);
-
 		e.p = new structures.Point((e.pageX - e.offset.left), (e.pageY - e.offset.top));
 	};
 
