@@ -6477,19 +6477,19 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			if (width) {
 				canvas.setAttribute('width', width);
 			} else {
-				this.width = parseInt(canvas.width)/this.pixelRatio;
+				// this.width = parseInt(canvas.width)/this.pixelRatio;
 			}
 			if (height) {
 				canvas.setAttribute('height', height);
 			} else {
-				this.height = parseInt(canvas.height);
+				// this.height = parseInt(canvas.height);
 			}
 			canvas.className = "ChemDoodleWebComponent";
 		}
 
 		let canvas = document.getElementById(id);
-		canvas.style.width = width;
-		canvas.style.height = height;
+		canvas.style.width = width.toString()+'px';
+		canvas.style.height = height.toString()+'px';
 		this.repaint();
 
 		// setup input events
@@ -6891,7 +6891,7 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		//e.offset = q('#' + this.id).offset();
 		// e.p = new structures.Point(e.pageX - e.offsetX, e.pageY - e.offsetY);
 
-		e.p = new structures.Point((e.pageX - e.offset.left) / this.pixelRatio, (e.pageY - e.offset.top) / this.pixelRatio);
+		e.p = new structures.Point((e.pageX - e.offset.left), (e.pageY - e.offset.top));
 	};
 
 })(ChemDoodle, ChemDoodle.featureDetection, ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, Math, document, window, navigator.userAgent);
