@@ -233,10 +233,10 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
     });
 
     let leftToolBar =  new desktop.ButtonSet(sketcher.id + '_left_toolbar');
-    leftToolBar.buttons.push(buttonLasso);
     leftToolBar.buttons.push(buttonRecessed);
-    leftToolBar.buttons.push(buttonSingle);
+    leftToolBar.buttons.push(buttonLasso);
     leftToolBar.buttons.push(buttonProtruding);
+    leftToolBar.buttons.push(buttonSingle);
     leftToolBar.toggle = true;
     leftToolBar.columnCount = 2;
 

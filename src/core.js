@@ -5300,7 +5300,8 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
 	c.DEFAULT_STYLES = {
 		// default canvas properties
-		backgroundColor:'#FFFFFF',
+
+		//backgroundColor:'#FFFFFF',
 		scale:1,
 		rotateAngle:0,
 		lightDirection_3D:[-.1, -.1, -1],
@@ -6280,9 +6281,9 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 	};
 	_.setBackgroundImage = function(path) {
 		this.image = new Image(); // Create new Image object
-		let me = this;
+		let self = this;
 		this.image.onload = function() {
-			me.repaint();
+			self.repaint();
 		};
 		this.image.src = path; // Set source path
 	};
@@ -6455,7 +6456,7 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		}
 		return bounds;
 	};
-	_.create = function(id, width, height) {
+	_.init = function(id, width, height) {
 		this.id = id;
 		this.width = width;
 		this.height = height;
@@ -6464,14 +6465,25 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 
 		this.pixelRatio = window.devicePixelRatio ? window.devicePixelRatio : 1;
 		this.styles = new structures.Styles();
+	}
+	_.create = function(id, width, height) {
+		this.init(id, width, height);
 
 		if (!document.getElementById(id)) {
 			document.writeln('<canvas class="ChemDoodleWebComponent" id="' + id + '" width="' + width + '" height="' + height + '" alt="ChemDoodle Web Component">This browser does not support HTML5/Canvas.</canvas>');
 		} else {
 			// if canvas was precreated
 			let canvas = document.getElementById(id);
-			canvas.setAttribute('width', width);
-			canvas.setAttribute('height', height);
+			if (width) {
+				canvas.setAttribute('width', width);
+			} else {
+				this.width = parseInt(canvas.width)/this.pixelRatio;
+			}
+			if (height) {
+				canvas.setAttribute('height', height);
+			} else {
+				this.height = parseInt(canvas.height);
+			}
 			canvas.className = "ChemDoodleWebComponent";
 		}
 
@@ -6483,7 +6495,7 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 		// setup input events
 		// make sure prehandle events are only in if statements if handled, so
 		// as not to block browser events
-		let me = this;
+		let self = this;
 		if (featureDetection.supports_touch()) {
 			// for iPhone OS and Android devices (and other mobile browsers that
 			// support mobile events)
@@ -6495,43 +6507,43 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 					let ts = e.originalEvent.touches;
 					let p1 = new structures.Point(ts[0].pageX, ts[0].pageY);
 					let p2 = new structures.Point(ts[1].pageX, ts[1].pageY);
-					me.implementedGestureDist = p1.distance(p2);
-					me.implementedGestureAngle = p1.angle(p2);
-					if (me.gesturestart) {
-						me.prehandleEvent(e);
-						me.gesturestart(e);
+					self.implementedGestureDist = p1.distance(p2);
+					self.implementedGestureAngle = p1.angle(p2);
+					if (self.gesturestart) {
+						self.prehandleEvent(e);
+						self.gesturestart(e);
 					}
 				}
-				if (me.lastTouch && e.originalEvent.touches.length === 1 && (time - me.lastTouch) < 500) {
-					if (me.dbltap) {
-						me.prehandleEvent(e);
-						me.dbltap(e);
-					} else if (me.dblclick) {
-						me.prehandleEvent(e);
-						me.dblclick(e);
-					} else if (me.touchstart) {
-						me.prehandleEvent(e);
-						me.touchstart(e);
-					} else if (me.mousedown) {
-						me.prehandleEvent(e);
-						me.mousedown(e);
+				if (self.lastTouch && e.originalEvent.touches.length === 1 && (time - self.lastTouch) < 500) {
+					if (self.dbltap) {
+						self.prehandleEvent(e);
+						self.dbltap(e);
+					} else if (self.dblclick) {
+						self.prehandleEvent(e);
+						self.dblclick(e);
+					} else if (self.touchstart) {
+						self.prehandleEvent(e);
+						self.touchstart(e);
+					} else if (self.mousedown) {
+						self.prehandleEvent(e);
+						self.mousedown(e);
 					}
-				} else if (me.touchstart) {
-					me.prehandleEvent(e);
-					me.touchstart(e);
+				} else if (self.touchstart) {
+					self.prehandleEvent(e);
+					self.touchstart(e);
 					if (this.hold) {
 						clearTimeout(this.hold);
 					}
 					if (this.touchhold) {
 						this.hold = setTimeout(function() {
-							me.touchhold(e);
+							self.touchhold(e);
 						}, 1000);
 					}
-				} else if (me.mousedown) {
-					me.prehandleEvent(e);
-					me.mousedown(e);
+				} else if (self.mousedown) {
+					self.prehandleEvent(e);
+					self.mousedown(e);
 				}
-				me.lastTouch = time;
+				self.lastTouch = time;
 			});
 			jqCapsule.bind('touchmove', function(e) {
 				if (this.hold) {
@@ -6541,21 +6553,21 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 				if (!featureDetection.supports_gesture() && e.originalEvent.touches.length === 2) {
 					// on some platforms, like Android, there is no gesture
 					// support, so we have to implement it
-					if (me.gesturechange) {
+					if (self.gesturechange) {
 						let ts = e.originalEvent.touches;
 						let p1 = new structures.Point(ts[0].pageX, ts[0].pageY);
 						let p2 = new structures.Point(ts[1].pageX, ts[1].pageY);
 						let newDist = p1.distance(p2);
 						let newAngle = p1.angle(p2);
-						e.originalEvent.scale = newDist / me.implementedGestureDist;
-						e.originalEvent.rotation = 180 * (me.implementedGestureAngle - newAngle) / m.PI;
-						me.prehandleEvent(e);
-						me.gesturechange(e);
+						e.originalEvent.scale = newDist / self.implementedGestureDist;
+						e.originalEvent.rotation = 180 * (self.implementedGestureAngle - newAngle) / m.PI;
+						self.prehandleEvent(e);
+						self.gesturechange(e);
 					}
 				}
-				if (e.originalEvent.touches.length > 1 && me.multitouchmove) {
+				if (e.originalEvent.touches.length > 1 && self.multitouchmove) {
 					let numFingers = e.originalEvent.touches.length;
-					me.prehandleEvent(e);
+					self.prehandleEvent(e);
 					let center = new structures.Point(-e.offset.left * numFingers, -e.offset.top * numFingers);
 					for ( let i = 0; i < numFingers; i++) {
 						center.x += e.originalEvent.changedTouches[i].pageX;
@@ -6564,13 +6576,13 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 					center.x /= numFingers;
 					center.y /= numFingers;
 					e.p = center;
-					me.multitouchmove(e, numFingers);
-				} else if (me.touchmove) {
-					me.prehandleEvent(e);
-					me.touchmove(e);
-				} else if (me.drag) {
-					me.prehandleEvent(e);
-					me.drag(e);
+					self.multitouchmove(e, numFingers);
+				} else if (self.touchmove) {
+					self.prehandleEvent(e);
+					self.touchmove(e);
+				} else if (self.drag) {
+					self.prehandleEvent(e);
+					self.drag(e);
 				}
 			});
 			jqCapsule.bind('touchend', function(e) {
@@ -6578,49 +6590,49 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 					clearTimeout(this.hold);
 					this.hold = undefined;
 				}
-				if (!featureDetection.supports_gesture() && me.implementedGestureDist) {
+				if (!featureDetection.supports_gesture() && self.implementedGestureDist) {
 					// on some platforms, like Android, there is no gesture
 					// support, so we have to implement it
-					me.implementedGestureDist = undefined;
-					me.implementedGestureAngle = undefined;
-					if (me.gestureend) {
-						me.prehandleEvent(e);
-						me.gestureend(e);
+					self.implementedGestureDist = undefined;
+					self.implementedGestureAngle = undefined;
+					if (self.gestureend) {
+						self.prehandleEvent(e);
+						self.gestureend(e);
 					}
 				}
-				if (me.touchend) {
-					me.prehandleEvent(e);
-					me.touchend(e);
-				} else if (me.mouseup) {
-					me.prehandleEvent(e);
-					me.mouseup(e);
+				if (self.touchend) {
+					self.prehandleEvent(e);
+					self.touchend(e);
+				} else if (self.mouseup) {
+					self.prehandleEvent(e);
+					self.mouseup(e);
 				}
-				if ((new Date().getTime() - me.lastTouch) < 250) {
-					if (me.tap) {
-						me.prehandleEvent(e);
-						me.tap(e);
-					} else if (me.click) {
-						me.prehandleEvent(e);
-						me.click(e);
+				if ((new Date().getTime() - self.lastTouch) < 250) {
+					if (self.tap) {
+						self.prehandleEvent(e);
+						self.tap(e);
+					} else if (self.click) {
+						self.prehandleEvent(e);
+						self.click(e);
 					}
 				}
 			});
 			jqCapsule.bind('gesturestart', function(e) {
-				if (me.gesturestart) {
-					me.prehandleEvent(e);
-					me.gesturestart(e);
+				if (self.gesturestart) {
+					self.prehandleEvent(e);
+					self.gesturestart(e);
 				}
 			});
 			jqCapsule.bind('gesturechange', function(e) {
-				if (me.gesturechange) {
-					me.prehandleEvent(e);
-					me.gesturechange(e);
+				if (self.gesturechange) {
+					self.prehandleEvent(e);
+					self.gesturechange(e);
 				}
 			});
 			jqCapsule.bind('gestureend', function(e) {
-				if (me.gestureend) {
-					me.prehandleEvent(e);
-					me.gestureend(e);
+				if (self.gestureend) {
+					self.prehandleEvent(e);
+					self.gestureend(e);
 				}
 			});
 		} else {
@@ -6633,32 +6645,32 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 				switch (e.which) {
 					case 1:
 						// left mouse button pressed
-						if (me.click) {
-							me.prehandleEvent(e);
-							me.click(e);
+						if (self.click) {
+							self.prehandleEvent(e);
+							self.click(e);
 						}
 						break;
 					case 2:
 						// middle mouse button pressed
-						if (me.middleclick) {
-							me.prehandleEvent(e);
-							me.middleclick(e);
+						if (self.middleclick) {
+							self.prehandleEvent(e);
+							self.middleclick(e);
 						}
 						break;
 					case 3:
 						// right mouse button pressed
-						if (me.rightclick) {
-							me.prehandleEvent(e);
-							me.rightclick(e);
+						if (self.rightclick) {
+							self.prehandleEvent(e);
+							self.rightclick(e);
 						}
 						break;
 				}
 			});
 
 			canvas.addEventListener('dblclick', function(e) {
-				if (me.dblclick) {
-					me.prehandleEvent(e);
-					me.dblclick(e);
+				if (self.dblclick) {
+					self.prehandleEvent(e);
+					self.dblclick(e);
 				}
 			});
 
@@ -6666,49 +6678,49 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 				switch (e.which) {
 					case 1:
 						// left mouse button pressed
-						monitor.CANVAS_DRAGGING = me;
-						if (me.mousedown) {
-							me.prehandleEvent(e);
-							me.mousedown(e);
+						monitor.CANVAS_DRAGGING = self;
+						if (self.mousedown) {
+							self.prehandleEvent(e);
+							self.mousedown(e);
 						}
 						break;
 					case 2:
 						// middle mouse button pressed
-						if (me.middlemousedown) {
-							me.prehandleEvent(e);
-							me.middlemousedown(e);
+						if (self.middlemousedown) {
+							self.prehandleEvent(e);
+							self.middlemousedown(e);
 						}
 						break;
 					case 3:
 						// right mouse button pressed
-						if (me.rightmousedown) {
-							me.prehandleEvent(e);
-							me.rightmousedown(e);
+						if (self.rightmousedown) {
+							self.prehandleEvent(e);
+							self.rightmousedown(e);
 						}
 						break;
 				}
 			});
 
 			canvas.addEventListener('mousemove', function(e) {
-				if (!monitor.CANVAS_DRAGGING && me.mousemove) {
-					me.prehandleEvent(e);
-					me.mousemove(e);
+				if (!monitor.CANVAS_DRAGGING && self.mousemove) {
+					self.prehandleEvent(e);
+					self.mousemove(e);
 				}
 			});
 
 			canvas.addEventListener('mouseout', function(e) {
 				monitor.CANVAS_OVER = undefined;
-				if (me.mouseout) {
-					me.prehandleEvent(e);
-					me.mouseout(e);
+				if (self.mouseout) {
+					self.prehandleEvent(e);
+					self.mouseout(e);
 				}
 			});
 
 			canvas.addEventListener('mouseover', function(e) {
-				monitor.CANVAS_OVER = me;
-				if (me.mouseover) {
-					me.prehandleEvent(e);
-					me.mouseover(e);
+				monitor.CANVAS_OVER = self;
+				if (self.mouseover) {
+					self.prehandleEvent(e);
+					self.mouseover(e);
 				}
 			});
 
@@ -6716,32 +6728,32 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 				switch (e.which) {
 					case 1:
 						// left mouse button pressed
-						if (me.mouseup) {
-							me.prehandleEvent(e);
-							me.mouseup(e);
+						if (self.mouseup) {
+							self.prehandleEvent(e);
+							self.mouseup(e);
 						}
 						break;
 					case 2:
 						// middle mouse button pressed
-						if (me.middlemouseup) {
-							me.prehandleEvent(e);
-							me.middlemouseup(e);
+						if (self.middlemouseup) {
+							self.prehandleEvent(e);
+							self.middlemouseup(e);
 						}
 						break;
 					case 3:
 						// right mouse button pressed
-						if (me.rightmouseup) {
-							me.prehandleEvent(e);
-							me.rightmouseup(e);
+						if (self.rightmouseup) {
+							self.prehandleEvent(e);
+							self.rightmouseup(e);
 						}
 						break;
 				}
 			});
 
 			canvas.addEventListener('wheel', function(e) {
-				if (me.mousewheel) {
-					me.prehandleEvent(e);
-					me.mousewheel(e, -e.deltaY);
+				if (self.mousewheel) {
+					self.prehandleEvent(e);
+					self.mousewheel(e, -e.deltaY);
 				}
 			});
 
@@ -6749,32 +6761,32 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			// 	switch (e.which) {
 			// 	case 1:
 			// 		// left mouse button pressed
-			// 		if (me.click) {
-			// 			me.prehandleEvent(e);
-			// 			me.click(e);
+			// 		if (self.click) {
+			// 			self.prehandleEvent(e);
+			// 			self.click(e);
 			// 		}
 			// 		break;
 			// 	case 2:
 			// 		// middle mouse button pressed
-			// 		if (me.middleclick) {
-			// 			me.prehandleEvent(e);
-			// 			me.middleclick(e);
+			// 		if (self.middleclick) {
+			// 			self.prehandleEvent(e);
+			// 			self.middleclick(e);
 			// 		}
 			// 		break;
 			// 	case 3:
 			// 		// right mouse button pressed
-			// 		if (me.rightclick) {
-			// 			me.prehandleEvent(e);
-			// 			me.rightclick(e);
+			// 		if (self.rightclick) {
+			// 			self.prehandleEvent(e);
+			// 			self.rightclick(e);
 			// 		}
 			// 		break;
 			// 	}
 			// });
 
 			// jqCapsule.dblclick(function(e) {
-			// 	if (me.dblclick) {
-			// 		me.prehandleEvent(e);
-			// 		me.dblclick(e);
+			// 	if (self.dblclick) {
+			// 		self.prehandleEvent(e);
+			// 		self.dblclick(e);
 			// 	}
 			// });
 
@@ -6782,49 +6794,49 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			// 	switch (e.which) {
 			// 	case 1:
 			// 		// left mouse button pressed
-			// 		monitor.CANVAS_DRAGGING = me;
-			// 		if (me.mousedown) {
-			// 			me.prehandleEvent(e);
-			// 			me.mousedown(e);
+			// 		monitor.CANVAS_DRAGGING = self;
+			// 		if (self.mousedown) {
+			// 			self.prehandleEvent(e);
+			// 			self.mousedown(e);
 			// 		}
 			// 		break;
 			// 	case 2:
 			// 		// middle mouse button pressed
-			// 		if (me.middlemousedown) {
-			// 			me.prehandleEvent(e);
-			// 			me.middlemousedown(e);
+			// 		if (self.middlemousedown) {
+			// 			self.prehandleEvent(e);
+			// 			self.middlemousedown(e);
 			// 		}
 			// 		break;
 			// 	case 3:
 			// 		// right mouse button pressed
-			// 		if (me.rightmousedown) {
-			// 			me.prehandleEvent(e);
-			// 			me.rightmousedown(e);
+			// 		if (self.rightmousedown) {
+			// 			self.prehandleEvent(e);
+			// 			self.rightmousedown(e);
 			// 		}
 			// 		break;
 			// 	}
 			// });
 
 			// jqCapsule.mousemove(function(e) {
-			// 	if (!monitor.CANVAS_DRAGGING && me.mousemove) {
-			// 		me.prehandleEvent(e);
-			// 		me.mousemove(e);
+			// 	if (!monitor.CANVAS_DRAGGING && self.mousemove) {
+			// 		self.prehandleEvent(e);
+			// 		self.mousemove(e);
 			// 	}
 			// });
 
 			// jqCapsule.mouseout(function(e) {
 			// 	monitor.CANVAS_OVER = undefined;
-			// 	if (me.mouseout) {
-			// 		me.prehandleEvent(e);
-			// 		me.mouseout(e);
+			// 	if (self.mouseout) {
+			// 		self.prehandleEvent(e);
+			// 		self.mouseout(e);
 			// 	}
 			// });
 
 			// jqCapsule.mouseover(function(e) {
-			// 	monitor.CANVAS_OVER = me;
-			// 	if (me.mouseover) {
-			// 		me.prehandleEvent(e);
-			// 		me.mouseover(e);
+			// 	monitor.CANVAS_OVER = self;
+			// 	if (self.mouseover) {
+			// 		self.prehandleEvent(e);
+			// 		self.mouseover(e);
 			// 	}
 			// });
 
@@ -6832,32 +6844,32 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			// 	switch (e.which) {
 			// 	case 1:
 			// 		// left mouse button pressed
-			// 		if (me.mouseup) {
-			// 			me.prehandleEvent(e);
-			// 			me.mouseup(e);
+			// 		if (self.mouseup) {
+			// 			self.prehandleEvent(e);
+			// 			self.mouseup(e);
 			// 		}
 			// 		break;
 			// 	case 2:
 			// 		// middle mouse button pressed
-			// 		if (me.middlemouseup) {
-			// 			me.prehandleEvent(e);
-			// 			me.middlemouseup(e);
+			// 		if (self.middlemouseup) {
+			// 			self.prehandleEvent(e);
+			// 			self.middlemouseup(e);
 			// 		}
 			// 		break;
 			// 	case 3:
 			// 		// right mouse button pressed
-			// 		if (me.rightmouseup) {
-			// 			me.prehandleEvent(e);
-			// 			me.rightmouseup(e);
+			// 		if (self.rightmouseup) {
+			// 			self.prehandleEvent(e);
+			// 			self.rightmouseup(e);
 			// 		}
 			// 		break;
 			// 	}
 			// });
 
 			// jqCapsule.mousewheel(function(e, delta) {
-			// 	if (me.mousewheel) {
-			// 		me.prehandleEvent(e);
-			// 		me.mousewheel(e, delta);
+			// 	if (self.mousewheel) {
+			// 		self.prehandleEvent(e);
+			// 		self.mousewheel(e, delta);
 			// 	}
 			// });
 		}
@@ -6896,15 +6908,15 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 	_.startAnimation = function() {
 		this.stopAnimation();
 		this.lastTime = new Date().getTime();
-		let me = this;
+		let self = this;
 		if (this.nextFrame) {
 			this.handle = animations.requestInterval(function() {
 				// advance clock
 				let timeNow = new Date().getTime();
 				// update and repaint
-				me.nextFrame(timeNow - me.lastTime);
-				me.repaint();
-				me.lastTime = timeNow;
+				self.nextFrame(timeNow - self.lastTime);
+				self.repaint();
+				self.lastTime = timeNow;
 			}, this.timeout);
 		}
 	};
@@ -7151,13 +7163,13 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			return;
 		}
 		this.phase = 0;
-		let me = this;
+		let self = this;
 		let count = 1;
 		this.innerHandle = setInterval(function() {
-			me.alpha = count / 15;
-			me.repaint();
+			self.alpha = count / 15;
+			self.repaint();
 			if (count === 15) {
-				me.breakInnerHandle();
+				self.breakInnerHandle();
 			}
 			count++;
 		}, 33);
@@ -7176,13 +7188,13 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 			let f = this.frames[this.curIndex];
 			this.loadContent(f.mols, f.shapes);
 			this.phase = 1;
-			let me = this;
+			let self = this;
 			let count = 1;
 			this.innerHandle = setInterval(function() {
-				me.alpha = (15 - count) / 15;
-				me.repaint();
+				self.alpha = (15 - count) / 15;
+				self.repaint();
 				if (count === 15) {
-					me.breakInnerHandle();
+					self.breakInnerHandle();
 				}
 				count++;
 			}, 33);

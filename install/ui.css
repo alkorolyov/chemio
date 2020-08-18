@@ -25,30 +25,25 @@
 // alternate licensing options.
 //
 */
-.editor {
-	width: 400px;
-	height: 200px;
-}
 .left-toolbar {
 	float: left;
 	display: grid;
 	/*grid-template-columns: 1fr 1fr;*/
 	grid-gap: 2px;
+	padding-right: 2px;
 }
 .canvas-group {
 	float: left;
-	width: calc(100% - 60px);
 	height: 100%;
-	margin-left: 2px;
+
 }
 canvas.ChemDoodleWebComponent {
 	float: left;
 	box-shadow: 0 0 3px 2px #e0e0e0 inset;
-	width: 100%;
-	height: calc(100% - 29px);
-	margin-bottom: 2px;
+
 }
 .bottom-toolbar {
+	padding-top: 2px;
 	float: left;
 	display: grid;
 	/*grid-template-columns: repeat(2, 1fr);*/
