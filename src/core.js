@@ -26,7 +26,7 @@ let ChemDoodle = (function() {
 })();
 
 // Attach external jQuery
-ChemDoodle.lib.jQuery = jQuery;
+ChemDoodle.lib.jQuery = {};
 
 ChemDoodle.animations = (function(window, undefined) {
 	'use strict';
