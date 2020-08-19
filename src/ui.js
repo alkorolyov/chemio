@@ -7404,7 +7404,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
 				this.bounds.expand(this.shapes[i].getBounds());
 			}
-			let buffer = 5;
+			let buffer = this.sketcher.styles.atoms_selectRadius;
 			this.bounds.minX -= buffer;
 			this.bounds.minY -= buffer;
 			this.bounds.maxX += buffer;
@@ -7423,7 +7423,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	};
 	_.draw = function(ctx, styles) {
 		ctx.strokeStyle = styles.colorSelect;
-		ctx.lineWidth = 0.5 / styles.scale;
+		ctx.lineWidth = styles.lasso_lineWidth / styles.scale;
 		ctx.setLineDash([2]);
 		if (this.points.length > 0) {
 			if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {

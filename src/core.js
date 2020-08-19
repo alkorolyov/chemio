@@ -1705,9 +1705,9 @@ ChemDoodle.RESIDUE = (function(undefined) {
 	_.drawDecorations = function (ctx, styles) {
 		if (this.isHover || this.isSelected) {
 			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-			ctx.lineWidth = styles.hoverLineWidth;
+			ctx.lineWidth = styles.hover_lineWidth;
 			ctx.beginPath();
-			let radius = this.isHover ? styles.atoms_selectRadius * 1.1 : 15;
+			let radius = this.isHover ? styles.atoms_selectRadius : 15;
 			ctx.arc(this.x, this.y, radius, 0, m.PI * 2, false);
 			ctx.stroke();
 		}
@@ -2260,7 +2260,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
             let y2 = this.a2.y;
 
             let angle = this.a1.angle(this.a2);
-            let radius = styles.atoms_selectRadius * 1.1;
+            let radius = styles.atoms_selectRadius;
 		    let useDist = radius * 0.5;
             let perpendicular = angle + m.PI / 2;
             let dx = radius * m.sqrt(3) / 2 * m.cos(angle);
@@ -2277,7 +2277,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
             let cy4 = y2 + msinp * useDist + dy;
 
             ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-            ctx.lineWidth = styles.hoverLineWidth;
+            ctx.lineWidth = styles.hover_lineWidth;
 
             ctx.moveTo(cx1, cy1);
             ctx.beginPath();
@@ -5324,11 +5324,15 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		flat_color_3D:false,
 		antialias_3D:true,
 		gammaCorrection_3D:2.2,
-		colorHover:'#0060B2',
-		colorSelect:'rgba(0,96,178,0.3)',
 		colorError:'#c10000',
 		colorPreview:'#cbcbcb',
-        hoverLineWidth: 0.5,
+
+		// hover selection
+		colorHover:'#0060B2',
+		colorSelect:'rgba(0,96,178,0.3)',
+		hover_lineWidth: 0.7,
+		lasso_lineWidth: 1,
+		atoms_selectRadius:6,
 
 		// 3D shaders
 		// default ssao
@@ -5349,7 +5353,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		fxaa_subpixCap:1.0,
 		fxaa_subpixTrim:0.0,
 
-        // hover selection
 
 
 		// default atom properties
@@ -5365,7 +5368,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		atoms_lonePairDistance_2D:8,
 		atoms_lonePairSpread_2D:4,
 		atoms_lonePairDiameter_2D:1,
-        atoms_selectRadius:6,
 		atoms_useJMOLColors:true,
 		atoms_usePYMOLColors:false,
 		atoms_HBlack_2D:true,
