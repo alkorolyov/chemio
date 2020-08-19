@@ -73,8 +73,15 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 		d.BOND_DASHED = '<svg  viewBox="0 0 25 25"><path d="M8.1 18.15L6.84 16.9l-2.87 4.12zm2.14-1.5l-1.9-1.9 1.5-2.14 2.55 2.55zm4.28-2.98l-3.2-3.2 1.5-2.14 3.85 3.85zm4.28-2.98l-4.5-4.5 1.5-2.14 5.15 5.15z"/></svg></svg>';
 		d.BOND_WEDGED = '<svg viewBox="0 0 25 25"><path d="M15.85 4L4 21 21 9.15z"/></path></svg>';
 		d.CHAIN_CARBON = '<svg viewBox="0 0 24 24"><path d="M6.5 18.5h-1v-7.37l6 3.5v-7l6 3.5V5.5h1v7.37l-6-3.5v7l-6-3.5v5.63z"></path></svg>';
-		d.INCREASE_CHARGE = '<svg viewBox="0 0 24 24"><path d="M17 11h-4V7h-2v4H7v2h4v4h2v-4h4v-2z"></path></svg>';
+		d.INCREASE_CHARGE = '<svg viewBox="0 0 24 24"><path  d="M17 11h-4V7h-2v4H7v2h4v4h2v-4h4v-2z"></path></svg>';
 		d.DECREASE_CHARGE = '<svg viewBox="0 0 24 24"><path d="M7 11h10v2H7z"></path></svg>';
+		// d.CYCLOBUTANE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMCwxMCkiIGNvbG9yLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBjb2xvci1pbnRlcnBvbGF0aW9uPSJsaW5lYXJSR0IiIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVTcGVlZCIgICAgPjxsaW5lIHkyPSI5IiBmaWxsPSJub25lIiB4MT0iLTkiIHgyPSItMCIgeTE9IjAiICAgICAgLz48bGluZSB5Mj0iMCIgZmlsbD0ibm9uZSIgeDE9Ii0wIiB4Mj0iOSIgeTE9IjkiICAgICAgLz48bGluZSB5Mj0iLTkiIGZpbGw9Im5vbmUiIHgxPSI5IiB4Mj0iMCIgeTE9IjAiICAgICAgLz48bGluZSB5Mj0iMCIgZmlsbD0ibm9uZSIgeDE9IjAiIHgyPSItOSIgeTE9Ii05IiAgICAvPjwvZyAgPjwvZz48L3N2Zz4=';
+		// d.CYCLOHEPTANE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMCwxMCkiIGNvbG9yLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBjb2xvci1pbnRlcnBvbGF0aW9uPSJsaW5lYXJSR0IiIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVTcGVlZCIgICAgPjxsaW5lIHkyPSItNS42MTE0IiBmaWxsPSJub25lIiB4MT0iLTAiIHgyPSItNy4wMzY1IiB5MT0iLTkiICAgICAgLz48bGluZSB5Mj0iMi4wMDI3IiBmaWxsPSJub25lIiB4MT0iLTcuMDM2NSIgeDI9Ii04Ljc3NDQiIHkxPSItNS42MTE0IiAgICAgIC8+PGxpbmUgeTI9IjguMTA4NyIgZmlsbD0ibm9uZSIgeDE9Ii04Ljc3NDQiIHgyPSItMy45MDUiIHkxPSIyLjAwMjciICAgICAgLz48bGluZSB5Mj0iOC4xMDg3IiBmaWxsPSJub25lIiB4MT0iLTMuOTA1IiB4Mj0iMy45MDUiIHkxPSI4LjEwODciICAgICAgLz48bGluZSB5Mj0iMi4wMDI3IiBmaWxsPSJub25lIiB4MT0iMy45MDUiIHgyPSI4Ljc3NDQiIHkxPSI4LjEwODciICAgICAgLz48bGluZSB5Mj0iLTUuNjExNCIgZmlsbD0ibm9uZSIgeDE9IjguNzc0NCIgeDI9IjcuMDM2NSIgeTE9IjIuMDAyNyIgICAgICAvPjxsaW5lIHkyPSItOSIgZmlsbD0ibm9uZSIgeDE9IjcuMDM2NSIgeDI9Ii0wIiB5MT0iLTUuNjExNCIgICAgLz48L2cgID48L2c+PC9zdmc+';
+		// d.CYCLOHEXANE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMCwxMCkiIGNvbG9yLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBjb2xvci1pbnRlcnBvbGF0aW9uPSJsaW5lYXJSR0IiIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVTcGVlZCIgICAgPjxsaW5lIHkyPSI4LjUiIGZpbGw9Im5vbmUiIHgxPSItNy4zNjEyIiB4Mj0iLTAiIHkxPSI0LjI1IiAgICAgIC8+PGxpbmUgeTI9IjQuMjUiIGZpbGw9Im5vbmUiIHgxPSItMCIgeDI9IjcuMzYxMiIgeTE9IjguNSIgICAgICAvPjxsaW5lIHkyPSItNC4yNSIgZmlsbD0ibm9uZSIgeDE9IjcuMzYxMiIgeDI9IjcuMzYxMiIgeTE9IjQuMjUiICAgICAgLz48bGluZSB5Mj0iLTguNSIgZmlsbD0ibm9uZSIgeDE9IjcuMzYxMiIgeDI9IjAiIHkxPSItNC4yNSIgICAgICAvPjxsaW5lIHkyPSItNC4yNSIgZmlsbD0ibm9uZSIgeDE9IjAiIHgyPSItNy4zNjEyIiB5MT0iLTguNSIgICAgICAvPjxsaW5lIHkyPSI0LjI1IiBmaWxsPSJub25lIiB4MT0iLTcuMzYxMiIgeDI9Ii03LjM2MTIiIHkxPSItNC4yNSIgICAgLz48L2cgID48L2c+PC9zdmc+';
+		// d.CYCLOOCTANE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMCwxMCkiIGNvbG9yLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBjb2xvci1pbnRlcnBvbGF0aW9uPSJsaW5lYXJSR0IiIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVTcGVlZCIgICAgPjxsaW5lIHkyPSI2LjM2NCIgZmlsbD0ibm9uZSIgeDE9Ii05IiB4Mj0iLTYuMzY0IiB5MT0iMCIgICAgICAvPjxsaW5lIHkyPSI5IiBmaWxsPSJub25lIiB4MT0iLTYuMzY0IiB4Mj0iLTAiIHkxPSI2LjM2NCIgICAgICAvPjxsaW5lIHkyPSI2LjM2NCIgZmlsbD0ibm9uZSIgeDE9Ii0wIiB4Mj0iNi4zNjQiIHkxPSI5IiAgICAgIC8+PGxpbmUgeTI9IjAiIGZpbGw9Im5vbmUiIHgxPSI2LjM2NCIgeDI9IjkiIHkxPSI2LjM2NCIgICAgICAvPjxsaW5lIHkyPSItNi4zNjQiIGZpbGw9Im5vbmUiIHgxPSI5IiB4Mj0iNi4zNjQiIHkxPSIwIiAgICAgIC8+PGxpbmUgeTI9Ii05IiBmaWxsPSJub25lIiB4MT0iNi4zNjQiIHgyPSIwIiB5MT0iLTYuMzY0IiAgICAgIC8+PGxpbmUgeTI9Ii02LjM2NCIgZmlsbD0ibm9uZSIgeDE9IjAiIHgyPSItNi4zNjQiIHkxPSItOSIgICAgICAvPjxsaW5lIHkyPSIwIiBmaWxsPSJub25lIiB4MT0iLTYuMzY0IiB4Mj0iLTkiIHkxPSItNi4zNjQiICAgIC8+PC9nICA+PC9nPjwvc3ZnPg==';
+		d.CYCLOPENTANE = '<svg viewBox="0 0 25 25" fill-rule="evenodd"><path d="M6.32 22h12.36L22.5 9.64l-10-7.04-10 7.04zm1.236-1.6h9.888l3.056-9.89-8-5.51-8 5.51z"></path></svg>';
+		d.CYCLOPROPANE = '<svg viewBox="0 0 25 25" fill-rule="evenodd"><path d="M12.563 4.785l8.063 13.965H4.5z"></path></svg>';
+
 
 		// d.ADD_LONE_PAIR = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48Y2lyY2xlIHI9IjIiIGN4PSI2IiBjeT0iMTAiIHN0cm9rZT0ibm9uZSIgICAgICAvPjxjaXJjbGUgcj0iMiIgY3g9IjE0IiBjeT0iMTAiIHN0cm9rZT0ibm9uZSIgICAgLz48L2cgID48L2c+PC9zdmc+';
 		// d.ADD_RADICAL = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48Y2lyY2xlIHI9IjIiIGN4PSIxMCIgY3k9IjEwIiBzdHJva2U9Im5vbmUiICAgIC8+PC9nICA+PC9nPjwvc3ZnPg==';
@@ -6392,6 +6399,43 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			sketcher.stateManager.STATE_CHARGE.delta = -1;
 		});
 
+		this.buttonBenzene = new desktop.Button(sketcher.id + '_button_ring_benzene', imageDepot.BENZENE, 'Benzene: [V]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 6;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = true;
+		});
+		this.buttonCyclohexane = new desktop.Button(sketcher.id + '_button_ring_cyclohexane', imageDepot.CYCLOHEXANE, 'Cyclohexane: [6]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 6;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		});
+		this.buttonCyclopropane = new desktop.Button(sketcher.id + '_button_ring_cyclopropane', imageDepot.CYCLOPROPANE, 'Cyclopropane: [Shift+3]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 3;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		});
+		this.buttonCyclobutane = new desktop.Button(sketcher.id + '_button_ring_cyclobutane', imageDepot.CYCLOBUTANE, 'Cyclobutane: [4]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 4;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		});
+		this.buttonCyclopentane = new desktop.Button(sketcher.id + '_button_ring_cyclopentane', imageDepot.CYCLOPENTANE, 'Cyclopentane: [5]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 5;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		});
+		this.buttonCycloheptane = new desktop.Button(sketcher.id + '_button_ring_cycloheptane', imageDepot.CYCLOHEPTANE, 'Cycloheptane: [6]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 7;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		});
+		this.buttonCyclooctane = new desktop.Button(sketcher.id + '_button_ring_cyclooctane', imageDepot.CYCLOOCTANE, 'Cyclooctane: [7]', function() {
+			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_RING);
+			sketcher.stateManager.STATE_NEW_RING.numSides = 8;
+			sketcher.stateManager.STATE_NEW_RING.unsaturated = false;
+		});
+
+
 		this.leftToolBar =  new desktop.ButtonSet(sketcher.id + '_left_toolbar');
 		this.leftToolBar.buttons.push(this.buttonDashed);
 		this.leftToolBar.buttons.push(this.buttonLasso);
@@ -6401,6 +6445,13 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.leftToolBar.buttons.push(this.buttonChain);
 		this.leftToolBar.buttons.push(this.buttonChargePlus);
 		this.leftToolBar.buttons.push(this.buttonChargeMinus);
+		this.leftToolBar.buttons.push(this.buttonBenzene);
+		this.leftToolBar.buttons.push(this.buttonCyclohexane);
+		this.leftToolBar.buttons.push(this.buttonCyclopropane);
+		this.leftToolBar.buttons.push(this.buttonCyclopentane);
+		this.leftToolBar.buttons.push(this.buttonCycloheptane);
+		this.leftToolBar.buttons.push(this.buttonCyclooctane);
+
 		this.leftToolBar.columnCount = 2;
 
 		// clear
