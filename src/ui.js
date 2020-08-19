@@ -60,6 +60,7 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 	{
 		// bottom toolbar
 		d.CLEAR = '<svg viewBox="0 0 24 24"><path d="M13.91 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9.09zM18 19H6V5h6v3.5a2.5 2.5 0 0 0 2.5 2.5H18zm0-9h-3.5A1.5 1.5 0 0 1 13 8.5V5h.09L18 9.91z"></path></svg>';
+		d.CENTER = '<svg viewBox="0 0 25 25"><path d="M10.22 12.5c0-1.26 1.02-2.28 2.28-2.28s2.28 1.02 2.28 2.28-1.02 2.28-2.28 2.28-2.28-1.02-2.28-2.28zM9.02 3H3.84c-.46 0-.84.38-.84.84v5.18c0 .46.38.84.84.84s.84-.38.84-.84V4.68H9c.46 0 .84-.38.84-.84S9.48 3 9.02 3zm12.14 12.14c-.46 0-.84.38-.84.84v4.32h-4.34c-.46 0-.84.38-.84.84s.38.84.84.84h5.18c.46 0 .84-.38.84-.84v-5.16c0-.46-.38-.84-.84-.84zM9.02 20.32H4.68v-4.34c0-.46-.38-.84-.84-.84s-.84.38-.84.84v5.18c0 .46.38.84.84.84h5.18c.46 0 .84-.38.84-.84s-.38-.84-.84-.84zM21.16 3h-5.18c-.46 0-.84.38-.84.84s.38.84.84.84h4.32V9c0 .46.38.84.84.84s.84-.38.84-.84V3.84c.02-.46-.36-.84-.82-.84z"/></svg>'
 		d.ERASE = '<svg viewBox="0 0 24 24"><path d="M20.29 7.71l-3.17-3.17a3.08 3.08 0 0 0-4.24 0l-9.17 9.17a3 3 0 0 0 0 4.24l.34.35a7 7 0 0 0 9.9 0l6.34-6.3a3 3 0 0 0 0-4.29zm-7.75 9.17a5 5 0 0 1-7.08 0l-.34-.34a1 1 0 0 1 0-1.42l4.65-4.64 4.58 4.58zm6.34-6.34l-3.82 3.81-4.58-4.58L14.29 6a1 1 0 0 1 1.42 0l3.17 3.17a1 1 0 0 1 0 1.37z""></path></svg>';
 		d.OPEN = '<svg viewBox="0 0 24 24"><path d="M1 5.5V20h18l3.83-7.66A1.56 1.56 0 0 0 21.35 10H7a2.78 2.78 0 0 0-2.34 1.45L2 17.49V5.5a.5.5 0 0 1 .5-.5h3.75a1.27 1.27 0 0 1 1 .62L8.44 8H18a.5.5 0 0 1 .5.5V9h1v-.5A1.5 1.5 0 0 0 18 7H9.06l-.92-1.83A2.27 2.27 0 0 0 6.25 4H2.5A1.5 1.5 0 0 0 1 5.5zM4.12 18l2.33-5.66A.81.81 0 0 1 7 12h13.73l-3 6z"></path></svg>';
 		d.SAVE = '<svg viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v12.41L6.59 21H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM8 5h8v5H8zm7 14H9v-4h6zm4 0h-3v-5H8v5h-.59L5 16.59V5h2v6h10V5h2z"></path></svg>';
@@ -69,8 +70,8 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 		// left toolbar
 		d.LASSO = '<svg viewBox="0 0 24 24"><path d="M11 11l3.33 9.98 1.66-4.99 4.99-1.66L11 11zm5.83-5.38a8.13 8.13 0 0 0-1.81-1l-.38.92a6.9 6.9 0 0 1 1.58.91zM6.44 7.75l-.8-.6A8.27 8.27 0 0 0 4.6 9l.93.38a6.75 6.75 0 0 1 .91-1.63zM5 12a6.84 6.84 0 0 1 .06-.91l-1-.12A6.94 6.94 0 0 0 4 12a7.41 7.41 0 0 0 .07 1.05l1-.13A7 7 0 0 1 5 12zm14.37-3.12a8 8 0 0 0-1.06-1.8l-.79.62a6.91 6.91 0 0 1 .93 1.57zM7.12 18.34a7.92 7.92 0 0 0 1.8 1.05l.39-.93a6.7 6.7 0 0 1-1.58-.91zm5.76-13.29l.12-1a8.52 8.52 0 0 0-2.08 0l.13 1a7.47 7.47 0 0 1 1.83 0zM4.61 15.06a7.59 7.59 0 0 0 1 1.81l.79-.61a7.12 7.12 0 0 1-.91-1.58zm4.68-9.52l-.38-.92a7.92 7.92 0 0 0-1.8 1l.61.79a7.26 7.26 0 0 1 1.57-.87z" ></path></svg>';
 		d.BOND_SINGLE = '<svg viewBox="0 0 24 24"><path d="M5.587 17L17 5.586 18.414 7 7.001 18.413z"></path></svg>';
-		d.BOND_RECESSED = '<svg width="24" height="24"><path d="M 3.15 21.85 L 3.15 21.85 M 5.80 18.10 L 6.88 19.14 M 8.45 14.38 L 10.59 16.56 M 11.08 10.65 L 14.32 13.90 M 13.69 6.93 L 18.04 11.28 M 16.38 3.15 L 21.85 8.60 Z" stroke-width="2.3"></path></svg>';
-		d.BOND_PROTRUDING = '<svg width="24" height="24"><path d="M 3.15 21.85 L 18.11 3.15 21.85 6.89 Z"stroke-width="2.3"></path></svg>';
+		d.BOND_DASHED = '<svg  viewBox="0 0 25 25"><path d="M8.1 18.15L6.84 16.9l-2.87 4.12zm2.14-1.5l-1.9-1.9 1.5-2.14 2.55 2.55zm4.28-2.98l-3.2-3.2 1.5-2.14 3.85 3.85zm4.28-2.98l-4.5-4.5 1.5-2.14 5.15 5.15z"/></svg></svg>';
+		d.BOND_WEDGED = '<svg viewBox="0 0 25 25"><path d="M15.85 4L4 21 21 9.15z"/></path></svg>';
 		d.CHAIN_CARBON = '<svg viewBox="0 0 24 24"><path d="M6.5 18.5h-1v-7.37l6 3.5v-7l6 3.5V5.5h1v7.37l-6-3.5v7l-6-3.5v5.63z"></path></svg>';
 		d.INCREASE_CHARGE = '<svg viewBox="0 0 24 24"><path d="M17 11h-4V7h-2v4H7v2h4v4h2v-4h4v-2z"></path></svg>';
 		d.DECREASE_CHARGE = '<svg viewBox="0 0 24 24"><path d="M7 11h10v2H7z"></path></svg>';
@@ -90,10 +91,10 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 		// d.BOND_DOUBLE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMSIgZmlsbD0ibm9uZSIgeDE9IjEiIHgyPSIxNyIgeTE9IjE3IiAgICAgIC8+PGxpbmUgeTI9IjMiIGZpbGw9Im5vbmUiIHgxPSIzIiB4Mj0iMTkiIHkxPSIxOSIgICAgLz48L2cgID48L2c+PC9zdmc+';
 		// d.BOND_DOUBLE_AMBIGUOUS = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMyIgZmlsbD0ibm9uZSIgeDE9IjEiIHgyPSIxOSIgeTE9IjE3IiAgICAgIC8+PGxpbmUgeTI9IjEiIGZpbGw9Im5vbmUiIHgxPSIzIiB4Mj0iMTciIHkxPSIxOSIgICAgLz48L2cgID48L2c+PC9zdmc+';
 		// d.BOND_HALF = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyBzdHJva2UtZGFzaG9mZnNldD0iMSIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgaW1hZ2UtcmVuZGVyaW5nPSJvcHRpbWl6ZVNwZWVkIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgc3Ryb2tlLWxpbmVqb2luPSJiZXZlbCIgc3Ryb2tlLWRhc2hhcnJheT0iMSwxLDQsNCw0LDQsNCw0LDQsMSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBzdHJva2UtbWl0ZXJsaW1pdD0iMSIgICAgPjxsaW5lIHkyPSIyIiBmaWxsPSJub25lIiB4MT0iMiIgeDI9IjE4IiB5MT0iMTgiICAgIC8+PC9nICA+PC9nPjwvc3ZnPg==';
-		// d.BOND_PROTRUDING = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48cG9seWdvbiBwb2ludHM9IiAyIDE4IDE2IDAgMjAgNCIgc3Ryb2tlPSJub25lIiAgICAvPjwvZyAgPjwvZz48L3N2Zz4=';
+		// d.BOND_WEDGED = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48cG9seWdvbiBwb2ludHM9IiAyIDE4IDE2IDAgMjAgNCIgc3Ryb2tlPSJub25lIiAgICAvPjwvZyAgPjwvZz48L3N2Zz4=';
 		// d.BOND_QUADRUPLE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMSIgZmlsbD0ibm9uZSIgeDE9IjEiIHgyPSIxMyIgeTE9IjEzIiAgICAgIC8+PGxpbmUgeTI9IjciIGZpbGw9Im5vbmUiIHgxPSI3IiB4Mj0iMTkiIHkxPSIxOSIgICAgICAvPjxsaW5lIHkyPSIzIiBmaWxsPSJub25lIiB4MT0iMyIgeDI9IjE1IiB5MT0iMTUiICAgICAgLz48bGluZSB5Mj0iNSIgZmlsbD0ibm9uZSIgeDE9IjUiIHgyPSIxNyIgeTE9IjE3IiAgICAvPjwvZyAgPjwvZz48L3N2Zz4=';
 		// d.BOND_QUINTUPLE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMSIgZmlsbD0ibm9uZSIgeDE9IjEiIHgyPSIxMSIgeTE9IjExIiAgICAgIC8+PGxpbmUgeTI9IjkiIGZpbGw9Im5vbmUiIHgxPSI5IiB4Mj0iMTkiIHkxPSIxOSIgICAgICAvPjxsaW5lIHkyPSIzIiBmaWxsPSJub25lIiB4MT0iMyIgeDI9IjEzIiB5MT0iMTMiICAgICAgLz48bGluZSB5Mj0iNyIgZmlsbD0ibm9uZSIgeDE9IjciIHgyPSIxNyIgeTE9IjE3IiAgICAgIC8+PGxpbmUgeTI9IjUiIGZpbGw9Im5vbmUiIHgxPSI1IiB4Mj0iMTUiIHkxPSIxNSIgICAgLz48L2cgID48L2c+PC9zdmc+';
-		// d.BOND_RECESSED = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZGVmcyBpZD0iZGVmczEiICAgID48Y2xpcFBhdGggY2xpcFBhdGhVbml0cz0idXNlclNwYWNlT25Vc2UiIGlkPSJjbGlwUGF0aDEiICAgICAgPjxwYXRoIGQ9Ik0yIDE4IEwxNiAwIEwyMCA0IFoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgICAgICAvPjwvY2xpcFBhdGggICAgPjwvZGVmcyAgICA+PGcgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1kYXNob2Zmc2V0PSIxLjIxIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiIGNvbG9yLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBzdHJva2UtbGluZWpvaW49ImJldmVsIiBzdHJva2UtZGFzaGFycmF5PSIxLjIxLDMiIGNvbG9yLWludGVycG9sYXRpb249ImxpbmVhclJHQiIgc3Ryb2tlLXdpZHRoPSI2LjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxIiAgICA+PGxpbmUgeTI9IjIiIGZpbGw9Im5vbmUiIHgxPSIyIiBjbGlwLXBhdGg9InVybCgjY2xpcFBhdGgxKSIgeDI9IjE4IiB5MT0iMTgiICAgIC8+PC9nICA+PC9nPjwvc3ZnPg==';
+		// d.BOND_DASHED = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZGVmcyBpZD0iZGVmczEiICAgID48Y2xpcFBhdGggY2xpcFBhdGhVbml0cz0idXNlclNwYWNlT25Vc2UiIGlkPSJjbGlwUGF0aDEiICAgICAgPjxwYXRoIGQ9Ik0yIDE4IEwxNiAwIEwyMCA0IFoiIGZpbGwtcnVsZT0iZXZlbm9kZCIgICAgICAvPjwvY2xpcFBhdGggICAgPjwvZGVmcyAgICA+PGcgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1kYXNob2Zmc2V0PSIxLjIxIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiIGNvbG9yLXJlbmRlcmluZz0ib3B0aW1pemVRdWFsaXR5IiBzdHJva2UtbGluZWpvaW49ImJldmVsIiBzdHJva2UtZGFzaGFycmF5PSIxLjIxLDMiIGNvbG9yLWludGVycG9sYXRpb249ImxpbmVhclJHQiIgc3Ryb2tlLXdpZHRoPSI2LjIiIHN0cm9rZS1taXRlcmxpbWl0PSIxIiAgICA+PGxpbmUgeTI9IjIiIGZpbGw9Im5vbmUiIHgxPSIyIiBjbGlwLXBhdGg9InVybCgjY2xpcFBhdGgxKSIgeDI9IjE4IiB5MT0iMTgiICAgIC8+PC9nICA+PC9nPjwvc3ZnPg==';
 		// d.BOND_RESONANCE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMSIgZmlsbD0ibm9uZSIgeDE9IjEiIHgyPSIxNyIgeTE9IjE3IiAgICAvPjwvZyAgICA+PGcgc3Ryb2tlLWRhc2hvZmZzZXQ9IjEiIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGltYWdlLXJlbmRlcmluZz0ib3B0aW1pemVTcGVlZCIgY29sb3ItcmVuZGVyaW5nPSJvcHRpbWl6ZVF1YWxpdHkiIHN0cm9rZS1saW5lam9pbj0iYmV2ZWwiIHN0cm9rZS1kYXNoYXJyYXk9IjEsMSw0LDQsNCw0LDQsNCw0LDEiIGNvbG9yLWludGVycG9sYXRpb249ImxpbmVhclJHQiIgc3Ryb2tlLW1pdGVybGltaXQ9IjEiICAgID48bGluZSB5Mj0iMyIgZmlsbD0ibm9uZSIgeDE9IjMiIHgyPSIxOSIgeTE9IjE5IiAgICAvPjwvZyAgPjwvZz48L3N2Zz4=';
 		// d.BOND_SEXTUPLE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMSIgZmlsbD0ibm9uZSIgeDE9IjEiIHgyPSI5IiB5MT0iOSIgICAgICAvPjxsaW5lIHkyPSIxMSIgZmlsbD0ibm9uZSIgeDE9IjExIiB4Mj0iMTkiIHkxPSIxOSIgICAgICAvPjxsaW5lIHkyPSIzIiBmaWxsPSJub25lIiB4MT0iMyIgeDI9IjExIiB5MT0iMTEiICAgICAgLz48bGluZSB5Mj0iOSIgZmlsbD0ibm9uZSIgeDE9IjkiIHgyPSIxNyIgeTE9IjE3IiAgICAgIC8+PGxpbmUgeTI9IjUiIGZpbGw9Im5vbmUiIHgxPSI1IiB4Mj0iMTMiIHkxPSIxMyIgICAgICAvPjxsaW5lIHkyPSI3IiBmaWxsPSJub25lIiB4MT0iNyIgeDI9IjE1IiB5MT0iMTUiICAgIC8+PC9nICA+PC9nPjwvc3ZnPg==';
 		// d.BOND_SINGLE = 'PHN2ZyBmaWxsLW9wYWNpdHk9IjEiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb2xvci1yZW5kZXJpbmc9ImF1dG8iIGNvbG9yLWludGVycG9sYXRpb249ImF1dG8iIHRleHQtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2U9ImJsYWNrIiBzdHJva2UtbGluZWNhcD0ic3F1YXJlIiB3aWR0aD0iMjAiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgc2hhcGUtcmVuZGVyaW5nPSJhdXRvIiBzdHJva2Utb3BhY2l0eT0iMSIgZmlsbD0iYmxhY2siIHN0cm9rZS1kYXNoYXJyYXk9Im5vbmUiIGZvbnQtd2VpZ2h0PSJub3JtYWwiIHN0cm9rZS13aWR0aD0iMSIgdmlld0JveD0iMCAwIDIwLjAgMjAuMCIgaGVpZ2h0PSIyMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBmb250LWZhbWlseT0iJmFwb3M7RGlhbG9nJmFwb3M7IiBmb250LXN0eWxlPSJub3JtYWwiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGZvbnQtc2l6ZT0iMTIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBpbWFnZS1yZW5kZXJpbmc9ImF1dG8iPjxkZWZzIGlkPSJnZW5lcmljRGVmcyIgIC8+PGcgID48ZyB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBjb2xvci1yZW5kZXJpbmc9Im9wdGltaXplUXVhbGl0eSIgY29sb3ItaW50ZXJwb2xhdGlvbj0ibGluZWFyUkdCIiBpbWFnZS1yZW5kZXJpbmc9Im9wdGltaXplU3BlZWQiICAgID48bGluZSB5Mj0iMiIgZmlsbD0ibm9uZSIgeDE9IjIiIHgyPSIxOCIgeTE9IjE4IiAgICAvPjwvZyAgPjwvZz48L3N2Zz4=';
@@ -1767,10 +1768,10 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 		for(let i = 0, ii = this.bonds.length; i<ii; i++){
 			let b = this.bonds[i];
-			if(b.stereo===structures.Bond.STEREO_PROTRUDING){
-				b.stereo = structures.Bond.STEREO_RECESSED;
-			}else if(b.stereo===structures.Bond.STEREO_RECESSED){
-				b.stereo = structures.Bond.STEREO_PROTRUDING;
+			if(b.stereo===structures.Bond.STEREO_WEDGED){
+				b.stereo = structures.Bond.STEREO_DASHED;
+			}else if(b.stereo===structures.Bond.STEREO_DASHED){
+				b.stereo = structures.Bond.STEREO_WEDGED;
 			}
 		}
 	};
@@ -1979,9 +1980,12 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		this.cursor = '';
 		this.defaultCursor = 'default';
 	};
+	/**
+	 *
+	 * @param {string} cursor POINTER_* ex. POINTER_LASSO, for custom imageDepot pointer
+	 * or predefined cursor, ex 'default'
+	 */
 	_.setCursor = function(cursor) {
-		// @param string POINTER_* ex. POINTER_LASSO, for custom imageDepot pointer
-		// or predefined cursor, ex 'default'
 		this.cursor = cursor;
 		let el = document.getElementById(this.sketcher.id);
 		if (this.cursor.includes('POINTER'))
@@ -2088,6 +2092,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		if (hovering) {
 			hovering.isHover = true;
 			this.sketcher.hovering = hovering;
+			this.sketcher.repaint();
 		}
 	};
 	_.getOptimumAngle = function(a, order) {
@@ -2201,7 +2206,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		}
 		// call the repaint here to repaint the help button, also this is called
 		// by other functions, so the repaint must be here
-		this.sketcher.repaint();
+		//this.sketcher.repaint();
 	};
 	_.mouseout = function(e) {
 		this.sketcher.lastMousePos = undefined;
@@ -2438,14 +2443,14 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 						this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
 					} else if (e.which === 87) {
 						// w
-						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_PROTRUDING)
-							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_PROTRUDING));
+						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_WEDGED)
+							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_WEDGED));
 						else
 							this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
 					} else if (e.which === 72) {
 						// h
-						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_RECESSED)
-							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_RECESSED));
+						if (this.sketcher.hovering.stereo !== structures.Bond.STEREO_DASHED)
+							this.sketcher.historyManager.pushUndo(new actions.ChangeBondAction(this.sketcher.hovering, 1, structures.Bond.STEREO_DASHED));
 						else
 							this.sketcher.historyManager.pushUndo(new actions.FlipBondAction(this.sketcher.hovering));
 
@@ -6359,17 +6364,17 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 			if (sketcher.lasso.isActive()) sketcher.lasso.empty();
 		});
 		// wedged bond
-		this.buttonProtruding = new desktop.Button(sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Wedged Bond [W]', function() {
+		this.buttonWedged = new desktop.Button(sketcher.id + '_button_bond_wedged', imageDepot.BOND_WEDGED, 'Wedged Bond [W]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
 			sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-			sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_PROTRUDING;
+			sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_WEDGED;
 			if (sketcher.lasso.isActive()) sketcher.lasso.empty();
 		});
 		// hashed bond
-		this.buttonRecessed = new desktop.Button(sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Hashed Bond [H]', function() {
+		this.buttonDashed = new desktop.Button(sketcher.id + '_button_bond_dashed', imageDepot.BOND_DASHED, 'Hashed Bond [H]', function() {
 			sketcher.stateManager.setState(sketcher.stateManager.STATE_NEW_BOND);
 			sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-			sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_RECESSED;
+			sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_DASHED;
 			if (sketcher.lasso.isActive()) sketcher.lasso.empty();
 		});
 		// chain
@@ -6388,9 +6393,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 		});
 
 		this.leftToolBar =  new desktop.ButtonSet(sketcher.id + '_left_toolbar');
-		this.leftToolBar.buttons.push(this.buttonRecessed);
+		this.leftToolBar.buttons.push(this.buttonDashed);
 		this.leftToolBar.buttons.push(this.buttonLasso);
-		this.leftToolBar.buttons.push(this.buttonProtruding);
+		this.leftToolBar.buttons.push(this.buttonWedged);
 		this.leftToolBar.buttons.push(this.buttonSingle);
 		this.leftToolBar.buttons.push(this.buttonErase);
 		this.leftToolBar.buttons.push(this.buttonChain);
@@ -6819,7 +6824,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	// 		let lbs = self.sketcher.lasso.getBonds();
 	// 		for(let i = 0, ii = lbs.length; i<ii; i++){
 	// 			let b = lbs[i];
-	// 			if(b.bondOrder===1 && (b.stereo===structures.Bond.STEREO_PROTRUDING || b.stereo===structures.Bond.STEREO_RECESSED)){
+	// 			if(b.bondOrder===1 && (b.stereo===structures.Bond.STEREO_WEDGED || b.stereo===structures.Bond.STEREO_DASHED)){
 	// 				bonds.push(b);
 	// 			}
 	// 		}
@@ -6928,16 +6933,16 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	// 		self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_NONE;
 	// 		if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 	// 	});
-	// 	this.buttonRecessed = new desktop.Button(self.sketcher.id + '_button_bond_recessed', imageDepot.BOND_RECESSED, 'Hashed Bond [H]', function() {
+	// 	this.buttonDashed = new desktop.Button(self.sketcher.id + '_button_bond_dashed', imageDepot.BOND_DASHED, 'Hashed Bond [H]', function() {
 	// 		self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 	// 		self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-	// 		self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_RECESSED;
+	// 		self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_DASHED;
 	// 		if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 	// 	});
-	// 	this.buttonProtruding = new desktop.Button(self.sketcher.id + '_button_bond_protruding', imageDepot.BOND_PROTRUDING, 'Wedged Bond [W]', function() {
+	// 	this.buttonWedged = new desktop.Button(self.sketcher.id + '_button_bond_wedged', imageDepot.BOND_WEDGED, 'Wedged Bond [W]', function() {
 	// 		self.sketcher.stateManager.setState(self.sketcher.stateManager.STATE_NEW_BOND);
 	// 		self.sketcher.stateManager.STATE_NEW_BOND.bondOrder = 1;
-	// 		self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_PROTRUDING;
+	// 		self.sketcher.stateManager.STATE_NEW_BOND.stereo = structures.Bond.STEREO_WEDGED;
 	// 		if (self.sketcher.lasso.isActive()) self.sketcher.lasso.empty();
 	// 	});
 	// 	this.buttonDouble = new desktop.Button(self.sketcher.id + '_button_bond_double', imageDepot.BOND_DOUBLE, 'Double Bond', function() {
@@ -6978,8 +6983,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	//
 	// 	this.bondSet = [];
 	// 	this.bondSet.push(this.buttonSingle);
-	// 	this.bondSet.push(this.buttonRecessed);
-	// 	this.bondSet.push(this.buttonProtruding);
+	// 	this.bondSet.push(this.buttonDashed);
+	// 	this.bondSet.push(this.buttonWedged);
 	//
 	// 	this.bondSet.setup = function() {
 	// 		self.bondSet.forEach(function(element) {
@@ -6998,8 +7003,8 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	// 	// this.bondSet = new desktop.ButtonSet(self.sketcher.id + '_buttons_bond');
 	// 	// this.bondSet.toggle = false;
 	// 	// this.bondSet.buttons.push(this.buttonSingle);
-	// 	// this.bondSet.buttons.push(this.buttonProtruding);
-	// 	// this.bondSet.buttons.push(this.buttonRecessed);
+	// 	// this.bondSet.buttons.push(this.buttonWedged);
+	// 	// this.bondSet.buttons.push(this.buttonDashed);
 	//
 	// 	// this.bondSet.buttons.push(this.buttonDouble);
 	// 	// this.bondSet.buttons.push(this.buttonBond);

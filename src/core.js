@@ -1875,8 +1875,8 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		this.bondOrder = bondOrder !== undefined ? bondOrder : 1;
 	};
 	structures.Bond.STEREO_NONE = 'none';
-	structures.Bond.STEREO_PROTRUDING = 'protruding';
-	structures.Bond.STEREO_RECESSED = 'recessed';
+	structures.Bond.STEREO_WEDGED = 'wedged';
+	structures.Bond.STEREO_DASHED = 'dashed';
 	structures.Bond.STEREO_AMBIGUOUS = 'ambiguous';
 	let _ = structures.Bond.prototype;
 	_.stereo = structures.Bond.STEREO_NONE;
@@ -2064,7 +2064,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 					break;
 				}
 			case 1:{
-					if (!this.query && (this.stereo === structures.Bond.STEREO_PROTRUDING || this.stereo === structures.Bond.STEREO_RECESSED)) {
+					if (!this.query && (this.stereo === structures.Bond.STEREO_WEDGED || this.stereo === structures.Bond.STEREO_DASHED)) {
 						let thinSpread = styles.bonds_width_2D / 2;
 						let useDist = styles.bonds_wedgeThickness_2D/2;
 						let perpendicular = this.a1.angle(this.a2) + m.PI / 2;
@@ -2084,7 +2084,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 						ctx.lineTo(cx3, cy3);
 						ctx.lineTo(cx4, cy4);
 						ctx.closePath();
-						if (this.stereo === structures.Bond.STEREO_PROTRUDING) {
+						if (this.stereo === structures.Bond.STEREO_WEDGED) {
 							ctx.fill();
 						} else {
 							ctx.save();
