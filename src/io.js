@@ -1665,3 +1665,8 @@ function attachIO(ChemDoodle) {
 	})(ChemDoodle.io);
 
 };
+
+let io = {};
+
+
+module.exports = io;
