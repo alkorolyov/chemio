@@ -1,149 +1,149 @@
 //
 //  Copyright 2006-2010 iChemLabs, LLC.  All rights reserved.
 //
-
 let ChemDoodle = (function() {
-    'use strict';
-    var c = {};
+	'use strict';
+	var c = {};
 
-    c.iChemLabs = {};
-    c.informatics = {};
-    c.io = {};
-    c.lib = {};
-    c.notations = {};
-    c.structures = {};
-    c.structures.d2 = {};
-    c.structures.d3 = {};
+	c.iChemLabs = {};
+	c.informatics = {};
+	c.io = {};
+	c.lib = {};
+	c.notations = {};
+	c.structures = {};
+	c.structures.d2 = {};
+	c.structures.d3 = {};
 
-    var VERSION = '7.0.1';
+	var VERSION = '7.0.1';
 
-    c.getVersion = function() {
-        return VERSION;
-    };
+	c.getVersion = function() {
+		return VERSION;
+	};
 
-    return c;
+	return c;
 
 })();
+
 
 // Attach external jQuery
 ChemDoodle.lib.jQuery = {};
 
-ChemDoodle.animations = (function(window, undefined) {
-	'use strict';
-	let ext = {};
-
-	// Drop in replace functions for setTimeout() & setInterval() that
-	// make use of requestAnimationFrame() for performance where available
-	// http://www.joelambert.co.uk
-
-	// Copyright 2011, Joe Lambert.
-	// Free to use under the MIT license.
-	// http://www.opensource.org/licenses/mit-license.php
-
-	// requestAnimationFrame() shim by Paul Irish
-	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-	window.requestAnimFrame = (function() {
-		return  window.requestAnimationFrame       ||
-				window.webkitRequestAnimationFrame ||
-				window.mozRequestAnimationFrame    ||
-				window.oRequestAnimationFrame      ||
-				window.msRequestAnimationFrame     ||
-				function(/* function */ callback, /* DOMElement */ element){
-					window.setTimeout(callback, 1000 / 60);
-				};
-	})();
-
-	/**
-	 * Behaves the same as setInterval except uses requestAnimationFrame() where possible for better performance
-	 * @param {function} fn The callback function
-	 * @param {int} delay The delay in milliseconds
-	 */
-	ext.requestInterval = function(fn, delay) {
-		if( !window.requestAnimationFrame       &&
-			!window.webkitRequestAnimationFrame &&
-			!(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && // Firefox 5 ships without cancel support
-			!window.oRequestAnimationFrame      &&
-			!window.msRequestAnimationFrame)
-				return window.setInterval(fn, delay);
-
-		let start = new Date().getTime(),
-			handle = new Object();
-
-		function loop() {
-			let current = new Date().getTime(),
-				delta = current - start;
-
-			if(delta >= delay) {
-				fn.call();
-				start = new Date().getTime();
-			}
-
-			handle.value = window.requestAnimFrame(loop);
-		};
-
-		handle.value = window.requestAnimFrame(loop);
-		return handle;
-	};
-
-	/**
-	 * Behaves the same as clearInterval except uses cancelRequestAnimationFrame() where possible for better performance
-	 * @param {int|object} fn The callback function
-	 */
-	ext.clearRequestInterval = function(handle) {
-	    window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) :
-	    window.webkitCancelAnimationFrame ? window.webkitCancelAnimationFrame(handle.value) :
-	    window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
-	    window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
-	    window.oCancelRequestAnimationFrame	? window.oCancelRequestAnimationFrame(handle.value) :
-	    window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
-	    clearInterval(handle);
-	};
-
-	/**
-	 * Behaves the same as setTimeout except uses requestAnimationFrame() where possible for better performance
-	 * @param {function} fn The callback function
-	 * @param {int} delay The delay in milliseconds
-	 */
-
-	ext.requestTimeout = function(fn, delay) {
-		if( !window.requestAnimationFrame      	&&
-			!window.webkitRequestAnimationFrame &&
-			!(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && // Firefox 5 ships without cancel support
-			!window.oRequestAnimationFrame      &&
-			!window.msRequestAnimationFrame)
-				return window.setTimeout(fn, delay);
-
-		let start = new Date().getTime(),
-			handle = new Object();
-
-		function loop(){
-			let current = new Date().getTime(),
-				delta = current - start;
-
-			delta >= delay ? fn.call() : handle.value = window.requestAnimFrame(loop);
-		};
-
-		handle.value = window.requestAnimFrame(loop);
-		return handle;
-	};
-
-	/**
-	 * Behaves the same as clearTimeout except uses cancelRequestAnimationFrame() where possible for better performance
-	 * @param {int|object} fn The callback function
-	 */
-	ext.clearRequestTimeout = function(handle) {
-	    window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) :
-	    window.webkitCancelAnimationFrame ? window.webkitCancelAnimationFrame(handle.value) :
-	    window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
-	    window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
-	    window.oCancelRequestAnimationFrame	? window.oCancelRequestAnimationFrame(handle.value) :
-	    window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
-	    clearTimeout(handle);
-	};
-
-	return ext;
-
-})(window);
+// ChemDoodle.animations = (function(window, undefined) {
+// 	'use strict';
+// 	let ext = {};
+//
+// 	// Drop in replace functions for setTimeout() & setInterval() that
+// 	// make use of requestAnimationFrame() for performance where available
+// 	// http://www.joelambert.co.uk
+//
+// 	// Copyright 2011, Joe Lambert.
+// 	// Free to use under the MIT license.
+// 	// http://www.opensource.org/licenses/mit-license.php
+//
+// 	// requestAnimationFrame() shim by Paul Irish
+// 	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// 	window.requestAnimFrame = (function() {
+// 		return  window.requestAnimationFrame       ||
+// 				window.webkitRequestAnimationFrame ||
+// 				window.mozRequestAnimationFrame    ||
+// 				window.oRequestAnimationFrame      ||
+// 				window.msRequestAnimationFrame     ||
+// 				function(/* function */ callback, /* DOMElement */ element){
+// 					window.setTimeout(callback, 1000 / 60);
+// 				};
+// 	})();
+//
+// 	/**
+// 	 * Behaves the same as setInterval except uses requestAnimationFrame() where possible for better performance
+// 	 * @param {function} fn The callback function
+// 	 * @param {int} delay The delay in milliseconds
+// 	 */
+// 	ext.requestInterval = function(fn, delay) {
+// 		if( !window.requestAnimationFrame       &&
+// 			!window.webkitRequestAnimationFrame &&
+// 			!(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && // Firefox 5 ships without cancel support
+// 			!window.oRequestAnimationFrame      &&
+// 			!window.msRequestAnimationFrame)
+// 				return window.setInterval(fn, delay);
+//
+// 		let start = new Date().getTime(),
+// 			handle = new Object();
+//
+// 		function loop() {
+// 			let current = new Date().getTime(),
+// 				delta = current - start;
+//
+// 			if(delta >= delay) {
+// 				fn.call();
+// 				start = new Date().getTime();
+// 			}
+//
+// 			handle.value = window.requestAnimFrame(loop);
+// 		};
+//
+// 		handle.value = window.requestAnimFrame(loop);
+// 		return handle;
+// 	};
+//
+// 	/**
+// 	 * Behaves the same as clearInterval except uses cancelRequestAnimationFrame() where possible for better performance
+// 	 * @param {int|object} fn The callback function
+// 	 */
+// 	ext.clearRequestInterval = function(handle) {
+// 	    window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) :
+// 	    window.webkitCancelAnimationFrame ? window.webkitCancelAnimationFrame(handle.value) :
+// 	    window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
+// 	    window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
+// 	    window.oCancelRequestAnimationFrame	? window.oCancelRequestAnimationFrame(handle.value) :
+// 	    window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
+// 	    clearInterval(handle);
+// 	};
+//
+// 	/**
+// 	 * Behaves the same as setTimeout except uses requestAnimationFrame() where possible for better performance
+// 	 * @param {function} fn The callback function
+// 	 * @param {int} delay The delay in milliseconds
+// 	 */
+//
+// 	ext.requestTimeout = function(fn, delay) {
+// 		if( !window.requestAnimationFrame      	&&
+// 			!window.webkitRequestAnimationFrame &&
+// 			!(window.mozRequestAnimationFrame && window.mozCancelRequestAnimationFrame) && // Firefox 5 ships without cancel support
+// 			!window.oRequestAnimationFrame      &&
+// 			!window.msRequestAnimationFrame)
+// 				return window.setTimeout(fn, delay);
+//
+// 		let start = new Date().getTime(),
+// 			handle = new Object();
+//
+// 		function loop(){
+// 			let current = new Date().getTime(),
+// 				delta = current - start;
+//
+// 			delta >= delay ? fn.call() : handle.value = window.requestAnimFrame(loop);
+// 		};
+//
+// 		handle.value = window.requestAnimFrame(loop);
+// 		return handle;
+// 	};
+//
+// 	/**
+// 	 * Behaves the same as clearTimeout except uses cancelRequestAnimationFrame() where possible for better performance
+// 	 * @param {int|object} fn The callback function
+// 	 */
+// 	ext.clearRequestTimeout = function(handle) {
+// 	    window.cancelAnimationFrame ? window.cancelAnimationFrame(handle.value) :
+// 	    window.webkitCancelAnimationFrame ? window.webkitCancelAnimationFrame(handle.value) :
+// 	    window.webkitCancelRequestAnimationFrame ? window.webkitCancelRequestAnimationFrame(handle.value) : /* Support for legacy API */
+// 	    window.mozCancelRequestAnimationFrame ? window.mozCancelRequestAnimationFrame(handle.value) :
+// 	    window.oCancelRequestAnimationFrame	? window.oCancelRequestAnimationFrame(handle.value) :
+// 	    window.msCancelRequestAnimationFrame ? window.msCancelRequestAnimationFrame(handle.value) :
+// 	    clearTimeout(handle);
+// 	};
+//
+// 	return ext;
+//
+// })(window);
 
 ChemDoodle.extensions = (function(structures, v3, m, undefined) {
 	'use strict';
@@ -959,52 +959,52 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(ChemDoodle.SYMBOLS);
 
-ChemDoodle.RESIDUE = (function(undefined) {
-	'use strict';
-	let R = [];
-
-	function Residue(symbol, name, polar, aminoColor, shapelyColor, acidity) {
-		this.symbol = symbol;
-		this.name = name;
-		this.polar = polar;
-		this.aminoColor = aminoColor;
-		this.shapelyColor = shapelyColor;
-		this.acidity = acidity;
-	}
-
-	R.Ala = new Residue('Ala', 'Alanine', false, '#C8C8C8', '#8CFF8C', 0);
-	R.Arg = new Residue('Arg', 'Arginine', true, '#145AFF', '#00007C', 1);
-	R.Asn = new Residue('Asn', 'Asparagine', true, '#00DCDC', '#FF7C70', 0);
-	R.Asp = new Residue('Asp', 'Aspartic Acid', true, '#E60A0A', '#A00042', -1);
-	R.Cys = new Residue('Cys', 'Cysteine', true, '#E6E600', '#FFFF70', 0);
-	R.Gln = new Residue('Gln', 'Glutamine', true, '#00DCDC', '#FF4C4C', 0);
-	R.Glu = new Residue('Glu', 'Glutamic Acid', true, '#E60A0A', '#660000', -1);
-	R.Gly = new Residue('Gly', 'Glycine', false, '#EBEBEB', '#FFFFFF', 0);
-	R.His = new Residue('His', 'Histidine', true, '#8282D2', '#7070FF', 1);
-	R.Ile = new Residue('Ile', 'Isoleucine', false, '#0F820F', '#004C00', 0);
-	R.Leu = new Residue('Leu', 'Leucine', false, '#0F820F', '#455E45', 0);
-	R.Lys = new Residue('Lys', 'Lysine', true, '#145AFF', '#4747B8', 1);
-	R.Met = new Residue('Met', 'Methionine', false, '#E6E600', '#B8A042', 0);
-	R.Phe = new Residue('Phe', 'Phenylalanine', false, '#3232AA', '#534C52', 0);
-	R.Pro = new Residue('Pro', 'Proline', false, '#DC9682', '#525252', 0);
-	R.Ser = new Residue('Ser', 'Serine', true, '#FA9600', '#FF7042', 0);
-	R.Thr = new Residue('Thr', 'Threonine', true, '#FA9600', '#B84C00', 0);
-	R.Trp = new Residue('Trp', 'Tryptophan', true, '#B45AB4', '#4F4600', 0);
-	R.Tyr = new Residue('Tyr', 'Tyrosine', true, '#3232AA', '#8C704C', 0);
-	R.Val = new Residue('Val', 'Valine', false, '#0F820F', '#FF8CFF', 0);
-	R.Asx = new Residue('Asx', 'Asparagine/Aspartic Acid', true, '#FF69B4', '#FF00FF', 0);
-	R.Glx = new Residue('Glx', 'Glutamine/Glutamic Acid', true, '#FF69B4', '#FF00FF', 0);
-	R['*'] = new Residue('*', 'Other', false, '#BEA06E', '#FF00FF', 0);
-	R.A = new Residue('A', 'Adenine', false, '#BEA06E', '#A0A0FF', 0);
-	R.G = new Residue('G', 'Guanine', false, '#BEA06E', '#FF7070', 0);
-	R.I = new Residue('I', '', false, '#BEA06E', '#80FFFF', 0);
-	R.C = new Residue('C', 'Cytosine', false, '#BEA06E', '#FF8C4B', 0);
-	R.T = new Residue('T', 'Thymine', false, '#BEA06E', '#A0FFA0', 0);
-	R.U = new Residue('U', 'Uracil', false, '#BEA06E', '#FF8080', 0);
-
-	return R;
-
-})();
+// ChemDoodle.RESIDUE = (function(undefined) {
+// 	'use strict';
+// 	let R = [];
+//
+// 	function Residue(symbol, name, polar, aminoColor, shapelyColor, acidity) {
+// 		this.symbol = symbol;
+// 		this.name = name;
+// 		this.polar = polar;
+// 		this.aminoColor = aminoColor;
+// 		this.shapelyColor = shapelyColor;
+// 		this.acidity = acidity;
+// 	}
+//
+// 	R.Ala = new Residue('Ala', 'Alanine', false, '#C8C8C8', '#8CFF8C', 0);
+// 	R.Arg = new Residue('Arg', 'Arginine', true, '#145AFF', '#00007C', 1);
+// 	R.Asn = new Residue('Asn', 'Asparagine', true, '#00DCDC', '#FF7C70', 0);
+// 	R.Asp = new Residue('Asp', 'Aspartic Acid', true, '#E60A0A', '#A00042', -1);
+// 	R.Cys = new Residue('Cys', 'Cysteine', true, '#E6E600', '#FFFF70', 0);
+// 	R.Gln = new Residue('Gln', 'Glutamine', true, '#00DCDC', '#FF4C4C', 0);
+// 	R.Glu = new Residue('Glu', 'Glutamic Acid', true, '#E60A0A', '#660000', -1);
+// 	R.Gly = new Residue('Gly', 'Glycine', false, '#EBEBEB', '#FFFFFF', 0);
+// 	R.His = new Residue('His', 'Histidine', true, '#8282D2', '#7070FF', 1);
+// 	R.Ile = new Residue('Ile', 'Isoleucine', false, '#0F820F', '#004C00', 0);
+// 	R.Leu = new Residue('Leu', 'Leucine', false, '#0F820F', '#455E45', 0);
+// 	R.Lys = new Residue('Lys', 'Lysine', true, '#145AFF', '#4747B8', 1);
+// 	R.Met = new Residue('Met', 'Methionine', false, '#E6E600', '#B8A042', 0);
+// 	R.Phe = new Residue('Phe', 'Phenylalanine', false, '#3232AA', '#534C52', 0);
+// 	R.Pro = new Residue('Pro', 'Proline', false, '#DC9682', '#525252', 0);
+// 	R.Ser = new Residue('Ser', 'Serine', true, '#FA9600', '#FF7042', 0);
+// 	R.Thr = new Residue('Thr', 'Threonine', true, '#FA9600', '#B84C00', 0);
+// 	R.Trp = new Residue('Trp', 'Tryptophan', true, '#B45AB4', '#4F4600', 0);
+// 	R.Tyr = new Residue('Tyr', 'Tyrosine', true, '#3232AA', '#8C704C', 0);
+// 	R.Val = new Residue('Val', 'Valine', false, '#0F820F', '#FF8CFF', 0);
+// 	R.Asx = new Residue('Asx', 'Asparagine/Aspartic Acid', true, '#FF69B4', '#FF00FF', 0);
+// 	R.Glx = new Residue('Glx', 'Glutamine/Glutamic Acid', true, '#FF69B4', '#FF00FF', 0);
+// 	R['*'] = new Residue('*', 'Other', false, '#BEA06E', '#FF00FF', 0);
+// 	R.A = new Residue('A', 'Adenine', false, '#BEA06E', '#A0A0FF', 0);
+// 	R.G = new Residue('G', 'Guanine', false, '#BEA06E', '#FF7070', 0);
+// 	R.I = new Residue('I', '', false, '#BEA06E', '#80FFFF', 0);
+// 	R.C = new Residue('C', 'Cytosine', false, '#BEA06E', '#FF8C4B', 0);
+// 	R.T = new Residue('T', 'Thymine', false, '#BEA06E', '#A0FFA0', 0);
+// 	R.U = new Residue('U', 'Uracil', false, '#BEA06E', '#FF8080', 0);
+//
+// 	return R;
+//
+// })();
 
 (function(structures, undefined) {
 	'use strict';
@@ -3861,428 +3861,429 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
 })(ChemDoodle.structures, Math, ChemDoodle.lib.mat4, ChemDoodle.lib.vec3);
 
-(function(extensions, structures, math, m, undefined) {
-	'use strict';
-	structures.Spectrum = function() {
-		this.data = [];
-		this.metadata = [];
-		this.dataDisplay = [];
-		this.memory = {
-			offsetTop : 0,
-			offsetLeft : 0,
-			offsetBottom : 0,
-			flipXAxis : false,
-			scale : 1,
-			width : 0,
-			height : 0
-		};
-	};
-	let _ = structures.Spectrum.prototype;
-	_.title = undefined;
-	_.xUnit = undefined;
-	_.yUnit = undefined;
-	_.continuous = true;
-	_.integrationSensitivity = 0.01;
-	_.draw = function(ctx, styles, width, height) {
-		if (this.styles) {
-			styles = this.styles;
-		}
-		let offsetTop = 5;
-		let offsetLeft = 0;
-		let offsetBottom = 0;
-		// draw decorations
-		ctx.fillStyle = styles.text_color;
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'alphabetic';
-		ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
-		if (this.xUnit) {
-			offsetBottom += styles.text_font_size;
-			ctx.fillText(this.xUnit, width / 2, height - 2);
-		}
-		if (this.yUnit && styles.plots_showYAxis) {
-			offsetLeft += styles.text_font_size;
-			ctx.save();
-			ctx.translate(styles.text_font_size, height / 2);
-			ctx.rotate(-m.PI / 2);
-			ctx.fillText(this.yUnit, 0, 0);
-			ctx.restore();
-		}
-		if (this.title) {
-			offsetTop += styles.text_font_size;
-			ctx.fillText(this.title, width / 2, styles.text_font_size);
-		}
-		// draw ticks
-		ctx.lineCap = 'square';
-		offsetBottom += 5 + styles.text_font_size;
-		if (styles.plots_showYAxis) {
-			offsetLeft += 5 + ctx.measureText('1000').width;
-		}
-		if (styles.plots_showGrid) {
-			ctx.strokeStyle = styles.plots_gridColor;
-			ctx.lineWidth = styles.plots_gridLineWidth;
-			ctx.strokeRect(offsetLeft, offsetTop, width - offsetLeft, height - offsetBottom - offsetTop);
-		}
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'top';
-		let span = this.maxX - this.minX;
-		let t = span / 100;
-		let major = .001;
-		while (major < t || span / major > 25) {
-			major *= 10;
-		}
-		let counter = 0;
-		let overlapX = styles.plots_flipXAxis ? width : 0;
-		for ( let i = m.round(this.minX / major) * major; i <= this.maxX; i += major / 2) {
-			let x = this.getTransformedX(i, styles, width, offsetLeft);
-			if (x > offsetLeft) {
-				ctx.strokeStyle = 'black';
-				ctx.lineWidth = 1;
-				if (counter % 2 === 0) {
-					ctx.beginPath();
-					ctx.moveTo(x, height - offsetBottom);
-					ctx.lineTo(x, height - offsetBottom + 2);
-					ctx.stroke();
-					let s = i.toFixed(5);
-					while (s.charAt(s.length - 1) === '0') {
-						s = s.substring(0, s.length - 1);
-					}
-					if (s.charAt(s.length - 1) === '.') {
-						s = s.substring(0, s.length - 1);
-					}
-					// do this to avoid label overlap
-					let numWidth = ctx.measureText(s).width;
-					if (styles.plots_flipXAxis) {
-						numWidth *= -1;
-					}
-					let ls = x - numWidth / 2;
-					if (styles.plots_flipXAxis ? ls < overlapX : ls > overlapX) {
-						ctx.fillText(s, x, height - offsetBottom + 2);
-						overlapX = x + numWidth / 2;
-					}
-					if (styles.plots_showGrid) {
-						ctx.strokeStyle = styles.plots_gridColor;
-						ctx.lineWidth = styles.plots_gridLineWidth;
-						ctx.beginPath();
-						ctx.moveTo(x, height - offsetBottom);
-						ctx.lineTo(x, offsetTop);
-						ctx.stroke();
-					}
-				} else {
-					ctx.beginPath();
-					ctx.moveTo(x, height - offsetBottom);
-					ctx.lineTo(x, height - offsetBottom + 2);
-					ctx.stroke();
-				}
-			}
-			counter++;
-		}
-		if (styles.plots_showYAxis || styles.plots_showGrid) {
-			let spany = 1 / styles.scale;
-			ctx.textAlign = 'right';
-			ctx.textBaseline = 'middle';
-			for ( let i = 0; i <= 10; i++) {
-				let yval = spany / 10 * i;
-				let y = offsetTop + (height - offsetBottom - offsetTop) * (1 - yval * styles.scale);
-				if (styles.plots_showGrid) {
-					ctx.strokeStyle = styles.plots_gridColor;
-					ctx.lineWidth = styles.plots_gridLineWidth;
-					ctx.beginPath();
-					ctx.moveTo(offsetLeft, y);
-					ctx.lineTo(width, y);
-					ctx.stroke();
-				}
-				if (styles.plots_showYAxis) {
-					ctx.strokeStyle = 'black';
-					ctx.lineWidth = 1;
-					ctx.beginPath();
-					ctx.moveTo(offsetLeft, y);
-					ctx.lineTo(offsetLeft - 3, y);
-					ctx.stroke();
-					let val = yval * 100;
-					let cutoff = m.max(0, 3 - m.floor(val).toString().length);
-					let s = val.toFixed(cutoff);
-					if (cutoff > 0) {
-						while (s.charAt(s.length - 1) === '0') {
-							s = s.substring(0, s.length - 1);
-						}
-					}
-					if (s.charAt(s.length - 1) === '.') {
-						s = s.substring(0, s.length - 1);
-					}
-					ctx.fillText(s, offsetLeft - 3, y);
-				}
-			}
-		}
-		// draw axes
-		ctx.strokeStyle = 'black';
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		// draw x axis
-		ctx.moveTo(width, height - offsetBottom);
-		ctx.lineTo(offsetLeft, height - offsetBottom);
-		// draw y axis
-		if (styles.plots_showYAxis) {
-			ctx.lineTo(offsetLeft, offsetTop);
-		}
-		ctx.stroke();
-		// draw metadata
-		if (this.dataDisplay.length > 0) {
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'top';
-			let mcount = 0;
-			for ( let i = 0, ii = this.dataDisplay.length; i < ii; i++) {
-				if (this.dataDisplay[i].value) {
-					ctx.fillText([ this.dataDisplay[i].display, ': ', this.dataDisplay[i].value ].join(''), offsetLeft + 10, offsetTop + 10 + mcount * (styles.text_font_size + 5));
-					mcount++;
-				} else if (this.dataDisplay[i].tag) {
-					for ( let j = 0, jj = this.metadata.length; j < jj; j++) {
-						if (this.metadata[j].startsWith(this.dataDisplay[i].tag)) {
-							let draw = this.metadata[j];
-							if (this.dataDisplay[i].display) {
-								let index = this.metadata[j].indexOf('=');
-								draw = [ this.dataDisplay[i].display, ': ', index > -1 ? this.metadata[j].substring(index + 2) : this.metadata[j] ].join('');
-							}
-							ctx.fillText(draw, offsetLeft + 10, offsetTop + 10 + mcount * (styles.text_font_size + 5));
-							mcount++;
-							break;
-						}
-					}
-				}
-			}
-		}
-		this.drawPlot(ctx, styles, width, height, offsetTop, offsetLeft, offsetBottom);
-		this.memory.offsetTop = offsetTop;
-		this.memory.offsetLeft = offsetLeft;
-		this.memory.offsetBottom = offsetBottom;
-		this.memory.flipXAxis = styles.plots_flipXAxis;
-		this.memory.scale = styles.scale;
-		this.memory.width = width;
-		this.memory.height = height;
-	};
-	_.drawPlot = function(ctx, styles, width, height, offsetTop, offsetLeft, offsetBottom) {
-		if (this.styles) {
-			styles = this.styles;
-		}
-		ctx.strokeStyle = styles.plots_color;
-		ctx.lineWidth = styles.plots_width;
-		let integration = [];
-		// clip the spectrum display bounds here to not draw over the axes
-		// we do this because we want to continue drawing segments to their natural ends to be accurate, but don't want to see them past the display area
-		ctx.save();
-		ctx.rect(offsetLeft, offsetTop, width-offsetLeft, height-offsetBottom-offsetTop);
-		ctx.clip();
-		ctx.beginPath();
-		if (this.continuous) {
-			let started = false;
-			let counter = 0;
-			let stop = false;
-			for ( let i = 0, ii = this.data.length; i < ii; i++) {
-				let x = this.getTransformedX(this.data[i].x, styles, width, offsetLeft);
-				let xnext;
-				if (i < ii && !started && this.data[i+1]) {
-					// see if you should render this first segment
-					xnext = this.getTransformedX(this.data[i + 1].x, styles, width, offsetLeft);
-				}
-				// check xnext against undefined as it can be 0/1
-				if (x >= offsetLeft && x < width || xnext !== undefined && xnext >= offsetLeft && xnext < width) {
-					let y = this.getTransformedY(this.data[i].y, styles, height, offsetBottom, offsetTop);
-					if (styles.plots_showIntegration && m.abs(this.data[i].y) > this.integrationSensitivity) {
-						integration.push(new structures.Point(this.data[i].x, this.data[i].y));
-					}
-					if (!started) {
-						ctx.moveTo(x, y);
-						started = true;
-					}
-					ctx.lineTo(x, y);
-					counter++;
-					if (counter % 1000 === 0) {
-						// segment the path to avoid crashing safari on mac os x
-						ctx.stroke();
-						ctx.beginPath();
-						ctx.moveTo(x, y);
-					}
-					if (stop) {
-						break;
-					}
-				} else if (started) {
-					// render one more segment
-					stop = true;
-				}
-			}
-		} else {
-			for ( let i = 0, ii = this.data.length; i < ii; i++) {
-				let x = this.getTransformedX(this.data[i].x, styles, width, offsetLeft);
-				if (x >= offsetLeft && x < width) {
-					ctx.moveTo(x, height - offsetBottom);
-					ctx.lineTo(x, this.getTransformedY(this.data[i].y, styles, height, offsetBottom, offsetTop));
-				}
-			}
-		}
-		ctx.stroke();
-		if (styles.plots_showIntegration && integration.length > 1) {
-			ctx.strokeStyle = styles.plots_integrationColor;
-			ctx.lineWidth = styles.plots_integrationLineWidth;
-			ctx.beginPath();
-			let ascending = integration[1].x > integration[0].x;
-			let max;
-			if (this.flipXAxis && !ascending || !this.flipXAxis && ascending) {
-				for ( let i = integration.length - 2; i >= 0; i--) {
-					integration[i].y = integration[i].y + integration[i + 1].y;
-				}
-				max = integration[0].y;
-			} else {
-				for ( let i = 1, ii = integration.length; i < ii; i++) {
-					integration[i].y = integration[i].y + integration[i - 1].y;
-				}
-				max = integration[integration.length - 1].y;
-			}
-			for ( let i = 0, ii = integration.length; i < ii; i++) {
-				let x = this.getTransformedX(integration[i].x, styles, width, offsetLeft);
-				let y = this.getTransformedY(integration[i].y / styles.scale / max, styles, height, offsetBottom, offsetTop);
-				if (i === 0) {
-					ctx.moveTo(x, y);
-				} else {
-					ctx.lineTo(x, y);
-				}
-			}
-			ctx.stroke();
-		}
-		ctx.restore();
-	};
-	_.getTransformedY = function(y, styles, height, offsetBottom, offsetTop) {
-		return offsetTop + (height - offsetBottom - offsetTop) * (1 - y * styles.scale);
-	};
-	_.getInverseTransformedY = function(y) {
-		// can only be called after a render when memory is set, this
-		// function doesn't make sense without a render first anyway
-		return (1 - (y - this.memory.offsetTop) / (this.memory.height - this.memory.offsetBottom - this.memory.offsetTop)) / this.memory.scale * 100;
-	};
-	_.getTransformedX = function(x, styles, width, offsetLeft) {
-		let returning = offsetLeft + (x - this.minX) / (this.maxX - this.minX) * (width - offsetLeft);
-		if (styles.plots_flipXAxis) {
-			returning = width + offsetLeft - returning;
-		}
-		return returning;
-	};
-	_.getInverseTransformedX = function(x) {
-		// can only be called after a render when memory is set, this
-		// function doesn't make sense without a render first anyway
-		if (this.memory.flipXAxis) {
-			x = this.memory.width + this.memory.offsetLeft - x;
-		}
-		return (x - this.memory.offsetLeft) * (this.maxX - this.minX) / (this.memory.width - this.memory.offsetLeft) + this.minX;
-	};
-	_.setup = function() {
-		let xmin = Number.MAX_VALUE;
-		let xmax = Number.MIN_VALUE;
-		let ymax = Number.MIN_VALUE;
-		for ( let i = 0, ii = this.data.length; i < ii; i++) {
-			xmin = m.min(xmin, this.data[i].x);
-			xmax = m.max(xmax, this.data[i].x);
-			ymax = m.max(ymax, this.data[i].y);
-		}
-		if (this.continuous) {
-			this.minX = xmin;
-			this.maxX = xmax;
-		} else {
-			this.minX = xmin - 1;
-			this.maxX = xmax + 1;
-		}
-		for ( let i = 0, ii = this.data.length; i < ii; i++) {
-			this.data[i].y /= ymax;
-		}
-	};
-	_.zoom = function(pixel1, pixel2, width, rescaleY) {
-		let p1 = this.getInverseTransformedX(pixel1);
-		let p2 = this.getInverseTransformedX(pixel2);
-		this.minX = m.min(p1, p2);
-		this.maxX = m.max(p1, p2);
-		if (rescaleY) {
-			let ymax = Number.MIN_VALUE;
-			for ( let i = 0, ii = this.data.length; i < ii; i++) {
-				if (math.isBetween(this.data[i].x, this.minX, this.maxX)) {
-					ymax = m.max(ymax, this.data[i].y);
-				}
-			}
-			return 1 / ymax;
-		}
-	};
-	_.translate = function(dif, width) {
-		let dist = dif / (width - this.memory.offsetLeft) * (this.maxX - this.minX) * (this.memory.flipXAxis ? 1 : -1);
-		this.minX += dist;
-		this.maxX += dist;
-	};
-	_.alertMetadata = function() {
-		alert(this.metadata.join('\n'));
-	};
-	_.getInternalCoordinates = function(x, y) {
-		return new ChemDoodle.structures.Point(this.getInverseTransformedX(x), this.getInverseTransformedY(y));
-	};
-	_.getClosestPlotInternalCoordinates = function(x) {
-		let xtl = this.getInverseTransformedX(x - 1);
-		let xtr = this.getInverseTransformedX(x + 1);
-		if (xtl > xtr) {
-			let temp = xtl;
-			xtl = xtr;
-			xtr = temp;
-		}
-		let highest = -1;
-		let max = -Infinity;
-		let inRange = false;
-		for ( let i = 0, ii = this.data.length; i < ii; i++) {
-			let p = this.data[i];
-			if (math.isBetween(p.x, xtl, xtr)) {
-				if (p.y > max) {
-					inRange = true;
-					max = p.y;
-					highest = i;
-				}
-			} else if (inRange) {
-				break;
-			}
-		}
-		if (highest === -1) {
-			return undefined;
-		}
-		let p = this.data[highest];
-		return new ChemDoodle.structures.Point(p.x, p.y * 100);
-	};
-	_.getClosestPeakInternalCoordinates = function(x) {
-		let xt = this.getInverseTransformedX(x);
-		let closest = 0;
-		let dif = Infinity;
-		for ( let i = 0, ii = this.data.length; i < ii; i++) {
-			let sub = m.abs(this.data[i].x - xt);
-			if (sub <= dif) {
-				dif = sub;
-				closest = i;
-			} else {
-				break;
-			}
-		}
-		let highestLeft = closest, highestRight = closest;
-		let maxLeft = this.data[closest].y, maxRight = this.data[closest].y;
-		for ( let i = closest + 1, ii = this.data.length; i < ii; i++) {
-			if (this.data[i].y + .05 > maxRight) {
-				maxRight = this.data[i].y;
-				highestRight = i;
-			} else {
-				break;
-			}
-		}
-		for ( let i = closest - 1; i >= 0; i--) {
-			if (this.data[i].y + .05 > maxLeft) {
-				maxLeft = this.data[i].y;
-				highestLeft = i;
-			} else {
-				break;
-			}
-		}
-		let p = this.data[highestLeft - closest > highestRight - closest ? highestRight : highestLeft];
-		return new ChemDoodle.structures.Point(p.x, p.y * 100);
-	};
-
-})(ChemDoodle.extensions, ChemDoodle.structures, ChemDoodle.math, Math);
+// Spectrum structure
+// (function(extensions, structures, math, m, undefined) {
+// 	'use strict';
+// 	structures.Spectrum = function() {
+// 		this.data = [];
+// 		this.metadata = [];
+// 		this.dataDisplay = [];
+// 		this.memory = {
+// 			offsetTop : 0,
+// 			offsetLeft : 0,
+// 			offsetBottom : 0,
+// 			flipXAxis : false,
+// 			scale : 1,
+// 			width : 0,
+// 			height : 0
+// 		};
+// 	};
+// 	let _ = structures.Spectrum.prototype;
+// 	_.title = undefined;
+// 	_.xUnit = undefined;
+// 	_.yUnit = undefined;
+// 	_.continuous = true;
+// 	_.integrationSensitivity = 0.01;
+// 	_.draw = function(ctx, styles, width, height) {
+// 		if (this.styles) {
+// 			styles = this.styles;
+// 		}
+// 		let offsetTop = 5;
+// 		let offsetLeft = 0;
+// 		let offsetBottom = 0;
+// 		// draw decorations
+// 		ctx.fillStyle = styles.text_color;
+// 		ctx.textAlign = 'center';
+// 		ctx.textBaseline = 'alphabetic';
+// 		ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
+// 		if (this.xUnit) {
+// 			offsetBottom += styles.text_font_size;
+// 			ctx.fillText(this.xUnit, width / 2, height - 2);
+// 		}
+// 		if (this.yUnit && styles.plots_showYAxis) {
+// 			offsetLeft += styles.text_font_size;
+// 			ctx.save();
+// 			ctx.translate(styles.text_font_size, height / 2);
+// 			ctx.rotate(-m.PI / 2);
+// 			ctx.fillText(this.yUnit, 0, 0);
+// 			ctx.restore();
+// 		}
+// 		if (this.title) {
+// 			offsetTop += styles.text_font_size;
+// 			ctx.fillText(this.title, width / 2, styles.text_font_size);
+// 		}
+// 		// draw ticks
+// 		ctx.lineCap = 'square';
+// 		offsetBottom += 5 + styles.text_font_size;
+// 		if (styles.plots_showYAxis) {
+// 			offsetLeft += 5 + ctx.measureText('1000').width;
+// 		}
+// 		if (styles.plots_showGrid) {
+// 			ctx.strokeStyle = styles.plots_gridColor;
+// 			ctx.lineWidth = styles.plots_gridLineWidth;
+// 			ctx.strokeRect(offsetLeft, offsetTop, width - offsetLeft, height - offsetBottom - offsetTop);
+// 		}
+// 		ctx.textAlign = 'center';
+// 		ctx.textBaseline = 'top';
+// 		let span = this.maxX - this.minX;
+// 		let t = span / 100;
+// 		let major = .001;
+// 		while (major < t || span / major > 25) {
+// 			major *= 10;
+// 		}
+// 		let counter = 0;
+// 		let overlapX = styles.plots_flipXAxis ? width : 0;
+// 		for ( let i = m.round(this.minX / major) * major; i <= this.maxX; i += major / 2) {
+// 			let x = this.getTransformedX(i, styles, width, offsetLeft);
+// 			if (x > offsetLeft) {
+// 				ctx.strokeStyle = 'black';
+// 				ctx.lineWidth = 1;
+// 				if (counter % 2 === 0) {
+// 					ctx.beginPath();
+// 					ctx.moveTo(x, height - offsetBottom);
+// 					ctx.lineTo(x, height - offsetBottom + 2);
+// 					ctx.stroke();
+// 					let s = i.toFixed(5);
+// 					while (s.charAt(s.length - 1) === '0') {
+// 						s = s.substring(0, s.length - 1);
+// 					}
+// 					if (s.charAt(s.length - 1) === '.') {
+// 						s = s.substring(0, s.length - 1);
+// 					}
+// 					// do this to avoid label overlap
+// 					let numWidth = ctx.measureText(s).width;
+// 					if (styles.plots_flipXAxis) {
+// 						numWidth *= -1;
+// 					}
+// 					let ls = x - numWidth / 2;
+// 					if (styles.plots_flipXAxis ? ls < overlapX : ls > overlapX) {
+// 						ctx.fillText(s, x, height - offsetBottom + 2);
+// 						overlapX = x + numWidth / 2;
+// 					}
+// 					if (styles.plots_showGrid) {
+// 						ctx.strokeStyle = styles.plots_gridColor;
+// 						ctx.lineWidth = styles.plots_gridLineWidth;
+// 						ctx.beginPath();
+// 						ctx.moveTo(x, height - offsetBottom);
+// 						ctx.lineTo(x, offsetTop);
+// 						ctx.stroke();
+// 					}
+// 				} else {
+// 					ctx.beginPath();
+// 					ctx.moveTo(x, height - offsetBottom);
+// 					ctx.lineTo(x, height - offsetBottom + 2);
+// 					ctx.stroke();
+// 				}
+// 			}
+// 			counter++;
+// 		}
+// 		if (styles.plots_showYAxis || styles.plots_showGrid) {
+// 			let spany = 1 / styles.scale;
+// 			ctx.textAlign = 'right';
+// 			ctx.textBaseline = 'middle';
+// 			for ( let i = 0; i <= 10; i++) {
+// 				let yval = spany / 10 * i;
+// 				let y = offsetTop + (height - offsetBottom - offsetTop) * (1 - yval * styles.scale);
+// 				if (styles.plots_showGrid) {
+// 					ctx.strokeStyle = styles.plots_gridColor;
+// 					ctx.lineWidth = styles.plots_gridLineWidth;
+// 					ctx.beginPath();
+// 					ctx.moveTo(offsetLeft, y);
+// 					ctx.lineTo(width, y);
+// 					ctx.stroke();
+// 				}
+// 				if (styles.plots_showYAxis) {
+// 					ctx.strokeStyle = 'black';
+// 					ctx.lineWidth = 1;
+// 					ctx.beginPath();
+// 					ctx.moveTo(offsetLeft, y);
+// 					ctx.lineTo(offsetLeft - 3, y);
+// 					ctx.stroke();
+// 					let val = yval * 100;
+// 					let cutoff = m.max(0, 3 - m.floor(val).toString().length);
+// 					let s = val.toFixed(cutoff);
+// 					if (cutoff > 0) {
+// 						while (s.charAt(s.length - 1) === '0') {
+// 							s = s.substring(0, s.length - 1);
+// 						}
+// 					}
+// 					if (s.charAt(s.length - 1) === '.') {
+// 						s = s.substring(0, s.length - 1);
+// 					}
+// 					ctx.fillText(s, offsetLeft - 3, y);
+// 				}
+// 			}
+// 		}
+// 		// draw axes
+// 		ctx.strokeStyle = 'black';
+// 		ctx.lineWidth = 1;
+// 		ctx.beginPath();
+// 		// draw x axis
+// 		ctx.moveTo(width, height - offsetBottom);
+// 		ctx.lineTo(offsetLeft, height - offsetBottom);
+// 		// draw y axis
+// 		if (styles.plots_showYAxis) {
+// 			ctx.lineTo(offsetLeft, offsetTop);
+// 		}
+// 		ctx.stroke();
+// 		// draw metadata
+// 		if (this.dataDisplay.length > 0) {
+// 			ctx.textAlign = 'left';
+// 			ctx.textBaseline = 'top';
+// 			let mcount = 0;
+// 			for ( let i = 0, ii = this.dataDisplay.length; i < ii; i++) {
+// 				if (this.dataDisplay[i].value) {
+// 					ctx.fillText([ this.dataDisplay[i].display, ': ', this.dataDisplay[i].value ].join(''), offsetLeft + 10, offsetTop + 10 + mcount * (styles.text_font_size + 5));
+// 					mcount++;
+// 				} else if (this.dataDisplay[i].tag) {
+// 					for ( let j = 0, jj = this.metadata.length; j < jj; j++) {
+// 						if (this.metadata[j].startsWith(this.dataDisplay[i].tag)) {
+// 							let draw = this.metadata[j];
+// 							if (this.dataDisplay[i].display) {
+// 								let index = this.metadata[j].indexOf('=');
+// 								draw = [ this.dataDisplay[i].display, ': ', index > -1 ? this.metadata[j].substring(index + 2) : this.metadata[j] ].join('');
+// 							}
+// 							ctx.fillText(draw, offsetLeft + 10, offsetTop + 10 + mcount * (styles.text_font_size + 5));
+// 							mcount++;
+// 							break;
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 		this.drawPlot(ctx, styles, width, height, offsetTop, offsetLeft, offsetBottom);
+// 		this.memory.offsetTop = offsetTop;
+// 		this.memory.offsetLeft = offsetLeft;
+// 		this.memory.offsetBottom = offsetBottom;
+// 		this.memory.flipXAxis = styles.plots_flipXAxis;
+// 		this.memory.scale = styles.scale;
+// 		this.memory.width = width;
+// 		this.memory.height = height;
+// 	};
+// 	_.drawPlot = function(ctx, styles, width, height, offsetTop, offsetLeft, offsetBottom) {
+// 		if (this.styles) {
+// 			styles = this.styles;
+// 		}
+// 		ctx.strokeStyle = styles.plots_color;
+// 		ctx.lineWidth = styles.plots_width;
+// 		let integration = [];
+// 		// clip the spectrum display bounds here to not draw over the axes
+// 		// we do this because we want to continue drawing segments to their natural ends to be accurate, but don't want to see them past the display area
+// 		ctx.save();
+// 		ctx.rect(offsetLeft, offsetTop, width-offsetLeft, height-offsetBottom-offsetTop);
+// 		ctx.clip();
+// 		ctx.beginPath();
+// 		if (this.continuous) {
+// 			let started = false;
+// 			let counter = 0;
+// 			let stop = false;
+// 			for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 				let x = this.getTransformedX(this.data[i].x, styles, width, offsetLeft);
+// 				let xnext;
+// 				if (i < ii && !started && this.data[i+1]) {
+// 					// see if you should render this first segment
+// 					xnext = this.getTransformedX(this.data[i + 1].x, styles, width, offsetLeft);
+// 				}
+// 				// check xnext against undefined as it can be 0/1
+// 				if (x >= offsetLeft && x < width || xnext !== undefined && xnext >= offsetLeft && xnext < width) {
+// 					let y = this.getTransformedY(this.data[i].y, styles, height, offsetBottom, offsetTop);
+// 					if (styles.plots_showIntegration && m.abs(this.data[i].y) > this.integrationSensitivity) {
+// 						integration.push(new structures.Point(this.data[i].x, this.data[i].y));
+// 					}
+// 					if (!started) {
+// 						ctx.moveTo(x, y);
+// 						started = true;
+// 					}
+// 					ctx.lineTo(x, y);
+// 					counter++;
+// 					if (counter % 1000 === 0) {
+// 						// segment the path to avoid crashing safari on mac os x
+// 						ctx.stroke();
+// 						ctx.beginPath();
+// 						ctx.moveTo(x, y);
+// 					}
+// 					if (stop) {
+// 						break;
+// 					}
+// 				} else if (started) {
+// 					// render one more segment
+// 					stop = true;
+// 				}
+// 			}
+// 		} else {
+// 			for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 				let x = this.getTransformedX(this.data[i].x, styles, width, offsetLeft);
+// 				if (x >= offsetLeft && x < width) {
+// 					ctx.moveTo(x, height - offsetBottom);
+// 					ctx.lineTo(x, this.getTransformedY(this.data[i].y, styles, height, offsetBottom, offsetTop));
+// 				}
+// 			}
+// 		}
+// 		ctx.stroke();
+// 		if (styles.plots_showIntegration && integration.length > 1) {
+// 			ctx.strokeStyle = styles.plots_integrationColor;
+// 			ctx.lineWidth = styles.plots_integrationLineWidth;
+// 			ctx.beginPath();
+// 			let ascending = integration[1].x > integration[0].x;
+// 			let max;
+// 			if (this.flipXAxis && !ascending || !this.flipXAxis && ascending) {
+// 				for ( let i = integration.length - 2; i >= 0; i--) {
+// 					integration[i].y = integration[i].y + integration[i + 1].y;
+// 				}
+// 				max = integration[0].y;
+// 			} else {
+// 				for ( let i = 1, ii = integration.length; i < ii; i++) {
+// 					integration[i].y = integration[i].y + integration[i - 1].y;
+// 				}
+// 				max = integration[integration.length - 1].y;
+// 			}
+// 			for ( let i = 0, ii = integration.length; i < ii; i++) {
+// 				let x = this.getTransformedX(integration[i].x, styles, width, offsetLeft);
+// 				let y = this.getTransformedY(integration[i].y / styles.scale / max, styles, height, offsetBottom, offsetTop);
+// 				if (i === 0) {
+// 					ctx.moveTo(x, y);
+// 				} else {
+// 					ctx.lineTo(x, y);
+// 				}
+// 			}
+// 			ctx.stroke();
+// 		}
+// 		ctx.restore();
+// 	};
+// 	_.getTransformedY = function(y, styles, height, offsetBottom, offsetTop) {
+// 		return offsetTop + (height - offsetBottom - offsetTop) * (1 - y * styles.scale);
+// 	};
+// 	_.getInverseTransformedY = function(y) {
+// 		// can only be called after a render when memory is set, this
+// 		// function doesn't make sense without a render first anyway
+// 		return (1 - (y - this.memory.offsetTop) / (this.memory.height - this.memory.offsetBottom - this.memory.offsetTop)) / this.memory.scale * 100;
+// 	};
+// 	_.getTransformedX = function(x, styles, width, offsetLeft) {
+// 		let returning = offsetLeft + (x - this.minX) / (this.maxX - this.minX) * (width - offsetLeft);
+// 		if (styles.plots_flipXAxis) {
+// 			returning = width + offsetLeft - returning;
+// 		}
+// 		return returning;
+// 	};
+// 	_.getInverseTransformedX = function(x) {
+// 		// can only be called after a render when memory is set, this
+// 		// function doesn't make sense without a render first anyway
+// 		if (this.memory.flipXAxis) {
+// 			x = this.memory.width + this.memory.offsetLeft - x;
+// 		}
+// 		return (x - this.memory.offsetLeft) * (this.maxX - this.minX) / (this.memory.width - this.memory.offsetLeft) + this.minX;
+// 	};
+// 	_.setup = function() {
+// 		let xmin = Number.MAX_VALUE;
+// 		let xmax = Number.MIN_VALUE;
+// 		let ymax = Number.MIN_VALUE;
+// 		for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 			xmin = m.min(xmin, this.data[i].x);
+// 			xmax = m.max(xmax, this.data[i].x);
+// 			ymax = m.max(ymax, this.data[i].y);
+// 		}
+// 		if (this.continuous) {
+// 			this.minX = xmin;
+// 			this.maxX = xmax;
+// 		} else {
+// 			this.minX = xmin - 1;
+// 			this.maxX = xmax + 1;
+// 		}
+// 		for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 			this.data[i].y /= ymax;
+// 		}
+// 	};
+// 	_.zoom = function(pixel1, pixel2, width, rescaleY) {
+// 		let p1 = this.getInverseTransformedX(pixel1);
+// 		let p2 = this.getInverseTransformedX(pixel2);
+// 		this.minX = m.min(p1, p2);
+// 		this.maxX = m.max(p1, p2);
+// 		if (rescaleY) {
+// 			let ymax = Number.MIN_VALUE;
+// 			for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 				if (math.isBetween(this.data[i].x, this.minX, this.maxX)) {
+// 					ymax = m.max(ymax, this.data[i].y);
+// 				}
+// 			}
+// 			return 1 / ymax;
+// 		}
+// 	};
+// 	_.translate = function(dif, width) {
+// 		let dist = dif / (width - this.memory.offsetLeft) * (this.maxX - this.minX) * (this.memory.flipXAxis ? 1 : -1);
+// 		this.minX += dist;
+// 		this.maxX += dist;
+// 	};
+// 	_.alertMetadata = function() {
+// 		alert(this.metadata.join('\n'));
+// 	};
+// 	_.getInternalCoordinates = function(x, y) {
+// 		return new ChemDoodle.structures.Point(this.getInverseTransformedX(x), this.getInverseTransformedY(y));
+// 	};
+// 	_.getClosestPlotInternalCoordinates = function(x) {
+// 		let xtl = this.getInverseTransformedX(x - 1);
+// 		let xtr = this.getInverseTransformedX(x + 1);
+// 		if (xtl > xtr) {
+// 			let temp = xtl;
+// 			xtl = xtr;
+// 			xtr = temp;
+// 		}
+// 		let highest = -1;
+// 		let max = -Infinity;
+// 		let inRange = false;
+// 		for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 			let p = this.data[i];
+// 			if (math.isBetween(p.x, xtl, xtr)) {
+// 				if (p.y > max) {
+// 					inRange = true;
+// 					max = p.y;
+// 					highest = i;
+// 				}
+// 			} else if (inRange) {
+// 				break;
+// 			}
+// 		}
+// 		if (highest === -1) {
+// 			return undefined;
+// 		}
+// 		let p = this.data[highest];
+// 		return new ChemDoodle.structures.Point(p.x, p.y * 100);
+// 	};
+// 	_.getClosestPeakInternalCoordinates = function(x) {
+// 		let xt = this.getInverseTransformedX(x);
+// 		let closest = 0;
+// 		let dif = Infinity;
+// 		for ( let i = 0, ii = this.data.length; i < ii; i++) {
+// 			let sub = m.abs(this.data[i].x - xt);
+// 			if (sub <= dif) {
+// 				dif = sub;
+// 				closest = i;
+// 			} else {
+// 				break;
+// 			}
+// 		}
+// 		let highestLeft = closest, highestRight = closest;
+// 		let maxLeft = this.data[closest].y, maxRight = this.data[closest].y;
+// 		for ( let i = closest + 1, ii = this.data.length; i < ii; i++) {
+// 			if (this.data[i].y + .05 > maxRight) {
+// 				maxRight = this.data[i].y;
+// 				highestRight = i;
+// 			} else {
+// 				break;
+// 			}
+// 		}
+// 		for ( let i = closest - 1; i >= 0; i--) {
+// 			if (this.data[i].y + .05 > maxLeft) {
+// 				maxLeft = this.data[i].y;
+// 				highestLeft = i;
+// 			} else {
+// 				break;
+// 			}
+// 		}
+// 		let p = this.data[highestLeft - closest > highestRight - closest ? highestRight : highestLeft];
+// 		return new ChemDoodle.structures.Point(p.x, p.y * 100);
+// 	};
+//
+// })(ChemDoodle.extensions, ChemDoodle.structures, ChemDoodle.math, Math);
 
 (function(math, d2, m, undefined) {
 	'use strict';
@@ -4354,316 +4355,316 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
 })(ChemDoodle.math, ChemDoodle.structures.d2, Math);
 
-(function(extensions, math, structures, d2, m, undefined) {
-	'use strict';
+// (function(extensions, math, structures, d2, m, undefined) {
+// 	'use strict';
+//
+// 	d2.AtomMapping = function(o1, o2) {
+// 		// these need to be named 'o', not 'a' or the generic erase function won't work for them
+// 		this.o1 = o1;
+// 		this.o2 = o2;
+// 		this.label = '0';
+// 		this.error = false;
+// 	};
+// 	let _ = d2.AtomMapping.prototype = new d2._Shape();
+// 	_.drawDecorations = function(ctx, styles) {
+// 		if (this.isHover || this.isSelected) {
+// 			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
+// 			ctx.lineWidth = 1;
+// 			ctx.beginPath();
+// 			ctx.moveTo(this.o1.x, this.o1.y);
+// 			ctx.lineTo(this.o2.x, this.o2.y);
+// 			ctx.setLineDash([2]);
+// 			ctx.stroke();
+// 			ctx.setLineDash([]);
+// 		}
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		if (this.o1 && this.o2) {
+// 			let sep = 14;
+// 			this.x1 = this.o1.x+sep*m.cos(this.o1.angleOfLeastInterference);
+// 			this.y1 = this.o1.y-sep*m.sin(this.o1.angleOfLeastInterference);
+// 			this.x2 = this.o2.x+sep*m.cos(this.o2.angleOfLeastInterference);
+// 			this.y2 = this.o2.y-sep*m.sin(this.o2.angleOfLeastInterference);
+// 			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
+// 			let label = this.label;
+// 			let w = ctx.measureText(label).width;
+// 			if (this.isLassoed) {
+// 				ctx.fillStyle = styles.colorHover;
+// 				ctx.fillRect(this.x1-w/2-3, this.y1-styles.text_font_size/2-3, w+6, styles.text_font_size+6);
+// 				ctx.fillRect(this.x2-w/2-3, this.y2-styles.text_font_size/2-3, w+6, styles.text_font_size+6);
+// 			}
+// 			let color = this.error?styles.colorError:styles.shapes_color;
+// 			if (this.isHover || this.isSelected) {
+// 				color = this.isHover ? styles.colorHover : styles.colorSelect;
+// 			}
+// 			ctx.fillStyle = color;
+// 			ctx.fillRect(this.x1-w/2-1, this.y1-styles.text_font_size/2-1, w+2, styles.text_font_size+2);
+// 			ctx.fillRect(this.x2-w/2-1, this.y2-styles.text_font_size/2-1, w+2, styles.text_font_size+2);
+// 			ctx.textAlign = 'center';
+// 			ctx.textBaseline = 'middle';
+// 			ctx.fillStyle = styles.backgroundColor;
+// 			ctx.fillText(label, this.x1, this.y1);
+// 			ctx.fillText(label, this.x2, this.y2);
+// 		}
+// 	};
+// 	_.getPoints = function() {
+// 		return [new structures.Point(this.x1, this.y1), new structures.Point(this.x2, this.y2)];
+// 	};
+// 	_.isOver = function(p, barrier) {
+// 		if(this.x1){
+// 			return p.distance({x:this.x1, y:this.y1})<barrier || p.distance({x:this.x2, y:this.y2})<barrier;
+// 		}
+// 		return false;
+// 	};
+//
+// })(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
-	d2.AtomMapping = function(o1, o2) {
-		// these need to be named 'o', not 'a' or the generic erase function won't work for them
-		this.o1 = o1;
-		this.o2 = o2;
-		this.label = '0';
-		this.error = false;
-	};
-	let _ = d2.AtomMapping.prototype = new d2._Shape();
-	_.drawDecorations = function(ctx, styles) {
-		if (this.isHover || this.isSelected) {
-			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-			ctx.lineWidth = 1;
-			ctx.beginPath();
-			ctx.moveTo(this.o1.x, this.o1.y);
-			ctx.lineTo(this.o2.x, this.o2.y);
-			ctx.setLineDash([2]);
-			ctx.stroke();
-			ctx.setLineDash([]);
-		}
-	};
-	_.draw = function(ctx, styles) {
-		if (this.o1 && this.o2) {
-			let sep = 14;
-			this.x1 = this.o1.x+sep*m.cos(this.o1.angleOfLeastInterference);
-			this.y1 = this.o1.y-sep*m.sin(this.o1.angleOfLeastInterference);
-			this.x2 = this.o2.x+sep*m.cos(this.o2.angleOfLeastInterference);
-			this.y2 = this.o2.y-sep*m.sin(this.o2.angleOfLeastInterference);
-			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
-			let label = this.label;
-			let w = ctx.measureText(label).width;
-			if (this.isLassoed) {
-				ctx.fillStyle = styles.colorHover;
-				ctx.fillRect(this.x1-w/2-3, this.y1-styles.text_font_size/2-3, w+6, styles.text_font_size+6);
-				ctx.fillRect(this.x2-w/2-3, this.y2-styles.text_font_size/2-3, w+6, styles.text_font_size+6);
-			}
-			let color = this.error?styles.colorError:styles.shapes_color;
-			if (this.isHover || this.isSelected) {
-				color = this.isHover ? styles.colorHover : styles.colorSelect;
-			}
-			ctx.fillStyle = color;
-			ctx.fillRect(this.x1-w/2-1, this.y1-styles.text_font_size/2-1, w+2, styles.text_font_size+2);
-			ctx.fillRect(this.x2-w/2-1, this.y2-styles.text_font_size/2-1, w+2, styles.text_font_size+2);
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.fillStyle = styles.backgroundColor;
-			ctx.fillText(label, this.x1, this.y1);
-			ctx.fillText(label, this.x2, this.y2);
-		}
-	};
-	_.getPoints = function() {
-		return [new structures.Point(this.x1, this.y1), new structures.Point(this.x2, this.y2)];
-	};
-	_.isOver = function(p, barrier) {
-		if(this.x1){
-			return p.distance({x:this.x1, y:this.y1})<barrier || p.distance({x:this.x2, y:this.y2})<barrier;
-		}
-		return false;
-	};
+// (function(extensions, math, structures, d2, m, undefined) {
+// 	'use strict';
+// 	d2.Bracket = function(p1, p2) {
+// 		this.p1 = p1 ? p1 : new structures.Point();
+// 		this.p2 = p2 ? p2 : new structures.Point();
+// 	};
+// 	let _ = d2.Bracket.prototype = new d2._Shape();
+// 	_.charge = 0;
+// 	_.mult = 0;
+// 	_.repeat = 0;
+// 	_.draw = function(ctx, styles) {
+// 		let minX = m.min(this.p1.x, this.p2.x);
+// 		let maxX = m.max(this.p1.x, this.p2.x);
+// 		let minY = m.min(this.p1.y, this.p2.y);
+// 		let maxY = m.max(this.p1.y, this.p2.y);
+// 		let h = maxY - minY;
+// 		let lip = h / 10;
+// 		ctx.beginPath();
+// 		ctx.moveTo(minX + lip, minY);
+// 		ctx.lineTo(minX, minY);
+// 		ctx.lineTo(minX, maxY);
+// 		ctx.lineTo(minX + lip, maxY);
+// 		ctx.moveTo(maxX - lip, maxY);
+// 		ctx.lineTo(maxX, maxY);
+// 		ctx.lineTo(maxX, minY);
+// 		ctx.lineTo(maxX - lip, minY);
+// 		if (this.isLassoed) {
+// 			let grd = ctx.createLinearGradient(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
+// 			grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
+// 			grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
+// 			grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
+// 			ctx.lineWidth = styles.shapes_lineWidth + 5;
+// 			ctx.strokeStyle = grd;
+// 			ctx.lineJoin = 'miter';
+// 			ctx.lineCap = 'square';
+// 			ctx.stroke();
+// 		}
+// 		ctx.strokeStyle = styles.shapes_color;
+// 		ctx.lineWidth = styles.shapes_lineWidth;
+// 		ctx.lineJoin = 'miter';
+// 		ctx.lineCap = 'butt';
+// 		ctx.stroke();
+// 		if (this.charge !== 0) {
+// 			ctx.fillStyle = styles.text_color;
+// 			ctx.textAlign = 'left';
+// 			ctx.textBaseline = 'alphabetic';
+// 			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
+// 			let s = this.charge.toFixed(0);
+// 			if (s === '1') {
+// 				s = '+';
+// 			} else if (s === '-1') {
+// 				s = '\u2013';
+// 			} else if (s.startsWith('-')) {
+// 				s = s.substring(1) + '\u2013';
+// 			} else {
+// 				s += '+';
+// 			}
+// 			ctx.fillText(s, maxX + 5, minY + 5);
+// 		}
+// 		if (this.mult !== 0) {
+// 			ctx.fillStyle = styles.text_color;
+// 			ctx.textAlign = 'right';
+// 			ctx.textBaseline = 'middle';
+// 			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
+// 			ctx.fillText(this.mult.toFixed(0), minX - 5, minY + h / 2);
+// 		}
+// 		if (this.repeat !== 0) {
+// 			ctx.fillStyle = styles.text_color;
+// 			ctx.textAlign = 'left';
+// 			ctx.textBaseline = 'top';
+// 			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
+// 			let s = this.repeat.toFixed(0);
+// 			ctx.fillText(s, maxX + 5, maxY - 5);
+// 		}
+// 	};
+// 	_.getPoints = function() {
+// 		return [ this.p1, this.p2 ];
+// 	};
+// 	_.isOver = function(p, barrier) {
+// 		return math.isBetween(p.x, this.p1.x, this.p2.x) && math.isBetween(p.y, this.p1.y, this.p2.y);
+// 	};
+//
+// })(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
-})(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
-
-(function(extensions, math, structures, d2, m, undefined) {
-	'use strict';
-	d2.Bracket = function(p1, p2) {
-		this.p1 = p1 ? p1 : new structures.Point();
-		this.p2 = p2 ? p2 : new structures.Point();
-	};
-	let _ = d2.Bracket.prototype = new d2._Shape();
-	_.charge = 0;
-	_.mult = 0;
-	_.repeat = 0;
-	_.draw = function(ctx, styles) {
-		let minX = m.min(this.p1.x, this.p2.x);
-		let maxX = m.max(this.p1.x, this.p2.x);
-		let minY = m.min(this.p1.y, this.p2.y);
-		let maxY = m.max(this.p1.y, this.p2.y);
-		let h = maxY - minY;
-		let lip = h / 10;
-		ctx.beginPath();
-		ctx.moveTo(minX + lip, minY);
-		ctx.lineTo(minX, minY);
-		ctx.lineTo(minX, maxY);
-		ctx.lineTo(minX + lip, maxY);
-		ctx.moveTo(maxX - lip, maxY);
-		ctx.lineTo(maxX, maxY);
-		ctx.lineTo(maxX, minY);
-		ctx.lineTo(maxX - lip, minY);
-		if (this.isLassoed) {
-			let grd = ctx.createLinearGradient(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
-			grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-			grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
-			grd.addColorStop(1, 'rgba(212, 99, 0, 0)');
-			ctx.lineWidth = styles.shapes_lineWidth + 5;
-			ctx.strokeStyle = grd;
-			ctx.lineJoin = 'miter';
-			ctx.lineCap = 'square';
-			ctx.stroke();
-		}
-		ctx.strokeStyle = styles.shapes_color;
-		ctx.lineWidth = styles.shapes_lineWidth;
-		ctx.lineJoin = 'miter';
-		ctx.lineCap = 'butt';
-		ctx.stroke();
-		if (this.charge !== 0) {
-			ctx.fillStyle = styles.text_color;
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'alphabetic';
-			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
-			let s = this.charge.toFixed(0);
-			if (s === '1') {
-				s = '+';
-			} else if (s === '-1') {
-				s = '\u2013';
-			} else if (s.startsWith('-')) {
-				s = s.substring(1) + '\u2013';
-			} else {
-				s += '+';
-			}
-			ctx.fillText(s, maxX + 5, minY + 5);
-		}
-		if (this.mult !== 0) {
-			ctx.fillStyle = styles.text_color;
-			ctx.textAlign = 'right';
-			ctx.textBaseline = 'middle';
-			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
-			ctx.fillText(this.mult.toFixed(0), minX - 5, minY + h / 2);
-		}
-		if (this.repeat !== 0) {
-			ctx.fillStyle = styles.text_color;
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'top';
-			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
-			let s = this.repeat.toFixed(0);
-			ctx.fillText(s, maxX + 5, maxY - 5);
-		}
-	};
-	_.getPoints = function() {
-		return [ this.p1, this.p2 ];
-	};
-	_.isOver = function(p, barrier) {
-		return math.isBetween(p.x, this.p1.x, this.p2.x) && math.isBetween(p.y, this.p1.y, this.p2.y);
-	};
-
-})(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
-
-(function(extensions, math, jsb, structures, d2, m, undefined) {
-	'use strict';
-
-	d2.DynamicBracket = function(b1, b2) {
-		this.b1 = b1;
-		this.b2 = b2;
-		this.n1 = 1;
-		this.n2 = 4;
-		this.contents = [];
-		this.ps = [];
-	};
-	let _ = d2.DynamicBracket.prototype = new d2._Shape();
-	_.drawDecorations = function(ctx, styles) {
-		if (this.isHover) {
-			for(let i = 0, ii = this.contents.length; i<ii; i++){
-				let a = this.contents[i];
-				let grd = ctx.createRadialGradient(a.x - 1, a.y - 1, 0, a.x, a.y, 7);
-				grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
-				grd.addColorStop(0.7, 'rgba(212, 99, 0, 0.8)');
-				ctx.fillStyle = grd;
-				ctx.beginPath();
-				ctx.arc(a.x, a.y, 5, 0, m.PI * 2, false);
-				ctx.fill();
-			}
-		}
-	};
-	let drawEnd = function(ctx, styles, b, b2, contents) {
-		let ps = [];
-		let stretch = 10;
-		let arm = 4;
-		let a = contents.length>0?(contents.indexOf(b.a1)===-1?b.a2:b.a1):(b.a1.distance(b2.getCenter())<b.a2.distance(b2.getCenter())?b.a1:b.a2);
-		let angle = a.angle(b.getNeighbor(a));
-		let perp = angle+m.PI/2;
-		let length = b.getLength()/(contents.length>1?4:2);
-		let psx = a.x+length*m.cos(angle);
-		let psy = a.y-length*m.sin(angle);
-		let scos = stretch*m.cos(perp);
-		let ssin = stretch*m.sin(perp);
-		let p1x = psx+scos;
-		let p1y = psy-ssin;
-		let p2x = psx-scos;
-		let p2y = psy+ssin;
-		let acos = -arm*m.cos(angle);
-		let asin = -arm*m.sin(angle);
-		let p1ax = p1x+acos;
-		let p1ay = p1y-asin;
-		let p2ax = p2x+acos;
-		let p2ay = p2y-asin;
-		ctx.beginPath();
-		ctx.moveTo(p1ax, p1ay);
-		ctx.lineTo(p1x, p1y);
-		ctx.lineTo(p2x, p2y);
-		ctx.lineTo(p2ax, p2ay);
-		ctx.stroke();
-		ps.push(new structures.Point(p1x, p1y));
-		ps.push(new structures.Point(p2x, p2y));
-		return ps;
-	};
-	_.draw = function(ctx, styles) {
-		if (this.b1 && this.b2) {
-			let color = this.error?styles.colorError:styles.shapes_color;
-			if (this.isHover || this.isSelected) {
-				color = this.isHover ? styles.colorHover : styles.colorSelect;
-			}
-			ctx.strokeStyle = color;
-			ctx.fillStyle = ctx.strokeStyle;
-			ctx.lineWidth = styles.shapes_lineWidth;
-			ctx.lineJoin = 'miter';
-			ctx.lineCap = 'butt';
-			let ps1 = drawEnd(ctx, styles, this.b1, this.b2, this.contents);
-			let ps2 = drawEnd(ctx, styles, this.b2, this.b1, this.contents);
-			this.ps = ps1.concat(ps2);
-			if(this.b1.getCenter().x>this.b2.getCenter().x){
-				if(this.ps[0].x>this.ps[1].x+5){
-					this.textPos = this.ps[0];
-				}else{
-					this.textPos = this.ps[1];
-				}
-			}else{
-				if(this.ps[2].x>this.ps[3].x+5){
-					this.textPos = this.ps[2];
-				}else{
-					this.textPos = this.ps[3];
-				}
-			}
-			if(!this.error && this.contents.length>0){
-				ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
-				ctx.fillStyle = this.isHover?styles.colorHover:styles.text_color;
-				ctx.textAlign = 'left';
-				ctx.textBaseline = 'bottom';
-				ctx.fillText(this.n1+'-'+this.n2, this.textPos.x+2, this.textPos.y+2);
-			}
-		}
-	};
-	_.getPoints = function() {
-		return this.ps;
-	};
-	_.isOver = function(p, barrier) {
-		return false;
-	};
-	_.setContents = function(sketcher){
-		this.contents = [];
-		let m1 = sketcher.getMoleculeByAtom(this.b1.a1);
-		let m2 = sketcher.getMoleculeByAtom(this.b2.a1);
-		// make sure both b1 and b2 are part of the same molecule
-		if(m1 && m1===m2){
-			// if either b1 or b2 is in a ring, then stop, as this is a violation
-			// unless b1 and b2 are part of the same ring and are part of no other rings
-			let c1 = 0;
-			let c2 = 0;
-			for(let i = 0, ii = m1.rings.length; i<ii; i++){
-				let r = m1.rings[i];
-				for(let j = 0, jj = r.bonds.length; j<jj; j++){
-					let rb = r.bonds[j];
-					if(rb===this.b1){
-						c1++;
-					}else if(rb===this.b2){
-						c2++;
-					}
-				}
-			}
-			let sameSingleRing = c1===1 && c2===1 && this.b1.ring===this.b2.ring;
-			this.contents.flippable = sameSingleRing;
-			if(this.b1.ring===undefined && this.b2.ring===undefined || sameSingleRing){
-				for(let i = 0, ii = m1.atoms.length; i<ii; i++){
-					let reached1 = false;
-					let reached2 = false;
-					let reachedInner = false;
-					for (let j = 0, jj = m1.bonds.length; j<jj; j++) {
-						m1.bonds[j].visited = false;
-					}
-					let q = new structures.Queue();
-					let a = m1.atoms[i];
-					q.enqueue(a);
-					while (!q.isEmpty() && !(reached1 && reached2)) {
-						let check = q.dequeue();
-						if(sameSingleRing && (!this.flip && check===this.b1.a1 || this.flip && check===this.b1.a2)){
-							reachedInner = true;
-						}
-						for (let j = 0, jj = m1.bonds.length; j<jj; j++) {
-							let b = m1.bonds[j];
-							if(b.a1===check || b.a2===check){
-								if (b === this.b1) {
-									reached1 = true;
-								} else if (b === this.b2) {
-									reached2 = true;
-								} else if (!b.visited) {
-									b.visited = true;
-									q.enqueue(b.getNeighbor(check));
-								}
-							}
-						}
-					}
-					if(reached1 && reached2 && (!sameSingleRing || reachedInner)){
-						this.contents.push(a);
-					}
-				}
-			}
-		}
-	};
-
-})(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.lib.jsBezier, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
+// (function(extensions, math, jsb, structures, d2, m, undefined) {
+// 	'use strict';
+//
+// 	d2.DynamicBracket = function(b1, b2) {
+// 		this.b1 = b1;
+// 		this.b2 = b2;
+// 		this.n1 = 1;
+// 		this.n2 = 4;
+// 		this.contents = [];
+// 		this.ps = [];
+// 	};
+// 	let _ = d2.DynamicBracket.prototype = new d2._Shape();
+// 	_.drawDecorations = function(ctx, styles) {
+// 		if (this.isHover) {
+// 			for(let i = 0, ii = this.contents.length; i<ii; i++){
+// 				let a = this.contents[i];
+// 				let grd = ctx.createRadialGradient(a.x - 1, a.y - 1, 0, a.x, a.y, 7);
+// 				grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
+// 				grd.addColorStop(0.7, 'rgba(212, 99, 0, 0.8)');
+// 				ctx.fillStyle = grd;
+// 				ctx.beginPath();
+// 				ctx.arc(a.x, a.y, 5, 0, m.PI * 2, false);
+// 				ctx.fill();
+// 			}
+// 		}
+// 	};
+// 	let drawEnd = function(ctx, styles, b, b2, contents) {
+// 		let ps = [];
+// 		let stretch = 10;
+// 		let arm = 4;
+// 		let a = contents.length>0?(contents.indexOf(b.a1)===-1?b.a2:b.a1):(b.a1.distance(b2.getCenter())<b.a2.distance(b2.getCenter())?b.a1:b.a2);
+// 		let angle = a.angle(b.getNeighbor(a));
+// 		let perp = angle+m.PI/2;
+// 		let length = b.getLength()/(contents.length>1?4:2);
+// 		let psx = a.x+length*m.cos(angle);
+// 		let psy = a.y-length*m.sin(angle);
+// 		let scos = stretch*m.cos(perp);
+// 		let ssin = stretch*m.sin(perp);
+// 		let p1x = psx+scos;
+// 		let p1y = psy-ssin;
+// 		let p2x = psx-scos;
+// 		let p2y = psy+ssin;
+// 		let acos = -arm*m.cos(angle);
+// 		let asin = -arm*m.sin(angle);
+// 		let p1ax = p1x+acos;
+// 		let p1ay = p1y-asin;
+// 		let p2ax = p2x+acos;
+// 		let p2ay = p2y-asin;
+// 		ctx.beginPath();
+// 		ctx.moveTo(p1ax, p1ay);
+// 		ctx.lineTo(p1x, p1y);
+// 		ctx.lineTo(p2x, p2y);
+// 		ctx.lineTo(p2ax, p2ay);
+// 		ctx.stroke();
+// 		ps.push(new structures.Point(p1x, p1y));
+// 		ps.push(new structures.Point(p2x, p2y));
+// 		return ps;
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		if (this.b1 && this.b2) {
+// 			let color = this.error?styles.colorError:styles.shapes_color;
+// 			if (this.isHover || this.isSelected) {
+// 				color = this.isHover ? styles.colorHover : styles.colorSelect;
+// 			}
+// 			ctx.strokeStyle = color;
+// 			ctx.fillStyle = ctx.strokeStyle;
+// 			ctx.lineWidth = styles.shapes_lineWidth;
+// 			ctx.lineJoin = 'miter';
+// 			ctx.lineCap = 'butt';
+// 			let ps1 = drawEnd(ctx, styles, this.b1, this.b2, this.contents);
+// 			let ps2 = drawEnd(ctx, styles, this.b2, this.b1, this.contents);
+// 			this.ps = ps1.concat(ps2);
+// 			if(this.b1.getCenter().x>this.b2.getCenter().x){
+// 				if(this.ps[0].x>this.ps[1].x+5){
+// 					this.textPos = this.ps[0];
+// 				}else{
+// 					this.textPos = this.ps[1];
+// 				}
+// 			}else{
+// 				if(this.ps[2].x>this.ps[3].x+5){
+// 					this.textPos = this.ps[2];
+// 				}else{
+// 					this.textPos = this.ps[3];
+// 				}
+// 			}
+// 			if(!this.error && this.contents.length>0){
+// 				ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
+// 				ctx.fillStyle = this.isHover?styles.colorHover:styles.text_color;
+// 				ctx.textAlign = 'left';
+// 				ctx.textBaseline = 'bottom';
+// 				ctx.fillText(this.n1+'-'+this.n2, this.textPos.x+2, this.textPos.y+2);
+// 			}
+// 		}
+// 	};
+// 	_.getPoints = function() {
+// 		return this.ps;
+// 	};
+// 	_.isOver = function(p, barrier) {
+// 		return false;
+// 	};
+// 	_.setContents = function(sketcher){
+// 		this.contents = [];
+// 		let m1 = sketcher.getMoleculeByAtom(this.b1.a1);
+// 		let m2 = sketcher.getMoleculeByAtom(this.b2.a1);
+// 		// make sure both b1 and b2 are part of the same molecule
+// 		if(m1 && m1===m2){
+// 			// if either b1 or b2 is in a ring, then stop, as this is a violation
+// 			// unless b1 and b2 are part of the same ring and are part of no other rings
+// 			let c1 = 0;
+// 			let c2 = 0;
+// 			for(let i = 0, ii = m1.rings.length; i<ii; i++){
+// 				let r = m1.rings[i];
+// 				for(let j = 0, jj = r.bonds.length; j<jj; j++){
+// 					let rb = r.bonds[j];
+// 					if(rb===this.b1){
+// 						c1++;
+// 					}else if(rb===this.b2){
+// 						c2++;
+// 					}
+// 				}
+// 			}
+// 			let sameSingleRing = c1===1 && c2===1 && this.b1.ring===this.b2.ring;
+// 			this.contents.flippable = sameSingleRing;
+// 			if(this.b1.ring===undefined && this.b2.ring===undefined || sameSingleRing){
+// 				for(let i = 0, ii = m1.atoms.length; i<ii; i++){
+// 					let reached1 = false;
+// 					let reached2 = false;
+// 					let reachedInner = false;
+// 					for (let j = 0, jj = m1.bonds.length; j<jj; j++) {
+// 						m1.bonds[j].visited = false;
+// 					}
+// 					let q = new structures.Queue();
+// 					let a = m1.atoms[i];
+// 					q.enqueue(a);
+// 					while (!q.isEmpty() && !(reached1 && reached2)) {
+// 						let check = q.dequeue();
+// 						if(sameSingleRing && (!this.flip && check===this.b1.a1 || this.flip && check===this.b1.a2)){
+// 							reachedInner = true;
+// 						}
+// 						for (let j = 0, jj = m1.bonds.length; j<jj; j++) {
+// 							let b = m1.bonds[j];
+// 							if(b.a1===check || b.a2===check){
+// 								if (b === this.b1) {
+// 									reached1 = true;
+// 								} else if (b === this.b2) {
+// 									reached2 = true;
+// 								} else if (!b.visited) {
+// 									b.visited = true;
+// 									q.enqueue(b.getNeighbor(check));
+// 								}
+// 							}
+// 						}
+// 					}
+// 					if(reached1 && reached2 && (!sameSingleRing || reachedInner)){
+// 						this.contents.push(a);
+// 					}
+// 				}
+// 			}
+// 		}
+// 	};
+//
+// })(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.lib.jsBezier, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
 (function(extensions, math, structures, d2, m, undefined) {
 	'use strict';
@@ -4889,411 +4890,411 @@ ChemDoodle.RESIDUE = (function(undefined) {
 
 })(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
-(function(math, jsb, structures, d2, m, undefined) {
-	'use strict';
-	let getPossibleAngles = function(o) {
-		let as = [];
-		if (o instanceof structures.Atom) {
-			if (o.bondNumber === 0) {
-				as.push(m.PI);
-			} else if (o.angles) {
-				if (o.angles.length === 1) {
-					as.push(o.angles[0] + m.PI);
-				} else {
-					for ( let i = 1, ii = o.angles.length; i < ii; i++) {
-						as.push(o.angles[i - 1] + (o.angles[i] - o.angles[i - 1]) / 2);
-					}
-					let firstIncreased = o.angles[0] + m.PI * 2;
-					let last = o.angles[o.angles.length - 1];
-					as.push(last + (firstIncreased - last) / 2);
-				}
-				if (o.largestAngle > m.PI) {
-					// always use angle of least interfearence if it is greater
-					// than 120
-					as = [ o.angleOfLeastInterference ];
-				}
-				if (o.bonds) {
-					// point up towards a carbonyl
-					for ( let i = 0, ii = o.bonds.length; i < ii; i++) {
-						let b = o.bonds[i];
-						if (b.bondOrder === 2) {
-							let n = b.getNeighbor(o);
-							if (n.label === 'O') {
-								as = [ n.angle(o) ];
-								break;
-							}
-						}
-					}
-				}
-			}
-		} else {
-			let angle = o.a1.angle(o.a2);
-			as.push(angle + m.PI / 2);
-			as.push(angle + 3 * m.PI / 2);
-		}
-		for ( let i = 0, ii = as.length; i < ii; i++) {
-			while (as[i] > m.PI * 2) {
-				as[i] -= m.PI * 2;
-			}
-			while (as[i] < 0) {
-				as[i] += m.PI * 2;
-			}
-		}
-		return as;
-	};
-	let getPullBack = function(o, styles) {
-		let pullback = 3;
-		if (o instanceof structures.Atom) {
-			if (o.isLabelVisible(styles)) {
-				pullback = 8;
-			}
-			if (o.charge !== 0 || o.numRadical !== 0 || o.numLonePair !== 0) {
-				pullback = 13;
-			}
-		} else if (o instanceof structures.Point) {
-			// this is the midpoint of a bond forming pusher
-			pullback = 0;
-		} else {
-			if (o.bondOrder > 1) {
-				pullback = 5;
-			}
-		}
-		return pullback;
-	};
-	let drawPusher = function(ctx, styles, o1, o2, p1, c1, c2, p2, numElectron, caches) {
-		let angle1 = c1.angle(p1);
-		let angle2 = c2.angle(p2);
-		let mcosa = m.cos(angle1);
-		let msina = m.sin(angle1);
-		// pull back from start
-		let pullBack = getPullBack(o1, styles);
-		p1.x -= mcosa * pullBack;
-		p1.y += msina * pullBack;
-		// arrow
-		let perpendicular = angle2 + m.PI / 2;
-		let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-		mcosa = m.cos(angle2);
-		msina = m.sin(angle2);
-		let mcosp = m.cos(perpendicular);
-		let msinp = m.sin(perpendicular);
-		p2.x -= mcosa * 5;
-		p2.y += msina * 5;
-		let nap = new structures.Point(p2.x, p2.y);
-		// pull back from end
-		pullBack = getPullBack(o2, styles) / 3;
-		nap.x -= mcosa * pullBack;
-		nap.y += msina * pullBack;
-		p2.x -= mcosa * (retract * 0.8 + pullBack);
-		p2.y += msina * (retract * 0.8 + pullBack);
-		let rx1 = nap.x - mcosa * retract * 0.8;
-		let ry1 = nap.y + msina * retract * 0.8;
-		let a1 = new structures.Point(nap.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
-		let a2 = new structures.Point(nap.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
-		let include1 = true, include2 = true;
-		if (numElectron === 1) {
-			if (a1.distance(c1) > a2.distance(c1)) {
-				include2 = false;
-			} else {
-				include1 = false;
-			}
-		}
-		ctx.beginPath();
-		ctx.moveTo(nap.x, nap.y);
-		if (include2) {
-			ctx.lineTo(a2.x, a2.y);
-		}
-		ctx.lineTo(rx1, ry1);
-		if (include1) {
-			ctx.lineTo(a1.x, a1.y);
-		}
-		ctx.closePath();
-		ctx.fill();
-		ctx.stroke();
-		// bezier
-		ctx.beginPath();
-		ctx.moveTo(p1.x, p1.y);
-		ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
-		ctx.stroke();
-		caches.push([ p1, c1, c2, p2 ]);
-	};
+// (function(math, jsb, structures, d2, m, undefined) {
+// 	'use strict';
+// 	let getPossibleAngles = function(o) {
+// 		let as = [];
+// 		if (o instanceof structures.Atom) {
+// 			if (o.bondNumber === 0) {
+// 				as.push(m.PI);
+// 			} else if (o.angles) {
+// 				if (o.angles.length === 1) {
+// 					as.push(o.angles[0] + m.PI);
+// 				} else {
+// 					for ( let i = 1, ii = o.angles.length; i < ii; i++) {
+// 						as.push(o.angles[i - 1] + (o.angles[i] - o.angles[i - 1]) / 2);
+// 					}
+// 					let firstIncreased = o.angles[0] + m.PI * 2;
+// 					let last = o.angles[o.angles.length - 1];
+// 					as.push(last + (firstIncreased - last) / 2);
+// 				}
+// 				if (o.largestAngle > m.PI) {
+// 					// always use angle of least interfearence if it is greater
+// 					// than 120
+// 					as = [ o.angleOfLeastInterference ];
+// 				}
+// 				if (o.bonds) {
+// 					// point up towards a carbonyl
+// 					for ( let i = 0, ii = o.bonds.length; i < ii; i++) {
+// 						let b = o.bonds[i];
+// 						if (b.bondOrder === 2) {
+// 							let n = b.getNeighbor(o);
+// 							if (n.label === 'O') {
+// 								as = [ n.angle(o) ];
+// 								break;
+// 							}
+// 						}
+// 					}
+// 				}
+// 			}
+// 		} else {
+// 			let angle = o.a1.angle(o.a2);
+// 			as.push(angle + m.PI / 2);
+// 			as.push(angle + 3 * m.PI / 2);
+// 		}
+// 		for ( let i = 0, ii = as.length; i < ii; i++) {
+// 			while (as[i] > m.PI * 2) {
+// 				as[i] -= m.PI * 2;
+// 			}
+// 			while (as[i] < 0) {
+// 				as[i] += m.PI * 2;
+// 			}
+// 		}
+// 		return as;
+// 	};
+// 	let getPullBack = function(o, styles) {
+// 		let pullback = 3;
+// 		if (o instanceof structures.Atom) {
+// 			if (o.isLabelVisible(styles)) {
+// 				pullback = 8;
+// 			}
+// 			if (o.charge !== 0 || o.numRadical !== 0 || o.numLonePair !== 0) {
+// 				pullback = 13;
+// 			}
+// 		} else if (o instanceof structures.Point) {
+// 			// this is the midpoint of a bond forming pusher
+// 			pullback = 0;
+// 		} else {
+// 			if (o.bondOrder > 1) {
+// 				pullback = 5;
+// 			}
+// 		}
+// 		return pullback;
+// 	};
+// 	let drawPusher = function(ctx, styles, o1, o2, p1, c1, c2, p2, numElectron, caches) {
+// 		let angle1 = c1.angle(p1);
+// 		let angle2 = c2.angle(p2);
+// 		let mcosa = m.cos(angle1);
+// 		let msina = m.sin(angle1);
+// 		// pull back from start
+// 		let pullBack = getPullBack(o1, styles);
+// 		p1.x -= mcosa * pullBack;
+// 		p1.y += msina * pullBack;
+// 		// arrow
+// 		let perpendicular = angle2 + m.PI / 2;
+// 		let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+// 		mcosa = m.cos(angle2);
+// 		msina = m.sin(angle2);
+// 		let mcosp = m.cos(perpendicular);
+// 		let msinp = m.sin(perpendicular);
+// 		p2.x -= mcosa * 5;
+// 		p2.y += msina * 5;
+// 		let nap = new structures.Point(p2.x, p2.y);
+// 		// pull back from end
+// 		pullBack = getPullBack(o2, styles) / 3;
+// 		nap.x -= mcosa * pullBack;
+// 		nap.y += msina * pullBack;
+// 		p2.x -= mcosa * (retract * 0.8 + pullBack);
+// 		p2.y += msina * (retract * 0.8 + pullBack);
+// 		let rx1 = nap.x - mcosa * retract * 0.8;
+// 		let ry1 = nap.y + msina * retract * 0.8;
+// 		let a1 = new structures.Point(nap.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
+// 		let a2 = new structures.Point(nap.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
+// 		let include1 = true, include2 = true;
+// 		if (numElectron === 1) {
+// 			if (a1.distance(c1) > a2.distance(c1)) {
+// 				include2 = false;
+// 			} else {
+// 				include1 = false;
+// 			}
+// 		}
+// 		ctx.beginPath();
+// 		ctx.moveTo(nap.x, nap.y);
+// 		if (include2) {
+// 			ctx.lineTo(a2.x, a2.y);
+// 		}
+// 		ctx.lineTo(rx1, ry1);
+// 		if (include1) {
+// 			ctx.lineTo(a1.x, a1.y);
+// 		}
+// 		ctx.closePath();
+// 		ctx.fill();
+// 		ctx.stroke();
+// 		// bezier
+// 		ctx.beginPath();
+// 		ctx.moveTo(p1.x, p1.y);
+// 		ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
+// 		ctx.stroke();
+// 		caches.push([ p1, c1, c2, p2 ]);
+// 	};
+//
+// 	d2.Pusher = function(o1, o2, numElectron) {
+// 		this.o1 = o1;
+// 		this.o2 = o2;
+// 		this.numElectron = numElectron ? numElectron : 1;
+// 	};
+// 	let _ = d2.Pusher.prototype = new d2._Shape();
+// 	_.drawDecorations = function(ctx, styles) {
+// 		if (this.isHover) {
+// 			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
+// 			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
+// 			let ps = [ p1, p2 ];
+// 			for ( let i = 0, ii = ps.length; i < ii; i++) {
+// 				let p = ps[i];
+// 				this.drawAnchor(ctx, styles, p, p === this.hoverPoint);
+// 			}
+// 		}
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		if (this.o1 && this.o2) {
+// 			ctx.strokeStyle = styles.shapes_color;
+// 			ctx.fillStyle = styles.shapes_color;
+// 			ctx.lineWidth = styles.shapes_lineWidth;
+// 			ctx.lineJoin = 'miter';
+// 			ctx.lineCap = 'butt';
+// 			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
+// 			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
+// 			let controlDist = 35;
+// 			let as1 = getPossibleAngles(this.o1);
+// 			let as2 = getPossibleAngles(this.o2);
+// 			let c1, c2;
+// 			let minDif = Infinity;
+// 			for ( let i = 0, ii = as1.length; i < ii; i++) {
+// 				for ( let j = 0, jj = as2.length; j < jj; j++) {
+// 					let c1c = new structures.Point(p1.x + controlDist * m.cos(as1[i]), p1.y - controlDist * m.sin(as1[i]));
+// 					let c2c = new structures.Point(p2.x + controlDist * m.cos(as2[j]), p2.y - controlDist * m.sin(as2[j]));
+// 					let dif = c1c.distance(c2c);
+// 					if (dif < minDif) {
+// 						minDif = dif;
+// 						c1 = c1c;
+// 						c2 = c2c;
+// 					}
+// 				}
+// 			}
+// 			this.caches = [];
+// 			if (this.numElectron === -1) {
+// 				let dist = p1.distance(p2)/2;
+// 				let angle = p1.angle(p2);
+// 				let perp = angle+m.PI/2;
+// 				let mcosa = m.cos(angle);
+// 				let msina = m.sin(angle);
+// 				let m1 = new structures.Point(p1.x+(dist-1)*mcosa, p1.y-(dist-1)*msina);
+// 				let cm1 = new structures.Point(m1.x+m.cos(perp+m.PI/6)*controlDist, m1.y - m.sin(perp+m.PI/6)*controlDist);
+// 				let m2 = new structures.Point(p1.x+(dist+1)*mcosa, p1.y-(dist+1)*msina);
+// 				let cm2 = new structures.Point(m2.x+m.cos(perp-m.PI/6)*controlDist, m2.y - m.sin(perp-m.PI/6)*controlDist);
+// 				drawPusher(ctx, styles, this.o1, m1, p1, c1, cm1, m1, 1, this.caches);
+// 				drawPusher(ctx, styles, this.o2, m2, p2, c2, cm2, m2, 1, this.caches);
+// 			} else {
+// 				if (math.intersectLines(p1.x, p1.y, c1.x, c1.y, p2.x, p2.y, c2.x, c2.y)) {
+// 					let tmp = c1;
+// 					c1 = c2;
+// 					c2 = tmp;
+// 				}
+// 				// try to clean up problems, like loops
+// 				let angle1 = c1.angle(p1);
+// 				let angle2 = c2.angle(p2);
+// 				let angleDif = (m.max(angle1, angle2) - m.min(angle1, angle2));
+// 				if (m.abs(angleDif - m.PI) < .001 && this.o1.molCenter === this.o2.molCenter) {
+// 					// in the case where the control tangents are parallel
+// 					angle1 += m.PI / 2;
+// 					angle2 -= m.PI / 2;
+// 					c1.x = p1.x + controlDist * m.cos(angle1 + m.PI);
+// 					c1.y = p1.y - controlDist * m.sin(angle1 + m.PI);
+// 					c2.x = p2.x + controlDist * m.cos(angle2 + m.PI);
+// 					c2.y = p2.y - controlDist * m.sin(angle2 + m.PI);
+// 				}
+// 				drawPusher(ctx, styles, this.o1, this.o2, p1, c1, c2, p2, this.numElectron, this.caches);
+// 			}
+// 		}
+// 	};
+// 	_.getPoints = function() {
+// 		return [];
+// 	};
+// 	_.isOver = function(p, barrier) {
+// 		for ( let i = 0, ii = this.caches.length; i < ii; i++) {
+// 			let r = jsb.distanceFromCurve(p, this.caches[i]);
+// 			if (r.distance < barrier) {
+// 				return true;
+// 			}
+// 		}
+// 		return false;
+// 	};
+//
+// })(ChemDoodle.math, ChemDoodle.lib.jsBezier, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
-	d2.Pusher = function(o1, o2, numElectron) {
-		this.o1 = o1;
-		this.o2 = o2;
-		this.numElectron = numElectron ? numElectron : 1;
-	};
-	let _ = d2.Pusher.prototype = new d2._Shape();
-	_.drawDecorations = function(ctx, styles) {
-		if (this.isHover) {
-			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
-			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
-			let ps = [ p1, p2 ];
-			for ( let i = 0, ii = ps.length; i < ii; i++) {
-				let p = ps[i];
-				this.drawAnchor(ctx, styles, p, p === this.hoverPoint);
-			}
-		}
-	};
-	_.draw = function(ctx, styles) {
-		if (this.o1 && this.o2) {
-			ctx.strokeStyle = styles.shapes_color;
-			ctx.fillStyle = styles.shapes_color;
-			ctx.lineWidth = styles.shapes_lineWidth;
-			ctx.lineJoin = 'miter';
-			ctx.lineCap = 'butt';
-			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
-			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
-			let controlDist = 35;
-			let as1 = getPossibleAngles(this.o1);
-			let as2 = getPossibleAngles(this.o2);
-			let c1, c2;
-			let minDif = Infinity;
-			for ( let i = 0, ii = as1.length; i < ii; i++) {
-				for ( let j = 0, jj = as2.length; j < jj; j++) {
-					let c1c = new structures.Point(p1.x + controlDist * m.cos(as1[i]), p1.y - controlDist * m.sin(as1[i]));
-					let c2c = new structures.Point(p2.x + controlDist * m.cos(as2[j]), p2.y - controlDist * m.sin(as2[j]));
-					let dif = c1c.distance(c2c);
-					if (dif < minDif) {
-						minDif = dif;
-						c1 = c1c;
-						c2 = c2c;
-					}
-				}
-			}
-			this.caches = [];
-			if (this.numElectron === -1) {
-				let dist = p1.distance(p2)/2;
-				let angle = p1.angle(p2);
-				let perp = angle+m.PI/2;
-				let mcosa = m.cos(angle);
-				let msina = m.sin(angle);
-				let m1 = new structures.Point(p1.x+(dist-1)*mcosa, p1.y-(dist-1)*msina);
-				let cm1 = new structures.Point(m1.x+m.cos(perp+m.PI/6)*controlDist, m1.y - m.sin(perp+m.PI/6)*controlDist);
-				let m2 = new structures.Point(p1.x+(dist+1)*mcosa, p1.y-(dist+1)*msina);
-				let cm2 = new structures.Point(m2.x+m.cos(perp-m.PI/6)*controlDist, m2.y - m.sin(perp-m.PI/6)*controlDist);
-				drawPusher(ctx, styles, this.o1, m1, p1, c1, cm1, m1, 1, this.caches);
-				drawPusher(ctx, styles, this.o2, m2, p2, c2, cm2, m2, 1, this.caches);
-			} else {
-				if (math.intersectLines(p1.x, p1.y, c1.x, c1.y, p2.x, p2.y, c2.x, c2.y)) {
-					let tmp = c1;
-					c1 = c2;
-					c2 = tmp;
-				}
-				// try to clean up problems, like loops
-				let angle1 = c1.angle(p1);
-				let angle2 = c2.angle(p2);
-				let angleDif = (m.max(angle1, angle2) - m.min(angle1, angle2));
-				if (m.abs(angleDif - m.PI) < .001 && this.o1.molCenter === this.o2.molCenter) {
-					// in the case where the control tangents are parallel
-					angle1 += m.PI / 2;
-					angle2 -= m.PI / 2;
-					c1.x = p1.x + controlDist * m.cos(angle1 + m.PI);
-					c1.y = p1.y - controlDist * m.sin(angle1 + m.PI);
-					c2.x = p2.x + controlDist * m.cos(angle2 + m.PI);
-					c2.y = p2.y - controlDist * m.sin(angle2 + m.PI);
-				}
-				drawPusher(ctx, styles, this.o1, this.o2, p1, c1, c2, p2, this.numElectron, this.caches);
-			}
-		}
-	};
-	_.getPoints = function() {
-		return [];
-	};
-	_.isOver = function(p, barrier) {
-		for ( let i = 0, ii = this.caches.length; i < ii; i++) {
-			let r = jsb.distanceFromCurve(p, this.caches[i]);
-			if (r.distance < barrier) {
-				return true;
-			}
-		}
-		return false;
-	};
-
-})(ChemDoodle.math, ChemDoodle.lib.jsBezier, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
-
-(function(math, structures, d2, m, undefined) {
-	'use strict';
-
-	let BOND = new structures.Bond();
-
-	d2.VAP = function(x, y) {
-		this.asterisk = new structures.Atom('O', x, y);
-		this.substituent;
-		this.bondType = 1;
-		this.attachments = [];
-	};
-	let _ = d2.VAP.prototype = new d2._Shape();
-	_.drawDecorations = function(ctx, styles) {
-		if (this.isHover || this.isSelected) {
-			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-			ctx.lineWidth = 1.2;
-			let radius = 7;
-			if(this.hoverBond){
-				let pi2 = 2 * m.PI;
-				let angle = (this.asterisk.angleForStupidCanvasArcs(this.hoverBond) + m.PI / 2) % pi2;
-				ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
-				ctx.beginPath();
-				let angleTo = (angle + m.PI) % pi2;
-				angleTo = angleTo % (m.PI * 2);
-				ctx.arc(this.asterisk.x, this.asterisk.y, radius, angle, angleTo, false);
-				ctx.stroke();
-				ctx.beginPath();
-				angle += m.PI;
-				angleTo = (angle + m.PI) % pi2;
-				ctx.arc(this.hoverBond.x, this.hoverBond.y, radius, angle, angleTo, false);
-				ctx.stroke();
-			}else{
-				ctx.beginPath();
-				ctx.arc(this.asterisk.x, this.asterisk.y, radius, 0, m.PI * 2, false);
-				ctx.stroke();
-			}
-		}
-	};
-	_.draw = function(ctx, styles) {
-		// asterisk
-		ctx.strokeStyle = this.error?styles.colorError:styles.shapes_color;
-		ctx.lineWidth = 1;
-		let length = 4;
-		let sqrt3 = m.sqrt(3)/2;
-		ctx.beginPath();
-		ctx.moveTo(this.asterisk.x, this.asterisk.y-length);
-		ctx.lineTo(this.asterisk.x, this.asterisk.y+length);
-		ctx.moveTo(this.asterisk.x-sqrt3*length, this.asterisk.y-length/2);
-		ctx.lineTo(this.asterisk.x+sqrt3*length, this.asterisk.y+length/2);
-		ctx.moveTo(this.asterisk.x-sqrt3*length, this.asterisk.y+length/2);
-		ctx.lineTo(this.asterisk.x+sqrt3*length, this.asterisk.y-length/2);
-		ctx.stroke();
-		this.asterisk.textBounds = [];
-		this.asterisk.textBounds.push({
-			x : this.asterisk.x - length,
-			y : this.asterisk.y - length,
-			w : length*2,
-			h : length*2
-		});
-		let bcsave = styles.bonds_color;
-		if(this.error){
-			styles.bonds_color = styles.colorError;
-		}
-		BOND.a1 = this.asterisk;
-		// substituent bond
-		if(this.substituent){
-			BOND.a2 = this.substituent;
-			BOND.bondOrder = this.bondType;
-			BOND.draw(ctx, styles);
-		}
-		// attachment bonds
-		BOND.bondOrder = 0;
-		if(!this.error){
-			styles.bonds_color = styles.shapes_color;
-		}
-		for(let i = 0, ii = this.attachments.length; i<ii; i++){
-			BOND.a2 = this.attachments[i];
-			BOND.draw(ctx, styles);
-		}
-		styles.bonds_color = bcsave;
-	};
-	_.getPoints = function() {
-		return [this.asterisk];
-	};
-	_.isOver = function(p, barrier) {
-		return false;
-	};
-
-})(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
+// (function(math, structures, d2, m, undefined) {
+// 	'use strict';
+//
+// 	let BOND = new structures.Bond();
+//
+// 	d2.VAP = function(x, y) {
+// 		this.asterisk = new structures.Atom('O', x, y);
+// 		this.substituent;
+// 		this.bondType = 1;
+// 		this.attachments = [];
+// 	};
+// 	let _ = d2.VAP.prototype = new d2._Shape();
+// 	_.drawDecorations = function(ctx, styles) {
+// 		if (this.isHover || this.isSelected) {
+// 			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
+// 			ctx.lineWidth = 1.2;
+// 			let radius = 7;
+// 			if(this.hoverBond){
+// 				let pi2 = 2 * m.PI;
+// 				let angle = (this.asterisk.angleForStupidCanvasArcs(this.hoverBond) + m.PI / 2) % pi2;
+// 				ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
+// 				ctx.beginPath();
+// 				let angleTo = (angle + m.PI) % pi2;
+// 				angleTo = angleTo % (m.PI * 2);
+// 				ctx.arc(this.asterisk.x, this.asterisk.y, radius, angle, angleTo, false);
+// 				ctx.stroke();
+// 				ctx.beginPath();
+// 				angle += m.PI;
+// 				angleTo = (angle + m.PI) % pi2;
+// 				ctx.arc(this.hoverBond.x, this.hoverBond.y, radius, angle, angleTo, false);
+// 				ctx.stroke();
+// 			}else{
+// 				ctx.beginPath();
+// 				ctx.arc(this.asterisk.x, this.asterisk.y, radius, 0, m.PI * 2, false);
+// 				ctx.stroke();
+// 			}
+// 		}
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		// asterisk
+// 		ctx.strokeStyle = this.error?styles.colorError:styles.shapes_color;
+// 		ctx.lineWidth = 1;
+// 		let length = 4;
+// 		let sqrt3 = m.sqrt(3)/2;
+// 		ctx.beginPath();
+// 		ctx.moveTo(this.asterisk.x, this.asterisk.y-length);
+// 		ctx.lineTo(this.asterisk.x, this.asterisk.y+length);
+// 		ctx.moveTo(this.asterisk.x-sqrt3*length, this.asterisk.y-length/2);
+// 		ctx.lineTo(this.asterisk.x+sqrt3*length, this.asterisk.y+length/2);
+// 		ctx.moveTo(this.asterisk.x-sqrt3*length, this.asterisk.y+length/2);
+// 		ctx.lineTo(this.asterisk.x+sqrt3*length, this.asterisk.y-length/2);
+// 		ctx.stroke();
+// 		this.asterisk.textBounds = [];
+// 		this.asterisk.textBounds.push({
+// 			x : this.asterisk.x - length,
+// 			y : this.asterisk.y - length,
+// 			w : length*2,
+// 			h : length*2
+// 		});
+// 		let bcsave = styles.bonds_color;
+// 		if(this.error){
+// 			styles.bonds_color = styles.colorError;
+// 		}
+// 		BOND.a1 = this.asterisk;
+// 		// substituent bond
+// 		if(this.substituent){
+// 			BOND.a2 = this.substituent;
+// 			BOND.bondOrder = this.bondType;
+// 			BOND.draw(ctx, styles);
+// 		}
+// 		// attachment bonds
+// 		BOND.bondOrder = 0;
+// 		if(!this.error){
+// 			styles.bonds_color = styles.shapes_color;
+// 		}
+// 		for(let i = 0, ii = this.attachments.length; i<ii; i++){
+// 			BOND.a2 = this.attachments[i];
+// 			BOND.draw(ctx, styles);
+// 		}
+// 		styles.bonds_color = bcsave;
+// 	};
+// 	_.getPoints = function() {
+// 		return [this.asterisk];
+// 	};
+// 	_.isOver = function(p, barrier) {
+// 		return false;
+// 	};
+//
+// })(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
 
-(function(structures, extensions, m, undefined) {
-	'use strict';
-	structures.Plate = function(lanes) {
-		this.lanes = new Array(lanes);
-		for (let i = 0, ii = lanes; i < ii; i++) {
-			this.lanes[i] = [];
-		}
-	};
-	let _ = structures.Plate.prototype;
-	_.sort = function() {
-		for (let i = 0, ii = this.lanes.length; i < ii; i++) {
-			this.lanes[i].sort(function(a, b) {
-				return a - b;
-			});
-		}
-	};
-	_.draw = function(ctx, styles) {
-		// Front and origin
-		let width = ctx.canvas.width;
-		let height = ctx.canvas.height;
-		this.origin = 9 * height / 10;
-		this.front = height / 10;
-		this.laneLength = this.origin - this.front;
-		ctx.strokeStyle = '#000000';
-		ctx.beginPath();
-		ctx.moveTo(0, this.front);
-		ctx.lineTo(width, this.front);
-		ctx.setLineDash([3]);
-		ctx.stroke();
-		ctx.setLineDash([]);
-		ctx.beginPath();
-		ctx.moveTo(0, this.origin);
-		ctx.lineTo(width, this.origin);
-		ctx.closePath();
-		ctx.stroke();
-		// Lanes
-		for (let i = 0, ii = this.lanes.length; i < ii; i++) {
-			let laneX = (i + 1) * width / (ii + 1);
-			ctx.beginPath();
-			ctx.moveTo(laneX, this.origin);
-			ctx.lineTo(laneX, this.origin + 3);
-			ctx.closePath();
-			ctx.stroke();
-			// Spots
-			for (let s = 0, ss = this.lanes[i].length; s < ss; s++) {
-				let spotY = this.origin - (this.laneLength * this.lanes[i][s].rf);
-				switch (this.lanes[i][s].type) {
-				case 'compact':
-					ctx.beginPath();
-					ctx.arc(laneX, spotY, 3, 0, 2 * m.PI, false);
-					ctx.closePath();
-					break;
-				case 'expanded':
-					ctx.beginPath();
-					ctx.arc(laneX, spotY, 7, 0, 2 * m.PI, false);
-					ctx.closePath();
-					break;
-				case 'trailing':
-					// trailing
-					break;
-				case 'widened':
-					extensions.contextEllipse(ctx, laneX - 18, spotY - 10, 36, 10);
-					break;
-				case 'cresent':
-					ctx.beginPath();
-					ctx.arc(laneX, spotY, 9, 0, m.PI, true);
-					ctx.closePath();
-					break;
-				}
-				switch (this.lanes[i][s].style) {
-				case 'solid':
-					ctx.fillStyle = '#000000';
-					ctx.fill();
-					break;
-				case 'transparent':
-					ctx.stroke();
-					break;
-				case 'gradient':
-					// gradient
-					break;
-				}
-			}
-		}
-	};
-
-	structures.Plate.Spot = function(type, rf, style) {
-		this.type = type;
-		this.rf = rf;
-		this.style = style ? style : 'solid';
-	};
-
-})(ChemDoodle.structures, ChemDoodle.extensions, Math);
+// (function(structures, extensions, m, undefined) {
+// 	'use strict';
+// 	structures.Plate = function(lanes) {
+// 		this.lanes = new Array(lanes);
+// 		for (let i = 0, ii = lanes; i < ii; i++) {
+// 			this.lanes[i] = [];
+// 		}
+// 	};
+// 	let _ = structures.Plate.prototype;
+// 	_.sort = function() {
+// 		for (let i = 0, ii = this.lanes.length; i < ii; i++) {
+// 			this.lanes[i].sort(function(a, b) {
+// 				return a - b;
+// 			});
+// 		}
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		// Front and origin
+// 		let width = ctx.canvas.width;
+// 		let height = ctx.canvas.height;
+// 		this.origin = 9 * height / 10;
+// 		this.front = height / 10;
+// 		this.laneLength = this.origin - this.front;
+// 		ctx.strokeStyle = '#000000';
+// 		ctx.beginPath();
+// 		ctx.moveTo(0, this.front);
+// 		ctx.lineTo(width, this.front);
+// 		ctx.setLineDash([3]);
+// 		ctx.stroke();
+// 		ctx.setLineDash([]);
+// 		ctx.beginPath();
+// 		ctx.moveTo(0, this.origin);
+// 		ctx.lineTo(width, this.origin);
+// 		ctx.closePath();
+// 		ctx.stroke();
+// 		// Lanes
+// 		for (let i = 0, ii = this.lanes.length; i < ii; i++) {
+// 			let laneX = (i + 1) * width / (ii + 1);
+// 			ctx.beginPath();
+// 			ctx.moveTo(laneX, this.origin);
+// 			ctx.lineTo(laneX, this.origin + 3);
+// 			ctx.closePath();
+// 			ctx.stroke();
+// 			// Spots
+// 			for (let s = 0, ss = this.lanes[i].length; s < ss; s++) {
+// 				let spotY = this.origin - (this.laneLength * this.lanes[i][s].rf);
+// 				switch (this.lanes[i][s].type) {
+// 				case 'compact':
+// 					ctx.beginPath();
+// 					ctx.arc(laneX, spotY, 3, 0, 2 * m.PI, false);
+// 					ctx.closePath();
+// 					break;
+// 				case 'expanded':
+// 					ctx.beginPath();
+// 					ctx.arc(laneX, spotY, 7, 0, 2 * m.PI, false);
+// 					ctx.closePath();
+// 					break;
+// 				case 'trailing':
+// 					// trailing
+// 					break;
+// 				case 'widened':
+// 					extensions.contextEllipse(ctx, laneX - 18, spotY - 10, 36, 10);
+// 					break;
+// 				case 'cresent':
+// 					ctx.beginPath();
+// 					ctx.arc(laneX, spotY, 9, 0, m.PI, true);
+// 					ctx.closePath();
+// 					break;
+// 				}
+// 				switch (this.lanes[i][s].style) {
+// 				case 'solid':
+// 					ctx.fillStyle = '#000000';
+// 					ctx.fill();
+// 					break;
+// 				case 'transparent':
+// 					ctx.stroke();
+// 					break;
+// 				case 'gradient':
+// 					// gradient
+// 					break;
+// 				}
+// 			}
+// 		}
+// 	};
+//
+// 	structures.Plate.Spot = function(type, rf, style) {
+// 		this.type = type;
+// 		this.rf = rf;
+// 		this.style = style ? style : 'solid';
+// 	};
+//
+// })(ChemDoodle.structures, ChemDoodle.extensions, Math);
 
 (function (c, structures, m, JSON, Object, undefined) {
 	'use strict';
@@ -6031,73 +6032,70 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 	m.SHIFT = false;
 	m.META = false;
 
-	if (!featureDetection.supports_touch()) {
-		document.addEventListener('DOMContentLoaded', function() {
-			// handles dragging beyond the canvas bounds
-			document.addEventListener('mousemove', function(e) {
-				if (m.CANVAS_DRAGGING) {
-					if (m.CANVAS_DRAGGING.drag) {
-						m.CANVAS_DRAGGING.prehandleEvent(e);
-						m.CANVAS_DRAGGING.drag(e);
-					}
+	document.addEventListener('DOMContentLoaded', function() {
+		// handles dragging beyond the canvas bounds
+		document.addEventListener('mousemove', function(e) {
+			if (m.CANVAS_DRAGGING) {
+				if (m.CANVAS_DRAGGING.drag) {
+					m.CANVAS_DRAGGING.prehandleEvent(e);
+					m.CANVAS_DRAGGING.drag(e);
 				}
-			});
-			document.addEventListener('mouseup', function(e) {
-				if (m.CANVAS_DRAGGING && m.CANVAS_DRAGGING !== m.CANVAS_OVER) {
-					if (m.CANVAS_DRAGGING.mouseup) {
-						m.CANVAS_DRAGGING.prehandleEvent(e);
-						m.CANVAS_DRAGGING.mouseup(e);
-					}
-				}
-				m.CANVAS_DRAGGING = undefined;
-			});
-
-			// handles modifier keys from a single keyboard
-			document.addEventListener('keydown', function(e) {
-				m.SHIFT = e.shiftKey;
-				m.ALT = e.altKey;
-				m.META = e.metaKey || e.ctrlKey;
-				let affecting = m.CANVAS_OVER;
-				if (m.CANVAS_DRAGGING) {
-					affecting = m.CANVAS_DRAGGING;
-				}
-				if (affecting) {
-					if (affecting.keydown) {
-						affecting.prehandleEvent(e);
-						affecting.keydown(e);
-					}
-				}
-			});
-			document.addEventListener('keypress', function(e) {
-				let affecting = m.CANVAS_OVER;
-				if (m.CANVAS_DRAGGING) {
-					affecting = m.CANVAS_DRAGGING;
-				}
-				if (affecting) {
-					if (affecting.keypress) {
-						affecting.prehandleEvent(e);
-						affecting.keypress(e);
-					}
-				}
-			});
-			document.addEventListener('keyup', function(e) {
-				m.SHIFT = e.shiftKey;
-				m.ALT = e.altKey;
-				m.META = e.metaKey || e.ctrlKey;
-				let affecting = m.CANVAS_OVER;
-				if (m.CANVAS_DRAGGING) {
-					affecting = m.CANVAS_DRAGGING;
-				}
-				if (affecting) {
-					if (affecting.keyup) {
-						affecting.prehandleEvent(e);
-						affecting.keyup(e);
-					}
-				}
-			});
+			}
 		});
-	}
+		document.addEventListener('mouseup', function(e) {
+			if (m.CANVAS_DRAGGING && m.CANVAS_DRAGGING !== m.CANVAS_OVER) {
+				if (m.CANVAS_DRAGGING.mouseup) {
+					m.CANVAS_DRAGGING.prehandleEvent(e);
+					m.CANVAS_DRAGGING.mouseup(e);
+				}
+			}
+			m.CANVAS_DRAGGING = undefined;
+		});
 
+		// handles modifier keys from a single keyboard
+		document.addEventListener('keydown', function(e) {
+			m.SHIFT = e.shiftKey;
+			m.ALT = e.altKey;
+			m.META = e.metaKey || e.ctrlKey;
+			let affecting = m.CANVAS_OVER;
+			if (m.CANVAS_DRAGGING) {
+				affecting = m.CANVAS_DRAGGING;
+			}
+			if (affecting) {
+				if (affecting.keydown) {
+					affecting.prehandleEvent(e);
+					affecting.keydown(e);
+				}
+			}
+		});
+		document.addEventListener('keypress', function(e) {
+			let affecting = m.CANVAS_OVER;
+			if (m.CANVAS_DRAGGING) {
+				affecting = m.CANVAS_DRAGGING;
+			}
+			if (affecting) {
+				if (affecting.keypress) {
+					affecting.prehandleEvent(e);
+					affecting.keypress(e);
+				}
+			}
+		});
+		document.addEventListener('keyup', function(e) {
+			m.SHIFT = e.shiftKey;
+			m.ALT = e.altKey;
+			m.META = e.metaKey || e.ctrlKey;
+			let affecting = m.CANVAS_OVER;
+			if (m.CANVAS_DRAGGING) {
+				affecting = m.CANVAS_DRAGGING;
+			}
+			if (affecting) {
+				if (affecting.keyup) {
+					affecting.prehandleEvent(e);
+					affecting.keyup(e);
+				}
+			}
+		});
+	});
 	return m;
 
 })(ChemDoodle.featureDetection, document);
@@ -6816,110 +6814,110 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 
 })(ChemDoodle, ChemDoodle.featureDetection, ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, Math, document, window, navigator.userAgent);
 
-(function(c, animations, undefined) {
-	'use strict';
-	c._AnimatorCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-	};
-	let _ = c._AnimatorCanvas.prototype = new c._Canvas();
-	_.timeout = 33;
-	_.startAnimation = function() {
-		this.stopAnimation();
-		this.lastTime = new Date().getTime();
-		let self = this;
-		if (this.nextFrame) {
-			this.handle = animations.requestInterval(function() {
-				// advance clock
-				let timeNow = new Date().getTime();
-				// update and repaint
-				self.nextFrame(timeNow - self.lastTime);
-				self.repaint();
-				self.lastTime = timeNow;
-			}, this.timeout);
-		}
-	};
-	_.stopAnimation = function() {
-		if (this.handle) {
-			animations.clearRequestInterval(this.handle);
-			this.handle = undefined;
-		}
-	};
-	_.isRunning = function() {
-		// must compare to undefined here to return a boolean
-		return this.handle !== undefined;
-	};
+// (function(c, animations, undefined) {
+// 	'use strict';
+// 	c._AnimatorCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	let _ = c._AnimatorCanvas.prototype = new c._Canvas();
+// 	_.timeout = 33;
+// 	_.startAnimation = function() {
+// 		this.stopAnimation();
+// 		this.lastTime = new Date().getTime();
+// 		let self = this;
+// 		if (this.nextFrame) {
+// 			this.handle = animations.requestInterval(function() {
+// 				// advance clock
+// 				let timeNow = new Date().getTime();
+// 				// update and repaint
+// 				self.nextFrame(timeNow - self.lastTime);
+// 				self.repaint();
+// 				self.lastTime = timeNow;
+// 			}, this.timeout);
+// 		}
+// 	};
+// 	_.stopAnimation = function() {
+// 		if (this.handle) {
+// 			animations.clearRequestInterval(this.handle);
+// 			this.handle = undefined;
+// 		}
+// 	};
+// 	_.isRunning = function() {
+// 		// must compare to undefined here to return a boolean
+// 		return this.handle !== undefined;
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.animations);
 
-})(ChemDoodle, ChemDoodle.animations);
+// (function(c, document, undefined) {
+// 	'use strict';
+// 	c.FileCanvas = function(id, width, height, action) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 		let form = '<br><form name="FileForm" enctype="multipart/form-data" method="POST" action="' + action + '" target="HiddenFileFrame"><input type="file" name="f" /><input type="submit" name="submitbutton" value="Show File" /></form><iframe id="HFF-' + id + '" name="HiddenFileFrame" height="0" width="0" style="display:none;" onLoad="GetMolFromFrame(\'HFF-' + id + '\', ' + id + ')"></iframe>';
+// 		document.writeln(form);
+// 		this.emptyMessage = 'Click below to load file';
+// 		this.repaint();
+// 	};
+// 	c.FileCanvas.prototype = new c._Canvas();
+//
+// })(ChemDoodle, document);
 
-(function(c, document, undefined) {
-	'use strict';
-	c.FileCanvas = function(id, width, height, action) {
-		if (id) {
-			this.create(id, width, height);
-		}
-		let form = '<br><form name="FileForm" enctype="multipart/form-data" method="POST" action="' + action + '" target="HiddenFileFrame"><input type="file" name="f" /><input type="submit" name="submitbutton" value="Show File" /></form><iframe id="HFF-' + id + '" name="HiddenFileFrame" height="0" width="0" style="display:none;" onLoad="GetMolFromFrame(\'HFF-' + id + '\', ' + id + ')"></iframe>';
-		document.writeln(form);
-		this.emptyMessage = 'Click below to load file';
-		this.repaint();
-	};
-	c.FileCanvas.prototype = new c._Canvas();
-
-})(ChemDoodle, document);
-
-(function(c, undefined) {
-	'use strict';
-	c.HyperlinkCanvas = function(id, width, height, urlOrFunction, color, size) {
-		if (id) {
-			this.create(id, width, height);
-		}
-		this.urlOrFunction = urlOrFunction;
-		this.color = color ? color : 'blue';
-		this.size = size ? size : 2;
-	};
-	let _ = c.HyperlinkCanvas.prototype = new c._Canvas();
-	_.openInNewWindow = true;
-	_.hoverImage = undefined;
-	_.drawChildExtras = function(ctx) {
-		if (this.e) {
-			if (this.hoverImage) {
-				ctx.drawImage(this.hoverImage, 0, 0);
-			} else {
-				ctx.strokeStyle = this.color;
-				ctx.lineWidth = this.size * 2;
-				ctx.strokeRect(0, 0, this.width, this.height);
-			}
-		}
-	};
-	_.setHoverImage = function(url) {
-		this.hoverImage = new Image();
-		this.hoverImage.src = url;
-	};
-	_.click = function(p) {
-		this.e = undefined;
-		this.repaint();
-		if (this.urlOrFunction instanceof Function) {
-			this.urlOrFunction();
-		} else {
-			if (this.openInNewWindow) {
-				window.open(this.urlOrFunction);
-			} else {
-				location.href = this.urlOrFunction;
-			}
-		}
-	};
-	_.mouseout = function(e) {
-		this.e = undefined;
-		this.repaint();
-	};
-	_.mouseover = function(e) {
-		this.e = e;
-		this.repaint();
-	};
-
-})(ChemDoodle);
-
+// (function(c, undefined) {
+// 	'use strict';
+// 	c.HyperlinkCanvas = function(id, width, height, urlOrFunction, color, size) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 		this.urlOrFunction = urlOrFunction;
+// 		this.color = color ? color : 'blue';
+// 		this.size = size ? size : 2;
+// 	};
+// 	let _ = c.HyperlinkCanvas.prototype = new c._Canvas();
+// 	_.openInNewWindow = true;
+// 	_.hoverImage = undefined;
+// 	_.drawChildExtras = function(ctx) {
+// 		if (this.e) {
+// 			if (this.hoverImage) {
+// 				ctx.drawImage(this.hoverImage, 0, 0);
+// 			} else {
+// 				ctx.strokeStyle = this.color;
+// 				ctx.lineWidth = this.size * 2;
+// 				ctx.strokeRect(0, 0, this.width, this.height);
+// 			}
+// 		}
+// 	};
+// 	_.setHoverImage = function(url) {
+// 		this.hoverImage = new Image();
+// 		this.hoverImage.src = url;
+// 	};
+// 	_.click = function(p) {
+// 		this.e = undefined;
+// 		this.repaint();
+// 		if (this.urlOrFunction instanceof Function) {
+// 			this.urlOrFunction();
+// 		} else {
+// 			if (this.openInNewWindow) {
+// 				window.open(this.urlOrFunction);
+// 			} else {
+// 				location.href = this.urlOrFunction;
+// 			}
+// 		}
+// 	};
+// 	_.mouseout = function(e) {
+// 		this.e = undefined;
+// 		this.repaint();
+// 	};
+// 	_.mouseover = function(e) {
+// 		this.e = e;
+// 		this.repaint();
+// 	};
+//
+// })(ChemDoodle);
+//
 // (function(c, iChemLabs, q, document, undefined) {
 // 	'use strict';
 // 	c.MolGrabberCanvas = function(id, width, height) {
@@ -6984,308 +6982,308 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 //
 // })(ChemDoodle, ChemDoodle.iChemLabs, ChemDoodle.lib.jQuery, document);
 
-(function(c, m, m4, undefined) {
-	'use strict';
-	// keep these declaration outside the loop to avoid overhead
-	let matrix = [];
-	let xAxis = [ 1, 0, 0 ];
-	let yAxis = [ 0, 1, 0 ];
-	let zAxis = [ 0, 0, 1 ];
+// (function(c, m, m4, undefined) {
+// 	'use strict';
+// 	// keep these declaration outside the loop to avoid overhead
+// 	let matrix = [];
+// 	let xAxis = [ 1, 0, 0 ];
+// 	let yAxis = [ 0, 1, 0 ];
+// 	let zAxis = [ 0, 0, 1 ];
+//
+// 	c.RotatorCanvas = function(id, width, height, rotate3D) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 		this.rotate3D = rotate3D;
+// 	};
+// 	let _ = c.RotatorCanvas.prototype = new c._AnimatorCanvas();
+// 	let increment = m.PI / 15;
+// 	_.xIncrement = increment;
+// 	_.yIncrement = increment;
+// 	_.zIncrement = increment;
+// 	_.nextFrame = function(delta) {
+// 		if (this.molecules.length === 0 && this.shapes.length === 0) {
+// 			this.stopAnimation();
+// 			return;
+// 		}
+// 		let change = delta / 1000;
+// 		if (this.rotate3D) {
+// 			m4.identity(matrix);
+// 			m4.rotate(matrix, this.xIncrement * change, xAxis);
+// 			m4.rotate(matrix, this.yIncrement * change, yAxis);
+// 			m4.rotate(matrix, this.zIncrement * change, zAxis);
+// 			for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+// 				let m = this.molecules[i];
+// 				for ( let j = 0, jj = m.atoms.length; j < jj; j++) {
+// 					let a = m.atoms[j];
+// 					let p = [ a.x - this.width / 2, a.y - this.height / 2, a.z ];
+// 					m4.multiplyVec3(matrix, p);
+// 					a.x = p[0] + this.width / 2;
+// 					a.y = p[1] + this.height / 2;
+// 					a.z = p[2];
+// 				}
+// 				for ( let j = 0, jj = m.rings.length; j < jj; j++) {
+// 					m.rings[j].center = m.rings[j].getCenter();
+// 				}
+// 				if (this.styles.atoms_display && this.styles.atoms_circles_2D) {
+// 					m.sortAtomsByZ();
+// 				}
+// 				if (this.styles.bonds_display && this.styles.bonds_clearOverlaps_2D) {
+// 					m.sortBondsByZ();
+// 				}
+// 			}
+// 			for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+// 				let sps = this.shapes[i].getPoints();
+// 				for ( let j = 0, jj = sps.length; j < jj; j++) {
+// 					let a = sps[j];
+// 					let p = [ a.x - this.width / 2, a.y - this.height / 2, 0 ];
+// 					m4.multiplyVec3(matrix, p);
+// 					a.x = p[0] + this.width / 2;
+// 					a.y = p[1] + this.height / 2;
+// 				}
+// 			}
+// 		} else {
+// 			this.styles.rotateAngle += this.zIncrement * change;
+// 		}
+// 	};
+// 	_.dblclick = function(e) {
+// 		if (this.isRunning()) {
+// 			this.stopAnimation();
+// 		} else {
+// 			this.startAnimation();
+// 		}
+// 	};
+//
+// })(ChemDoodle, Math, ChemDoodle.lib.mat4);
 
-	c.RotatorCanvas = function(id, width, height, rotate3D) {
-		if (id) {
-			this.create(id, width, height);
-		}
-		this.rotate3D = rotate3D;
-	};
-	let _ = c.RotatorCanvas.prototype = new c._AnimatorCanvas();
-	let increment = m.PI / 15;
-	_.xIncrement = increment;
-	_.yIncrement = increment;
-	_.zIncrement = increment;
-	_.nextFrame = function(delta) {
-		if (this.molecules.length === 0 && this.shapes.length === 0) {
-			this.stopAnimation();
-			return;
-		}
-		let change = delta / 1000;
-		if (this.rotate3D) {
-			m4.identity(matrix);
-			m4.rotate(matrix, this.xIncrement * change, xAxis);
-			m4.rotate(matrix, this.yIncrement * change, yAxis);
-			m4.rotate(matrix, this.zIncrement * change, zAxis);
-			for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-				let m = this.molecules[i];
-				for ( let j = 0, jj = m.atoms.length; j < jj; j++) {
-					let a = m.atoms[j];
-					let p = [ a.x - this.width / 2, a.y - this.height / 2, a.z ];
-					m4.multiplyVec3(matrix, p);
-					a.x = p[0] + this.width / 2;
-					a.y = p[1] + this.height / 2;
-					a.z = p[2];
-				}
-				for ( let j = 0, jj = m.rings.length; j < jj; j++) {
-					m.rings[j].center = m.rings[j].getCenter();
-				}
-				if (this.styles.atoms_display && this.styles.atoms_circles_2D) {
-					m.sortAtomsByZ();
-				}
-				if (this.styles.bonds_display && this.styles.bonds_clearOverlaps_2D) {
-					m.sortBondsByZ();
-				}
-			}
-			for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
-				let sps = this.shapes[i].getPoints();
-				for ( let j = 0, jj = sps.length; j < jj; j++) {
-					let a = sps[j];
-					let p = [ a.x - this.width / 2, a.y - this.height / 2, 0 ];
-					m4.multiplyVec3(matrix, p);
-					a.x = p[0] + this.width / 2;
-					a.y = p[1] + this.height / 2;
-				}
-			}
-		} else {
-			this.styles.rotateAngle += this.zIncrement * change;
-		}
-	};
-	_.dblclick = function(e) {
-		if (this.isRunning()) {
-			this.stopAnimation();
-		} else {
-			this.startAnimation();
-		}
-	};
+// (function(c, animations, math, undefined) {
+// 	'use strict';
+// 	c.SlideshowCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	let _ = c.SlideshowCanvas.prototype = new c._AnimatorCanvas();
+// 	_.frames = [];
+// 	_.curIndex = 0;
+// 	_.timeout = 5000;
+// 	_.alpha = 0;
+// 	_.innerHandle = undefined;
+// 	_.phase = 0;
+// 	_.drawChildExtras = function(ctx) {
+// 		let rgb = math.getRGB(this.styles.backgroundColor, 255);
+// 		ctx.fillStyle = 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ', ' + this.alpha + ')';
+// 		ctx.fillRect(0, 0, this.width, this.height);
+// 	};
+// 	_.nextFrame = function(delta) {
+// 		if (this.frames.length === 0) {
+// 			this.stopAnimation();
+// 			return;
+// 		}
+// 		this.phase = 0;
+// 		let self = this;
+// 		let count = 1;
+// 		this.innerHandle = setInterval(function() {
+// 			self.alpha = count / 15;
+// 			self.repaint();
+// 			if (count === 15) {
+// 				self.breakInnerHandle();
+// 			}
+// 			count++;
+// 		}, 33);
+// 	};
+// 	_.breakInnerHandle = function() {
+// 		if (this.innerHandle) {
+// 			clearInterval(this.innerHandle);
+// 			this.innerHandle = undefined;
+// 		}
+// 		if (this.phase === 0) {
+// 			this.curIndex++;
+// 			if (this.curIndex > this.frames.length - 1) {
+// 				this.curIndex = 0;
+// 			}
+// 			this.alpha = 1;
+// 			let f = this.frames[this.curIndex];
+// 			this.loadContent(f.mols, f.shapes);
+// 			this.phase = 1;
+// 			let self = this;
+// 			let count = 1;
+// 			this.innerHandle = setInterval(function() {
+// 				self.alpha = (15 - count) / 15;
+// 				self.repaint();
+// 				if (count === 15) {
+// 					self.breakInnerHandle();
+// 				}
+// 				count++;
+// 			}, 33);
+// 		} else if (this.phase === 1) {
+// 			this.alpha = 0;
+// 			this.repaint();
+// 		}
+// 	};
+// 	_.addFrame = function(molecules, shapes) {
+// 		if (this.frames.length === 0) {
+// 			this.loadContent(molecules, shapes);
+// 		}
+// 		this.frames.push({
+// 			mols : molecules,
+// 			shapes : shapes
+// 		});
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.animations, ChemDoodle.math);
 
-})(ChemDoodle, Math, ChemDoodle.lib.mat4);
-
-(function(c, animations, math, undefined) {
-	'use strict';
-	c.SlideshowCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-	};
-	let _ = c.SlideshowCanvas.prototype = new c._AnimatorCanvas();
-	_.frames = [];
-	_.curIndex = 0;
-	_.timeout = 5000;
-	_.alpha = 0;
-	_.innerHandle = undefined;
-	_.phase = 0;
-	_.drawChildExtras = function(ctx) {
-		let rgb = math.getRGB(this.styles.backgroundColor, 255);
-		ctx.fillStyle = 'rgba(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ', ' + this.alpha + ')';
-		ctx.fillRect(0, 0, this.width, this.height);
-	};
-	_.nextFrame = function(delta) {
-		if (this.frames.length === 0) {
-			this.stopAnimation();
-			return;
-		}
-		this.phase = 0;
-		let self = this;
-		let count = 1;
-		this.innerHandle = setInterval(function() {
-			self.alpha = count / 15;
-			self.repaint();
-			if (count === 15) {
-				self.breakInnerHandle();
-			}
-			count++;
-		}, 33);
-	};
-	_.breakInnerHandle = function() {
-		if (this.innerHandle) {
-			clearInterval(this.innerHandle);
-			this.innerHandle = undefined;
-		}
-		if (this.phase === 0) {
-			this.curIndex++;
-			if (this.curIndex > this.frames.length - 1) {
-				this.curIndex = 0;
-			}
-			this.alpha = 1;
-			let f = this.frames[this.curIndex];
-			this.loadContent(f.mols, f.shapes);
-			this.phase = 1;
-			let self = this;
-			let count = 1;
-			this.innerHandle = setInterval(function() {
-				self.alpha = (15 - count) / 15;
-				self.repaint();
-				if (count === 15) {
-					self.breakInnerHandle();
-				}
-				count++;
-			}, 33);
-		} else if (this.phase === 1) {
-			this.alpha = 0;
-			this.repaint();
-		}
-	};
-	_.addFrame = function(molecules, shapes) {
-		if (this.frames.length === 0) {
-			this.loadContent(molecules, shapes);
-		}
-		this.frames.push({
-			mols : molecules,
-			shapes : shapes
-		});
-	};
-
-})(ChemDoodle, ChemDoodle.animations, ChemDoodle.math);
-
-(function(c, monitor, structures, m, m4, undefined) {
-	'use strict';
-	c.TransformCanvas = function(id, width, height, rotate3D) {
-		if (id) {
-			this.create(id, width, height);
-		}
-		this.rotate3D = rotate3D;
-	};
-	let _ = c.TransformCanvas.prototype = new c._Canvas();
-	_.lastPoint = undefined;
-	_.rotationMultMod = 1.3;
-	_.lastPinchScale = 1;
-	_.lastGestureRotate = 0;
-	_.mousedown = function(e) {
-		this.lastPoint = e.p;
-	};
-	_.dblclick = function(e) {
-		// center structure
-		this.center();
-		this.repaint();
-	};
-	_.drag = function(e) {
-		if (!this.lastPoint.multi) {
-			if (monitor.ALT) {
-				let t = new structures.Point(e.p.x, e.p.y);
-				t.sub(this.lastPoint);
-				for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-					let mol = this.molecules[i];
-					for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-						mol.atoms[j].add(t);
-					}
-					mol.check();
-				}
-				for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
-					let sps = this.shapes[i].getPoints();
-					for ( let j = 0, jj = sps.length; j < jj; j++) {
-						sps[j].add(t);
-					}
-				}
-				this.lastPoint = e.p;
-				this.repaint();
-			} else {
-				if (this.rotate3D === true) {
-					let diameter = m.max(this.width / 4, this.height / 4);
-					let difx = e.p.x - this.lastPoint.x;
-					let dify = e.p.y - this.lastPoint.y;
-					let yIncrement = difx / diameter * this.rotationMultMod;
-					let xIncrement = -dify / diameter * this.rotationMultMod;
-					let matrix = [];
-					m4.identity(matrix);
-					m4.rotate(matrix, xIncrement, [ 1, 0, 0 ]);
-					m4.rotate(matrix, yIncrement, [ 0, 1, 0 ]);
-					for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-						let mol = this.molecules[i];
-						for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-							let a = mol.atoms[j];
-							let p = [ a.x - this.width / 2, a.y - this.height / 2, a.z ];
-							m4.multiplyVec3(matrix, p);
-							a.x = p[0] + this.width / 2;
-							a.y = p[1] + this.height / 2;
-							a.z = p[2];
-						}
-						for ( let i = 0, ii = mol.rings.length; i < ii; i++) {
-							mol.rings[i].center = mol.rings[i].getCenter();
-						}
-						this.lastPoint = e.p;
-						if (this.styles.atoms_display && this.styles.atoms_circles_2D) {
-							mol.sortAtomsByZ();
-						}
-						if (this.styles.bonds_display && this.styles.bonds_clearOverlaps_2D) {
-							mol.sortBondsByZ();
-						}
-					}
-					this.repaint();
-				} else {
-					let center = new structures.Point(this.width / 2, this.height / 2);
-					let before = center.angle(this.lastPoint);
-					let after = center.angle(e.p);
-					this.styles.rotateAngle -= (after - before);
-					this.lastPoint = e.p;
-					this.repaint();
-				}
-			}
-		}
-	};
-	_.mousewheel = function(e, delta) {
-		this.styles.scale += delta / 50;
-		if (this.styles.scale < .01) {
-			this.styles.scale = .01;
-		}
-		this.repaint();
-	};
-	_.multitouchmove = function(e, numFingers) {
-		if (numFingers === 2) {
-			if (this.lastPoint.multi) {
-				let t = new structures.Point(e.p.x, e.p.y);
-				t.sub(this.lastPoint);
-				for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-					let m = this.molecules[i];
-					for ( let j = 0, jj = m.atoms.length; j < jj; j++) {
-						m.atoms[j].add(t);
-					}
-					m.check();
-				}
-				for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
-					let sps = this.shapes[i].getPoints();
-					for ( let j = 0, jj = sps.length; j < jj; j++) {
-						sps[j].add(t);
-					}
-				}
-				this.lastPoint = e.p;
-				this.lastPoint.multi = true;
-				this.repaint();
-			} else {
-				this.lastPoint = e.p;
-				this.lastPoint.multi = true;
-			}
-		}
-	};
-	_.gesturechange = function(e) {
-		if (e.originalEvent.scale - this.lastPinchScale !== 0) {
-			this.styles.scale *= e.originalEvent.scale / this.lastPinchScale;
-			if (this.styles.scale < .01) {
-				this.styles.scale = .01;
-			}
-			this.lastPinchScale = e.originalEvent.scale;
-		}
-		if (this.lastGestureRotate - e.originalEvent.rotation !== 0) {
-			let rot = (this.lastGestureRotate - e.originalEvent.rotation) / 180 * m.PI;
-			let center = new structures.Point(this.width / 2, this.height / 2);
-			for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-				let mol = this.molecules[i];
-				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-					let a = mol.atoms[j];
-					let dist = center.distance(a);
-					let angle = center.angle(a) + rot;
-					a.x = center.x + dist * m.cos(angle);
-					a.y = center.y - dist * m.sin(angle);
-				}
-				mol.check();
-			}
-			this.lastGestureRotate = e.originalEvent.rotation;
-		}
-		this.repaint();
-	};
-	_.gestureend = function(e) {
-		this.lastPinchScale = 1;
-		this.lastGestureRotate = 0;
-	};
-
-})(ChemDoodle, ChemDoodle.monitor, ChemDoodle.structures, Math, ChemDoodle.lib.mat4);
+// (function(c, monitor, structures, m, m4, undefined) {
+// 	'use strict';
+// 	c.TransformCanvas = function(id, width, height, rotate3D) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 		this.rotate3D = rotate3D;
+// 	};
+// 	let _ = c.TransformCanvas.prototype = new c._Canvas();
+// 	_.lastPoint = undefined;
+// 	_.rotationMultMod = 1.3;
+// 	_.lastPinchScale = 1;
+// 	_.lastGestureRotate = 0;
+// 	_.mousedown = function(e) {
+// 		this.lastPoint = e.p;
+// 	};
+// 	_.dblclick = function(e) {
+// 		// center structure
+// 		this.center();
+// 		this.repaint();
+// 	};
+// 	_.drag = function(e) {
+// 		if (!this.lastPoint.multi) {
+// 			if (monitor.ALT) {
+// 				let t = new structures.Point(e.p.x, e.p.y);
+// 				t.sub(this.lastPoint);
+// 				for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+// 					let mol = this.molecules[i];
+// 					for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
+// 						mol.atoms[j].add(t);
+// 					}
+// 					mol.check();
+// 				}
+// 				for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+// 					let sps = this.shapes[i].getPoints();
+// 					for ( let j = 0, jj = sps.length; j < jj; j++) {
+// 						sps[j].add(t);
+// 					}
+// 				}
+// 				this.lastPoint = e.p;
+// 				this.repaint();
+// 			} else {
+// 				if (this.rotate3D === true) {
+// 					let diameter = m.max(this.width / 4, this.height / 4);
+// 					let difx = e.p.x - this.lastPoint.x;
+// 					let dify = e.p.y - this.lastPoint.y;
+// 					let yIncrement = difx / diameter * this.rotationMultMod;
+// 					let xIncrement = -dify / diameter * this.rotationMultMod;
+// 					let matrix = [];
+// 					m4.identity(matrix);
+// 					m4.rotate(matrix, xIncrement, [ 1, 0, 0 ]);
+// 					m4.rotate(matrix, yIncrement, [ 0, 1, 0 ]);
+// 					for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+// 						let mol = this.molecules[i];
+// 						for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
+// 							let a = mol.atoms[j];
+// 							let p = [ a.x - this.width / 2, a.y - this.height / 2, a.z ];
+// 							m4.multiplyVec3(matrix, p);
+// 							a.x = p[0] + this.width / 2;
+// 							a.y = p[1] + this.height / 2;
+// 							a.z = p[2];
+// 						}
+// 						for ( let i = 0, ii = mol.rings.length; i < ii; i++) {
+// 							mol.rings[i].center = mol.rings[i].getCenter();
+// 						}
+// 						this.lastPoint = e.p;
+// 						if (this.styles.atoms_display && this.styles.atoms_circles_2D) {
+// 							mol.sortAtomsByZ();
+// 						}
+// 						if (this.styles.bonds_display && this.styles.bonds_clearOverlaps_2D) {
+// 							mol.sortBondsByZ();
+// 						}
+// 					}
+// 					this.repaint();
+// 				} else {
+// 					let center = new structures.Point(this.width / 2, this.height / 2);
+// 					let before = center.angle(this.lastPoint);
+// 					let after = center.angle(e.p);
+// 					this.styles.rotateAngle -= (after - before);
+// 					this.lastPoint = e.p;
+// 					this.repaint();
+// 				}
+// 			}
+// 		}
+// 	};
+// 	_.mousewheel = function(e, delta) {
+// 		this.styles.scale += delta / 50;
+// 		if (this.styles.scale < .01) {
+// 			this.styles.scale = .01;
+// 		}
+// 		this.repaint();
+// 	};
+// 	_.multitouchmove = function(e, numFingers) {
+// 		if (numFingers === 2) {
+// 			if (this.lastPoint.multi) {
+// 				let t = new structures.Point(e.p.x, e.p.y);
+// 				t.sub(this.lastPoint);
+// 				for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+// 					let m = this.molecules[i];
+// 					for ( let j = 0, jj = m.atoms.length; j < jj; j++) {
+// 						m.atoms[j].add(t);
+// 					}
+// 					m.check();
+// 				}
+// 				for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+// 					let sps = this.shapes[i].getPoints();
+// 					for ( let j = 0, jj = sps.length; j < jj; j++) {
+// 						sps[j].add(t);
+// 					}
+// 				}
+// 				this.lastPoint = e.p;
+// 				this.lastPoint.multi = true;
+// 				this.repaint();
+// 			} else {
+// 				this.lastPoint = e.p;
+// 				this.lastPoint.multi = true;
+// 			}
+// 		}
+// 	};
+// 	_.gesturechange = function(e) {
+// 		if (e.originalEvent.scale - this.lastPinchScale !== 0) {
+// 			this.styles.scale *= e.originalEvent.scale / this.lastPinchScale;
+// 			if (this.styles.scale < .01) {
+// 				this.styles.scale = .01;
+// 			}
+// 			this.lastPinchScale = e.originalEvent.scale;
+// 		}
+// 		if (this.lastGestureRotate - e.originalEvent.rotation !== 0) {
+// 			let rot = (this.lastGestureRotate - e.originalEvent.rotation) / 180 * m.PI;
+// 			let center = new structures.Point(this.width / 2, this.height / 2);
+// 			for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+// 				let mol = this.molecules[i];
+// 				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
+// 					let a = mol.atoms[j];
+// 					let dist = center.distance(a);
+// 					let angle = center.angle(a) + rot;
+// 					a.x = center.x + dist * m.cos(angle);
+// 					a.y = center.y - dist * m.sin(angle);
+// 				}
+// 				mol.check();
+// 			}
+// 			this.lastGestureRotate = e.originalEvent.rotation;
+// 		}
+// 		this.repaint();
+// 	};
+// 	_.gestureend = function(e) {
+// 		this.lastPinchScale = 1;
+// 		this.lastGestureRotate = 0;
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.monitor, ChemDoodle.structures, Math, ChemDoodle.lib.mat4);
 
 (function(c, undefined) {
 	'use strict';
@@ -7298,393 +7296,394 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 
 })(ChemDoodle);
 
-(function(c, document, undefined) {
-	'use strict';
-	c._SpectrumCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-	};
-	let _ = c._SpectrumCanvas.prototype = new c._Canvas();
-	_.spectrum = undefined;
-	_.emptyMessage = 'No Spectrum Loaded or Recognized';
-	_.loadMolecule = undefined;
-	_.getMolecule = undefined;
-	_.innerRepaint = function(ctx) {
-		if (this.spectrum && this.spectrum.data.length > 0) {
-			this.spectrum.draw(ctx, this.styles, this.width, this.height);
-		} else if (this.emptyMessage) {
-			ctx.fillStyle = '#737683';
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
-			ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
-		}
-	};
-	_.loadSpectrum = function(spectrum) {
-		this.spectrum = spectrum;
-		this.repaint();
-	};
-	_.getSpectrum = function() {
-		return this.spectrum;
-	};
-	_.getSpectrumCoordinates = function(x, y) {
-		return spectrum.getInternalCoordinates(x, y, this.width, this.height);
-	};
+// Spectrum canvas
+// (function(c, document, undefined) {
+// 	'use strict';
+// 	c._SpectrumCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	let _ = c._SpectrumCanvas.prototype = new c._Canvas();
+// 	_.spectrum = undefined;
+// 	_.emptyMessage = 'No Spectrum Loaded or Recognized';
+// 	_.loadMolecule = undefined;
+// 	_.getMolecule = undefined;
+// 	_.innerRepaint = function(ctx) {
+// 		if (this.spectrum && this.spectrum.data.length > 0) {
+// 			this.spectrum.draw(ctx, this.styles, this.width, this.height);
+// 		} else if (this.emptyMessage) {
+// 			ctx.fillStyle = '#737683';
+// 			ctx.textAlign = 'center';
+// 			ctx.textBaseline = 'middle';
+// 			ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
+// 			ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
+// 		}
+// 	};
+// 	_.loadSpectrum = function(spectrum) {
+// 		this.spectrum = spectrum;
+// 		this.repaint();
+// 	};
+// 	_.getSpectrum = function() {
+// 		return this.spectrum;
+// 	};
+// 	_.getSpectrumCoordinates = function(x, y) {
+// 		return spectrum.getInternalCoordinates(x, y, this.width, this.height);
+// 	};
+//
+// })(ChemDoodle, document);
 
-})(ChemDoodle, document);
+// (function(c, undefined) {
+// 	'use strict';
+// 	c.ObserverCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	c.ObserverCanvas.prototype = new c._SpectrumCanvas();
+//
+// })(ChemDoodle);
 
-(function(c, undefined) {
-	'use strict';
-	c.ObserverCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-	};
-	c.ObserverCanvas.prototype = new c._SpectrumCanvas();
+// (function(c, undefined) {
+// 	'use strict';
+// 	c.OverlayCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	let _ = c.OverlayCanvas.prototype = new c._SpectrumCanvas();
+// 	_.overlaySpectra = [];
+// 	_.superRepaint = _.innerRepaint;
+// 	_.innerRepaint = function(ctx) {
+// 		this.superRepaint(ctx);
+// 		if (this.spectrum && this.spectrum.data.length > 0) {
+// 			for ( let i = 0, ii = this.overlaySpectra.length; i < ii; i++) {
+// 				let s = this.overlaySpectra[i];
+// 				if (s && s.data.length > 0) {
+// 					s.minX = this.spectrum.minX;
+// 					s.maxX = this.spectrum.maxX;
+// 					s.drawPlot(ctx, this.styles, this.width, this.height, this.spectrum.memory.offsetTop, this.spectrum.memory.offsetLeft, this.spectrum.memory.offsetBottom);
+// 				}
+// 			}
+// 		}
+// 	};
+// 	_.addSpectrum = function(spectrum) {
+// 		if (!this.spectrum) {
+// 			this.spectrum = spectrum;
+// 		} else {
+// 			this.overlaySpectra.push(spectrum);
+// 		}
+// 	};
+//
+// })(ChemDoodle);
 
-})(ChemDoodle);
+// (function(c, monitor, m, undefined) {
+// 	'use strict';
+// 	c.PerspectiveCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	let _ = c.PerspectiveCanvas.prototype = new c._SpectrumCanvas();
+// 	_.dragRange = undefined;
+// 	_.rescaleYAxisOnZoom = true;
+// 	_.lastPinchScale = 1;
+// 	_.mousedown = function(e) {
+// 		this.dragRange = new c.structures.Point(e.p.x, e.p.x);
+// 	};
+// 	_.mouseup = function(e) {
+// 		if (this.dragRange && this.dragRange.x !== this.dragRange.y) {
+// 			if (!this.dragRange.multi) {
+// 				let newScale = this.spectrum.zoom(this.dragRange.x, e.p.x, this.width, this.rescaleYAxisOnZoom);
+// 				if (this.rescaleYAxisOnZoom) {
+// 					this.styles.scale = newScale;
+// 				}
+// 			}
+// 			this.dragRange = undefined;
+// 			this.repaint();
+// 		}
+// 	};
+// 	_.drag = function(e) {
+// 		if (this.dragRange) {
+// 			if (this.dragRange.multi) {
+// 				this.dragRange = undefined;
+// 			} else if (monitor.SHIFT) {
+// 				this.spectrum.translate(e.p.x - this.dragRange.x, this.width);
+// 				this.dragRange.x = e.p.x;
+// 				this.dragRange.y = e.p.x;
+// 			} else {
+// 				this.dragRange.y = e.p.x;
+// 			}
+// 			this.repaint();
+// 		}
+// 	};
+// 	_.drawChildExtras = function(ctx) {
+// 		if (this.dragRange) {
+// 			let xs = m.min(this.dragRange.x, this.dragRange.y);
+// 			let xe = m.max(this.dragRange.x, this.dragRange.y);
+// 			ctx.strokeStyle = 'gray';
+// 			ctx.lineStyle = 1;
+// 			ctx.beginPath();
+// 			ctx.moveTo(xs, this.height / 2);
+// 			for ( let i = xs; i <= xe; i++) {
+// 				if (i % 10 < 5) {
+// 					ctx.lineTo(i, m.round(this.height / 2));
+// 				} else {
+// 					ctx.moveTo(i, m.round(this.height / 2));
+// 				}
+// 			}
+// 			ctx.stroke();
+// 		}
+// 	};
+// 	_.mousewheel = function(e, delta) {
+// 		this.styles.scale -= delta / 10;
+// 		if (this.styles.scale < .01) {
+// 			this.styles.scale = .01;
+// 		}
+// 		this.repaint();
+// 	};
+// 	_.dblclick = function(e) {
+// 		this.spectrum.setup();
+// 		this.styles.scale = 1;
+// 		this.repaint();
+// 	};
+// 	_.multitouchmove = function(e, numFingers) {
+// 		if (numFingers === 2) {
+// 			if (!this.dragRange || !this.dragRange.multi) {
+// 				this.dragRange = new c.structures.Point(e.p.x, e.p.x);
+// 				this.dragRange.multi = true;
+// 			} else {
+// 				this.spectrum.translate(e.p.x - this.dragRange.x, this.width);
+// 				this.dragRange.x = e.p.x;
+// 				this.dragRange.y = e.p.x;
+// 				this.repaint();
+// 			}
+// 		}
+// 	};
+// 	_.gesturechange = function(e) {
+// 		this.styles.scale *= e.originalEvent.scale / this.lastPinchScale;
+// 		if (this.styles.scale < .01) {
+// 			this.styles.scale = .01;
+// 		}
+// 		this.lastPinchScale = e.originalEvent.scale;
+// 		this.repaint();
+// 	};
+// 	_.gestureend = function(e) {
+// 		this.lastPinchScale = 1;
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.monitor, Math);
 
-(function(c, undefined) {
-	'use strict';
-	c.OverlayCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-	};
-	let _ = c.OverlayCanvas.prototype = new c._SpectrumCanvas();
-	_.overlaySpectra = [];
-	_.superRepaint = _.innerRepaint;
-	_.innerRepaint = function(ctx) {
-		this.superRepaint(ctx);
-		if (this.spectrum && this.spectrum.data.length > 0) {
-			for ( let i = 0, ii = this.overlaySpectra.length; i < ii; i++) {
-				let s = this.overlaySpectra[i];
-				if (s && s.data.length > 0) {
-					s.minX = this.spectrum.minX;
-					s.maxX = this.spectrum.maxX;
-					s.drawPlot(ctx, this.styles, this.width, this.height, this.spectrum.memory.offsetTop, this.spectrum.memory.offsetLeft, this.spectrum.memory.offsetBottom);
-				}
-			}
-		}
-	};
-	_.addSpectrum = function(spectrum) {
-		if (!this.spectrum) {
-			this.spectrum = spectrum;
-		} else {
-			this.overlaySpectra.push(spectrum);
-		}
-	};
+// (function(c, extensions, m, undefined) {
+// 	'use strict';
+// 	c.SeekerCanvas = function(id, width, height, seekType) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 		this.seekType = seekType;
+// 	};
+// 	let _ = c.SeekerCanvas.prototype = new c._SpectrumCanvas();
+// 	_.superRepaint = _.innerRepaint;
+// 	_.innerRepaint = function(ctx) {
+// 		this.superRepaint(ctx);
+// 		if (this.spectrum && this.spectrum.data.length > 0 && this.p) {
+// 			// set up coords
+// 			let renderP;
+// 			let internalP;
+// 			if (this.seekType === c.SeekerCanvas.SEEK_POINTER) {
+// 				renderP = this.p;
+// 				internalP = this.spectrum.getInternalCoordinates(renderP.x, renderP.y);
+// 			} else if (this.seekType === c.SeekerCanvas.SEEK_PLOT || this.seekType === c.SeekerCanvas.SEEK_PEAK) {
+// 				internalP = this.seekType === c.SeekerCanvas.SEEK_PLOT ? this.spectrum.getClosestPlotInternalCoordinates(this.p.x) : this.spectrum.getClosestPeakInternalCoordinates(this.p.x);
+// 				if (!internalP) {
+// 					return;
+// 				}
+// 				renderP = {
+// 					x : this.spectrum.getTransformedX(internalP.x, this.styles, this.width, this.spectrum.memory.offsetLeft),
+// 					y : this.spectrum.getTransformedY(internalP.y / 100, this.styles, this.height, this.spectrum.memory.offsetBottom, this.spectrum.memory.offsetTop)
+// 				};
+// 			}
+// 			// draw point
+// 			ctx.fillStyle = 'white';
+// 			ctx.strokeStyle = this.styles.plots_color;
+// 			ctx.lineWidth = this.styles.plots_width;
+// 			ctx.beginPath();
+// 			ctx.arc(renderP.x, renderP.y, 3, 0, m.PI * 2, false);
+// 			ctx.fill();
+// 			ctx.stroke();
+// 			// draw internal coordinates
+// 			ctx.font = extensions.getFontString(this.styles.text_font_size, this.styles.text_font_families);
+// 			ctx.textAlign = 'left';
+// 			ctx.textBaseline = 'bottom';
+// 			let s = 'x:' + internalP.x.toFixed(3) + ', y:' + internalP.y.toFixed(3);
+// 			let x = renderP.x + 3;
+// 			let w = ctx.measureText(s).width;
+// 			if (x + w > this.width - 2) {
+// 				x -= 6 + w;
+// 			}
+// 			let y = renderP.y;
+// 			if (y - this.styles.text_font_size - 2 < 0) {
+// 				y += this.styles.text_font_size;
+// 			}
+// 			ctx.fillRect(x, y - this.styles.text_font_size, w, this.styles.text_font_size);
+// 			ctx.fillStyle = 'black';
+// 			ctx.fillText(s, x, y);
+// 		}
+// 	};
+// 	_.mouseout = function(e) {
+// 		this.p = undefined;
+// 		this.repaint();
+// 	};
+// 	_.mousemove = function(e) {
+// 		this.p = {
+// 			x : e.p.x - 2,
+// 			y : e.p.y - 3
+// 		};
+// 		this.repaint();
+// 	};
+// 	_.touchstart = function(e) {
+// 		this.mousemove(e);
+// 	};
+// 	_.touchmove = function(e) {
+// 		this.mousemove(e);
+// 	};
+// 	_.touchend = function(e) {
+// 		this.mouseout(e);
+// 	};
+// 	c.SeekerCanvas.SEEK_POINTER = 'pointer';
+// 	c.SeekerCanvas.SEEK_PLOT = 'plot';
+// 	c.SeekerCanvas.SEEK_PEAK = 'peak';
+//
+// })(ChemDoodle, ChemDoodle.extensions, Math);
 
-})(ChemDoodle);
-
-(function(c, monitor, m, undefined) {
-	'use strict';
-	c.PerspectiveCanvas = function(id, width, height) {
-		if (id) {
-			this.create(id, width, height);
-		}
-	};
-	let _ = c.PerspectiveCanvas.prototype = new c._SpectrumCanvas();
-	_.dragRange = undefined;
-	_.rescaleYAxisOnZoom = true;
-	_.lastPinchScale = 1;
-	_.mousedown = function(e) {
-		this.dragRange = new c.structures.Point(e.p.x, e.p.x);
-	};
-	_.mouseup = function(e) {
-		if (this.dragRange && this.dragRange.x !== this.dragRange.y) {
-			if (!this.dragRange.multi) {
-				let newScale = this.spectrum.zoom(this.dragRange.x, e.p.x, this.width, this.rescaleYAxisOnZoom);
-				if (this.rescaleYAxisOnZoom) {
-					this.styles.scale = newScale;
-				}
-			}
-			this.dragRange = undefined;
-			this.repaint();
-		}
-	};
-	_.drag = function(e) {
-		if (this.dragRange) {
-			if (this.dragRange.multi) {
-				this.dragRange = undefined;
-			} else if (monitor.SHIFT) {
-				this.spectrum.translate(e.p.x - this.dragRange.x, this.width);
-				this.dragRange.x = e.p.x;
-				this.dragRange.y = e.p.x;
-			} else {
-				this.dragRange.y = e.p.x;
-			}
-			this.repaint();
-		}
-	};
-	_.drawChildExtras = function(ctx) {
-		if (this.dragRange) {
-			let xs = m.min(this.dragRange.x, this.dragRange.y);
-			let xe = m.max(this.dragRange.x, this.dragRange.y);
-			ctx.strokeStyle = 'gray';
-			ctx.lineStyle = 1;
-			ctx.beginPath();
-			ctx.moveTo(xs, this.height / 2);
-			for ( let i = xs; i <= xe; i++) {
-				if (i % 10 < 5) {
-					ctx.lineTo(i, m.round(this.height / 2));
-				} else {
-					ctx.moveTo(i, m.round(this.height / 2));
-				}
-			}
-			ctx.stroke();
-		}
-	};
-	_.mousewheel = function(e, delta) {
-		this.styles.scale -= delta / 10;
-		if (this.styles.scale < .01) {
-			this.styles.scale = .01;
-		}
-		this.repaint();
-	};
-	_.dblclick = function(e) {
-		this.spectrum.setup();
-		this.styles.scale = 1;
-		this.repaint();
-	};
-	_.multitouchmove = function(e, numFingers) {
-		if (numFingers === 2) {
-			if (!this.dragRange || !this.dragRange.multi) {
-				this.dragRange = new c.structures.Point(e.p.x, e.p.x);
-				this.dragRange.multi = true;
-			} else {
-				this.spectrum.translate(e.p.x - this.dragRange.x, this.width);
-				this.dragRange.x = e.p.x;
-				this.dragRange.y = e.p.x;
-				this.repaint();
-			}
-		}
-	};
-	_.gesturechange = function(e) {
-		this.styles.scale *= e.originalEvent.scale / this.lastPinchScale;
-		if (this.styles.scale < .01) {
-			this.styles.scale = .01;
-		}
-		this.lastPinchScale = e.originalEvent.scale;
-		this.repaint();
-	};
-	_.gestureend = function(e) {
-		this.lastPinchScale = 1;
-	};
-
-})(ChemDoodle, ChemDoodle.monitor, Math);
-
-(function(c, extensions, m, undefined) {
-	'use strict';
-	c.SeekerCanvas = function(id, width, height, seekType) {
-		if (id) {
-			this.create(id, width, height);
-		}
-		this.seekType = seekType;
-	};
-	let _ = c.SeekerCanvas.prototype = new c._SpectrumCanvas();
-	_.superRepaint = _.innerRepaint;
-	_.innerRepaint = function(ctx) {
-		this.superRepaint(ctx);
-		if (this.spectrum && this.spectrum.data.length > 0 && this.p) {
-			// set up coords
-			let renderP;
-			let internalP;
-			if (this.seekType === c.SeekerCanvas.SEEK_POINTER) {
-				renderP = this.p;
-				internalP = this.spectrum.getInternalCoordinates(renderP.x, renderP.y);
-			} else if (this.seekType === c.SeekerCanvas.SEEK_PLOT || this.seekType === c.SeekerCanvas.SEEK_PEAK) {
-				internalP = this.seekType === c.SeekerCanvas.SEEK_PLOT ? this.spectrum.getClosestPlotInternalCoordinates(this.p.x) : this.spectrum.getClosestPeakInternalCoordinates(this.p.x);
-				if (!internalP) {
-					return;
-				}
-				renderP = {
-					x : this.spectrum.getTransformedX(internalP.x, this.styles, this.width, this.spectrum.memory.offsetLeft),
-					y : this.spectrum.getTransformedY(internalP.y / 100, this.styles, this.height, this.spectrum.memory.offsetBottom, this.spectrum.memory.offsetTop)
-				};
-			}
-			// draw point
-			ctx.fillStyle = 'white';
-			ctx.strokeStyle = this.styles.plots_color;
-			ctx.lineWidth = this.styles.plots_width;
-			ctx.beginPath();
-			ctx.arc(renderP.x, renderP.y, 3, 0, m.PI * 2, false);
-			ctx.fill();
-			ctx.stroke();
-			// draw internal coordinates
-			ctx.font = extensions.getFontString(this.styles.text_font_size, this.styles.text_font_families);
-			ctx.textAlign = 'left';
-			ctx.textBaseline = 'bottom';
-			let s = 'x:' + internalP.x.toFixed(3) + ', y:' + internalP.y.toFixed(3);
-			let x = renderP.x + 3;
-			let w = ctx.measureText(s).width;
-			if (x + w > this.width - 2) {
-				x -= 6 + w;
-			}
-			let y = renderP.y;
-			if (y - this.styles.text_font_size - 2 < 0) {
-				y += this.styles.text_font_size;
-			}
-			ctx.fillRect(x, y - this.styles.text_font_size, w, this.styles.text_font_size);
-			ctx.fillStyle = 'black';
-			ctx.fillText(s, x, y);
-		}
-	};
-	_.mouseout = function(e) {
-		this.p = undefined;
-		this.repaint();
-	};
-	_.mousemove = function(e) {
-		this.p = {
-			x : e.p.x - 2,
-			y : e.p.y - 3
-		};
-		this.repaint();
-	};
-	_.touchstart = function(e) {
-		this.mousemove(e);
-	};
-	_.touchmove = function(e) {
-		this.mousemove(e);
-	};
-	_.touchend = function(e) {
-		this.mouseout(e);
-	};
-	c.SeekerCanvas.SEEK_POINTER = 'pointer';
-	c.SeekerCanvas.SEEK_PLOT = 'plot';
-	c.SeekerCanvas.SEEK_PEAK = 'peak';
-
-})(ChemDoodle, ChemDoodle.extensions, Math);
-
-(function(c, extensions, math, document, undefined) {
-	'use strict';
-	function PeriodicCell(element, x, y, dimension) {
-		this.element = element;
-		this.x = x;
-		this.y = y;
-		this.dimension = dimension;
-		this.allowMultipleSelections = false;
-	}
-
-	c.PeriodicTableCanvas = function(id, cellDimension) {
-		this.padding = 5;
-		if (id) {
-			this.create(id, cellDimension * 18 + this.padding * 2, cellDimension * 10 + this.padding * 2);
-		}
-		this.cellDimension = cellDimension ? cellDimension : 20;
-		this.setupTable();
-		this.repaint();
-	};
-	let _ = c.PeriodicTableCanvas.prototype = new c._Canvas();
-	_.loadMolecule = undefined;
-	_.getMolecule = undefined;
-	_.getHoveredElement = function() {
-		if (this.hovered) {
-			return this.hovered.element;
-		}
-		return undefined;
-	};
-	_.innerRepaint = function(ctx) {
-		for ( let i = 0, ii = this.cells.length; i < ii; i++) {
-			this.drawCell(ctx, this.styles, this.cells[i]);
-		}
-		if (this.hovered) {
-			this.drawCell(ctx, this.styles, this.hovered);
-		}
-		if (this.selected) {
-			this.drawCell(ctx, this.styles, this.selected);
-		}
-	};
-	_.setupTable = function() {
-		this.cells = [];
-		let x = this.padding;
-		let y = this.padding;
-		let count = 0;
-		for ( let i = 0, ii = c.SYMBOLS.length; i < ii; i++) {
-			if (count === 18) {
-				count = 0;
-				y += this.cellDimension;
-				x = this.padding;
-			}
-			let e = c.ELEMENT[c.SYMBOLS[i]];
-			if (e.atomicNumber === 2) {
-				x += 16 * this.cellDimension;
-				count += 16;
-			} else if (e.atomicNumber === 5 || e.atomicNumber === 13) {
-				x += 10 * this.cellDimension;
-				count += 10;
-			}
-			if ((e.atomicNumber < 58 || e.atomicNumber > 71 && e.atomicNumber < 90 || e.atomicNumber > 103) && e.atomicNumber <= 118) {
-				this.cells.push(new PeriodicCell(e, x, y, this.cellDimension));
-				x += this.cellDimension;
-				count++;
-			}
-		}
-		y += 2 * this.cellDimension;
-		x = 3 * this.cellDimension + this.padding;
-		for ( let i = 57; i < 104; i++) {
-			let e = c.ELEMENT[c.SYMBOLS[i]];
-			if (e.atomicNumber === 90) {
-				y += this.cellDimension;
-				x = 3 * this.cellDimension + this.padding;
-			}
-			if (e.atomicNumber >= 58 && e.atomicNumber <= 71 || e.atomicNumber >= 90 && e.atomicNumber <= 103) {
-				this.cells.push(new PeriodicCell(e, x, y, this.cellDimension));
-				x += this.cellDimension;
-			}
-		}
-	};
-	_.drawCell = function(ctx, styles, cell) {
-		let radgrad = ctx.createRadialGradient(cell.x + cell.dimension / 3, cell.y + cell.dimension / 3, cell.dimension * 1.5, cell.x + cell.dimension / 3, cell.y + cell.dimension / 3, cell.dimension / 10);
-		radgrad.addColorStop(0, '#000000');
-		radgrad.addColorStop(.7, cell.element.jmolColor);
-		radgrad.addColorStop(1, '#FFFFFF');
-		ctx.fillStyle = radgrad;
-		extensions.contextRoundRect(ctx, cell.x, cell.y, cell.dimension, cell.dimension, cell.dimension / 8);
-		if (cell === this.hovered || cell === this.selected || cell.selected) {
-			ctx.lineWidth = 2;
-			ctx.strokeStyle = '#c10000';
-			ctx.stroke();
-			ctx.fillStyle = 'white';
-		}
-		ctx.fill();
-		ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
-		ctx.fillStyle = styles.text_color;
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		ctx.fillText(cell.element.symbol, cell.x + cell.dimension / 2, cell.y + cell.dimension / 2);
-	};
-	_.click = function(e) {
-		if (this.hovered) {
-			if(this.allowMultipleSelections){
-				this.hovered.selected = !this.hovered.selected;
-			}else{
-				this.selected = this.hovered;
-			}
-			this.repaint();
-		}
-	};
-	_.touchstart = function(e){
-		// try to hover an element
-		this.mousemove(e);
-	};
-	_.mousemove = function(e) {
-		let x = e.p.x;
-		let y = e.p.y;
-		this.hovered = undefined;
-		for ( let i = 0, ii = this.cells.length; i < ii; i++) {
-			let c = this.cells[i];
-			if (math.isBetween(x, c.x, c.x + c.dimension) && math.isBetween(y, c.y, c.y + c.dimension)) {
-				this.hovered = c;
-				break;
-			}
-		}
-		this.repaint();
-	};
-	_.mouseout = function(e) {
-		this.hovered = undefined;
-		this.repaint();
-	};
-
-})(ChemDoodle, ChemDoodle.extensions, ChemDoodle.math, document);
+// (function(c, extensions, math, document, undefined) {
+// 	'use strict';
+// 	function PeriodicCell(element, x, y, dimension) {
+// 		this.element = element;
+// 		this.x = x;
+// 		this.y = y;
+// 		this.dimension = dimension;
+// 		this.allowMultipleSelections = false;
+// 	}
+//
+// 	c.PeriodicTableCanvas = function(id, cellDimension) {
+// 		this.padding = 5;
+// 		if (id) {
+// 			this.create(id, cellDimension * 18 + this.padding * 2, cellDimension * 10 + this.padding * 2);
+// 		}
+// 		this.cellDimension = cellDimension ? cellDimension : 20;
+// 		this.setupTable();
+// 		this.repaint();
+// 	};
+// 	let _ = c.PeriodicTableCanvas.prototype = new c._Canvas();
+// 	_.loadMolecule = undefined;
+// 	_.getMolecule = undefined;
+// 	_.getHoveredElement = function() {
+// 		if (this.hovered) {
+// 			return this.hovered.element;
+// 		}
+// 		return undefined;
+// 	};
+// 	_.innerRepaint = function(ctx) {
+// 		for ( let i = 0, ii = this.cells.length; i < ii; i++) {
+// 			this.drawCell(ctx, this.styles, this.cells[i]);
+// 		}
+// 		if (this.hovered) {
+// 			this.drawCell(ctx, this.styles, this.hovered);
+// 		}
+// 		if (this.selected) {
+// 			this.drawCell(ctx, this.styles, this.selected);
+// 		}
+// 	};
+// 	_.setupTable = function() {
+// 		this.cells = [];
+// 		let x = this.padding;
+// 		let y = this.padding;
+// 		let count = 0;
+// 		for ( let i = 0, ii = c.SYMBOLS.length; i < ii; i++) {
+// 			if (count === 18) {
+// 				count = 0;
+// 				y += this.cellDimension;
+// 				x = this.padding;
+// 			}
+// 			let e = c.ELEMENT[c.SYMBOLS[i]];
+// 			if (e.atomicNumber === 2) {
+// 				x += 16 * this.cellDimension;
+// 				count += 16;
+// 			} else if (e.atomicNumber === 5 || e.atomicNumber === 13) {
+// 				x += 10 * this.cellDimension;
+// 				count += 10;
+// 			}
+// 			if ((e.atomicNumber < 58 || e.atomicNumber > 71 && e.atomicNumber < 90 || e.atomicNumber > 103) && e.atomicNumber <= 118) {
+// 				this.cells.push(new PeriodicCell(e, x, y, this.cellDimension));
+// 				x += this.cellDimension;
+// 				count++;
+// 			}
+// 		}
+// 		y += 2 * this.cellDimension;
+// 		x = 3 * this.cellDimension + this.padding;
+// 		for ( let i = 57; i < 104; i++) {
+// 			let e = c.ELEMENT[c.SYMBOLS[i]];
+// 			if (e.atomicNumber === 90) {
+// 				y += this.cellDimension;
+// 				x = 3 * this.cellDimension + this.padding;
+// 			}
+// 			if (e.atomicNumber >= 58 && e.atomicNumber <= 71 || e.atomicNumber >= 90 && e.atomicNumber <= 103) {
+// 				this.cells.push(new PeriodicCell(e, x, y, this.cellDimension));
+// 				x += this.cellDimension;
+// 			}
+// 		}
+// 	};
+// 	_.drawCell = function(ctx, styles, cell) {
+// 		let radgrad = ctx.createRadialGradient(cell.x + cell.dimension / 3, cell.y + cell.dimension / 3, cell.dimension * 1.5, cell.x + cell.dimension / 3, cell.y + cell.dimension / 3, cell.dimension / 10);
+// 		radgrad.addColorStop(0, '#000000');
+// 		radgrad.addColorStop(.7, cell.element.jmolColor);
+// 		radgrad.addColorStop(1, '#FFFFFF');
+// 		ctx.fillStyle = radgrad;
+// 		extensions.contextRoundRect(ctx, cell.x, cell.y, cell.dimension, cell.dimension, cell.dimension / 8);
+// 		if (cell === this.hovered || cell === this.selected || cell.selected) {
+// 			ctx.lineWidth = 2;
+// 			ctx.strokeStyle = '#c10000';
+// 			ctx.stroke();
+// 			ctx.fillStyle = 'white';
+// 		}
+// 		ctx.fill();
+// 		ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families);
+// 		ctx.fillStyle = styles.text_color;
+// 		ctx.textAlign = 'center';
+// 		ctx.textBaseline = 'middle';
+// 		ctx.fillText(cell.element.symbol, cell.x + cell.dimension / 2, cell.y + cell.dimension / 2);
+// 	};
+// 	_.click = function(e) {
+// 		if (this.hovered) {
+// 			if(this.allowMultipleSelections){
+// 				this.hovered.selected = !this.hovered.selected;
+// 			}else{
+// 				this.selected = this.hovered;
+// 			}
+// 			this.repaint();
+// 		}
+// 	};
+// 	_.touchstart = function(e){
+// 		// try to hover an element
+// 		this.mousemove(e);
+// 	};
+// 	_.mousemove = function(e) {
+// 		let x = e.p.x;
+// 		let y = e.p.y;
+// 		this.hovered = undefined;
+// 		for ( let i = 0, ii = this.cells.length; i < ii; i++) {
+// 			let c = this.cells[i];
+// 			if (math.isBetween(x, c.x, c.x + c.dimension) && math.isBetween(y, c.y, c.y + c.dimension)) {
+// 				this.hovered = c;
+// 				break;
+// 			}
+// 		}
+// 		this.repaint();
+// 	};
+// 	_.mouseout = function(e) {
+// 		this.hovered = undefined;
+// 		this.repaint();
+// 	};
+//
+// })(ChemDoodle, ChemDoodle.extensions, ChemDoodle.math, document);
