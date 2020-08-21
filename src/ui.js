@@ -7262,6 +7262,7 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 	//tools.Lasso.MODE_LASSO_SHAPES = 'shapes';
 	//tools.Lasso.MODE_RECTANGLE_MARQUEE = 'rectangle';
 	let _ = tools.Lasso.prototype;
+
 	_.select = function(atoms, shapes) {
 		if (this.block) {
 			return;

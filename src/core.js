@@ -5327,12 +5327,12 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		colorError:'#c10000',
 		colorPreview:'#cbcbcb',
 
-		// hover selection
+		// hover, selection
 		colorHover:'#0060B2',
 		colorSelect:'rgba(0,96,178,0.3)',
 		hover_lineWidth: 0.7,
 		lasso_lineWidth: 1,
-		atoms_selectRadius:6,
+		atoms_selectRadius:8,
 
 		// 3D shaders
 		// default ssao
@@ -5394,7 +5394,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 		bonds_width_2D:1.5,
 		bonds_useAbsoluteSaturationWidths_2D:true,
 		bonds_saturationWidth_2D:.2,
-		bonds_saturationWidthAbs_2D:5,
+		bonds_saturationWidthAbs_2D:3.5,
 		bonds_ends_2D:'round',
 		bonds_splitColor:false,
 		bonds_colorGradient:false,
@@ -5557,6 +5557,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
 	};
 
 })(ChemDoodle, ChemDoodle.structures, Math, JSON, Object);
+
 (function(c, ELEMENT, informatics, structures, undefined) {
 	'use strict';
 	informatics.getPointsPerAngstrom = function() {
