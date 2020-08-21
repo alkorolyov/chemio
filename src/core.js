@@ -25,9 +25,6 @@ let ChemDoodle = (function() {
 })();
 
 
-// Attach external jQuery
-ChemDoodle.lib.jQuery = {};
-
 // ChemDoodle.animations = (function(window, undefined) {
 // 	'use strict';
 // 	let ext = {};
@@ -1178,179 +1175,179 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(ChemDoodle.structures, Math);
 
-(function(extensions, structures, m, undefined) {
-	'use strict';
-
-	let COMMA_SPACE_REGEX = /[ ,]+/;
-	let COMMA_DASH_REGEX = /\-+/;
-	let FONTS = [ 'Helvetica', 'Arial', 'Dialog' ];
-
-	structures.Query = function(type) {
-		this.type = type;
-		// atom properties
-		this.elements = {v:[],not:false};
-		this.charge = undefined;
-		this.chirality = undefined;
-		this.connectivity = undefined;
-		this.connectivityNoH = undefined;
-		this.hydrogens = undefined;
-		this.saturation = undefined;
-		// bond properties
-		this.orders = {v:[],not:false};
-		this.stereo = undefined;
-		// generic properties
-		this.aromatic = undefined;
-		this.ringCount = undefined;
-		// cache the string value
-		this.cache = undefined;
-	};
-	structures.Query.TYPE_ATOM = 0;
-	structures.Query.TYPE_BOND = 1;
-	let _ = structures.Query.prototype;
-	_.parseRange = function(range){
-		let points = [];
-		let splits = range.split(COMMA_SPACE_REGEX);
-		for(let i = 0, ii = splits.length; i<ii; i++){
-			let t = splits[i];
-			let neg = false;
-			let neg2 = false;
-			if(t.charAt(0)==='-'){
-				neg = true;
-				t = t.substring(1);
-			}
-			if (t.indexOf('--')!=-1) {
-				neg2 = true;
-			}
-			if (t.indexOf('-')!=-1) {
-				let parts = t.split(COMMA_DASH_REGEX);
-				let p = {x:parseInt(parts[0]) * (neg ? -1 : 1),y:parseInt(parts[1]) * (neg2 ? -1 : 1)};
-				if (p.y < p.x) {
-					let tmp = p.y;
-					p.y = p.x;
-					p.x = tmp;
-				}
-				points.push(p);
-			} else {
-				points.push({x:parseInt(t) * (neg ? -1 : 1)});
-			}
-		}
-		return points;
-	};
-	_.draw = function(ctx, styles, pos) {
-		if(!this.cache){
-			this.cache = this.toString();
-		}
-		let top = this.cache;
-		let bottom = undefined;
-		let split = top.indexOf('(');
-		if(split!=-1){
-			top = this.cache.substring(0, split);
-			bottom = this.cache.substring(split, this.cache.length);
-		}
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		ctx.font = extensions.getFontString(12, FONTS, true, false);
-		let tw = ctx.measureText(top).width;
-		ctx.fillStyle = styles.backgroundColor;
-		ctx.fillRect(pos.x-tw/2, pos.y-6, tw, 12);
-		ctx.fillStyle = 'black';
-		ctx.fillText(top, pos.x, pos.y);
-		if(bottom){
-			ctx.font = extensions.getFontString(10, FONTS, false, true);
-			tw = ctx.measureText(bottom).width;
-			ctx.fillStyle = styles.backgroundColor;
-			ctx.fillRect(pos.x-tw/2, pos.y+6, tw, 11);
-			ctx.fillStyle = 'black';
-			ctx.fillText(bottom, pos.x, pos.y+11);
-		}
-	};
-	_.outputRange = function(array){
-		let comma = false;
-		let sb = [];
-		for(let i = 0, ii = array.length; i<ii; i++){
-			if(comma){
-				sb.push(',');
-			}
-			comma = true;
-			let p = array[i];
-			if(p.y){
-				sb.push(p.x);
-				sb.push('-');
-				sb.push(p.y);
-			}else{
-				sb.push(p.x);
-			}
-		}
-		return sb.join('');
-	};
-	_.toString = function() {
-		let sb = [];
-		let attributes = [];
-		if(this.type===structures.Query.TYPE_ATOM){
-			if(!this.elements || this.elements.v.length===0){
-				sb.push('[a]');
-			}else{
-				if(this.elements.not){
-					sb.push('!');
-				}
-				sb.push('[');
-				sb.push(this.elements.v.join(','));
-				sb.push(']');
-			}
-			if(this.chirality){
-				attributes.push((this.chirality.not?'!':'')+'@='+this.chirality.v);
-			}
-			if(this.aromatic){
-				attributes.push((this.aromatic.not?'!':'')+'A');
-			}
-			if(this.charge){
-				attributes.push((this.charge.not?'!':'')+'C='+this.outputRange(this.charge.v));
-			}
-			if(this.hydrogens){
-				attributes.push((this.hydrogens.not?'!':'')+'H='+this.outputRange(this.hydrogens.v));
-			}
-			if(this.ringCount){
-				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
-			}
-			if(this.saturation){
-				attributes.push((this.saturation.not?'!':'')+'S');
-			}
-			if(this.connectivity){
-				attributes.push((this.connectivity.not?'!':'')+'X='+this.outputRange(this.connectivity.v));
-			}
-			if(this.connectivityNoH){
-				attributes.push((this.connectivityNoH.not?'!':'')+'x='+this.outputRange(this.connectivityNoH.v));
-			}
-		}else if(this.type===structures.Query.TYPE_BOND){
-			if(!this.orders || this.orders.v.length===0){
-				sb.push('[a]');
-			}else{
-				if(this.orders.not){
-					sb.push('!');
-				}
-				sb.push('[');
-				sb.push(this.orders.v.join(','));
-				sb.push(']');
-			}
-			if(this.stereo){
-				attributes.push((this.stereo.not?'!':'')+'@='+this.stereo.v);
-			}
-			if(this.aromatic){
-				attributes.push((this.aromatic.not?'!':'')+'A');
-			}
-			if(this.ringCount){
-				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
-			}
-		}
-		if(attributes.length>0){
-			sb.push('(');
-			sb.push(attributes.join(','));
-			sb.push(')');
-		}
-		return sb.join('');
-	};
-
-})(ChemDoodle.extensions, ChemDoodle.structures, Math);
+// (function(extensions, structures, m, undefined) {
+// 	'use strict';
+//
+// 	let COMMA_SPACE_REGEX = /[ ,]+/;
+// 	let COMMA_DASH_REGEX = /\-+/;
+// 	let FONTS = [ 'Helvetica', 'Arial', 'Dialog' ];
+//
+// 	structures.Query = function(type) {
+// 		this.type = type;
+// 		// atom properties
+// 		this.elements = {v:[],not:false};
+// 		this.charge = undefined;
+// 		this.chirality = undefined;
+// 		this.connectivity = undefined;
+// 		this.connectivityNoH = undefined;
+// 		this.hydrogens = undefined;
+// 		this.saturation = undefined;
+// 		// bond properties
+// 		this.orders = {v:[],not:false};
+// 		this.stereo = undefined;
+// 		// generic properties
+// 		this.aromatic = undefined;
+// 		this.ringCount = undefined;
+// 		// cache the string value
+// 		this.cache = undefined;
+// 	};
+// 	structures.Query.TYPE_ATOM = 0;
+// 	structures.Query.TYPE_BOND = 1;
+// 	let _ = structures.Query.prototype;
+// 	_.parseRange = function(range){
+// 		let points = [];
+// 		let splits = range.split(COMMA_SPACE_REGEX);
+// 		for(let i = 0, ii = splits.length; i<ii; i++){
+// 			let t = splits[i];
+// 			let neg = false;
+// 			let neg2 = false;
+// 			if(t.charAt(0)==='-'){
+// 				neg = true;
+// 				t = t.substring(1);
+// 			}
+// 			if (t.indexOf('--')!=-1) {
+// 				neg2 = true;
+// 			}
+// 			if (t.indexOf('-')!=-1) {
+// 				let parts = t.split(COMMA_DASH_REGEX);
+// 				let p = {x:parseInt(parts[0]) * (neg ? -1 : 1),y:parseInt(parts[1]) * (neg2 ? -1 : 1)};
+// 				if (p.y < p.x) {
+// 					let tmp = p.y;
+// 					p.y = p.x;
+// 					p.x = tmp;
+// 				}
+// 				points.push(p);
+// 			} else {
+// 				points.push({x:parseInt(t) * (neg ? -1 : 1)});
+// 			}
+// 		}
+// 		return points;
+// 	};
+// 	_.draw = function(ctx, styles, pos) {
+// 		if(!this.cache){
+// 			this.cache = this.toString();
+// 		}
+// 		let top = this.cache;
+// 		let bottom = undefined;
+// 		let split = top.indexOf('(');
+// 		if(split!=-1){
+// 			top = this.cache.substring(0, split);
+// 			bottom = this.cache.substring(split, this.cache.length);
+// 		}
+// 		ctx.textAlign = 'center';
+// 		ctx.textBaseline = 'middle';
+// 		ctx.font = extensions.getFontString(12, FONTS, true, false);
+// 		let tw = ctx.measureText(top).width;
+// 		ctx.fillStyle = styles.backgroundColor;
+// 		ctx.fillRect(pos.x-tw/2, pos.y-6, tw, 12);
+// 		ctx.fillStyle = 'black';
+// 		ctx.fillText(top, pos.x, pos.y);
+// 		if(bottom){
+// 			ctx.font = extensions.getFontString(10, FONTS, false, true);
+// 			tw = ctx.measureText(bottom).width;
+// 			ctx.fillStyle = styles.backgroundColor;
+// 			ctx.fillRect(pos.x-tw/2, pos.y+6, tw, 11);
+// 			ctx.fillStyle = 'black';
+// 			ctx.fillText(bottom, pos.x, pos.y+11);
+// 		}
+// 	};
+// 	_.outputRange = function(array){
+// 		let comma = false;
+// 		let sb = [];
+// 		for(let i = 0, ii = array.length; i<ii; i++){
+// 			if(comma){
+// 				sb.push(',');
+// 			}
+// 			comma = true;
+// 			let p = array[i];
+// 			if(p.y){
+// 				sb.push(p.x);
+// 				sb.push('-');
+// 				sb.push(p.y);
+// 			}else{
+// 				sb.push(p.x);
+// 			}
+// 		}
+// 		return sb.join('');
+// 	};
+// 	_.toString = function() {
+// 		let sb = [];
+// 		let attributes = [];
+// 		if(this.type===structures.Query.TYPE_ATOM){
+// 			if(!this.elements || this.elements.v.length===0){
+// 				sb.push('[a]');
+// 			}else{
+// 				if(this.elements.not){
+// 					sb.push('!');
+// 				}
+// 				sb.push('[');
+// 				sb.push(this.elements.v.join(','));
+// 				sb.push(']');
+// 			}
+// 			if(this.chirality){
+// 				attributes.push((this.chirality.not?'!':'')+'@='+this.chirality.v);
+// 			}
+// 			if(this.aromatic){
+// 				attributes.push((this.aromatic.not?'!':'')+'A');
+// 			}
+// 			if(this.charge){
+// 				attributes.push((this.charge.not?'!':'')+'C='+this.outputRange(this.charge.v));
+// 			}
+// 			if(this.hydrogens){
+// 				attributes.push((this.hydrogens.not?'!':'')+'H='+this.outputRange(this.hydrogens.v));
+// 			}
+// 			if(this.ringCount){
+// 				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
+// 			}
+// 			if(this.saturation){
+// 				attributes.push((this.saturation.not?'!':'')+'S');
+// 			}
+// 			if(this.connectivity){
+// 				attributes.push((this.connectivity.not?'!':'')+'X='+this.outputRange(this.connectivity.v));
+// 			}
+// 			if(this.connectivityNoH){
+// 				attributes.push((this.connectivityNoH.not?'!':'')+'x='+this.outputRange(this.connectivityNoH.v));
+// 			}
+// 		}else if(this.type===structures.Query.TYPE_BOND){
+// 			if(!this.orders || this.orders.v.length===0){
+// 				sb.push('[a]');
+// 			}else{
+// 				if(this.orders.not){
+// 					sb.push('!');
+// 				}
+// 				sb.push('[');
+// 				sb.push(this.orders.v.join(','));
+// 				sb.push(']');
+// 			}
+// 			if(this.stereo){
+// 				attributes.push((this.stereo.not?'!':'')+'@='+this.stereo.v);
+// 			}
+// 			if(this.aromatic){
+// 				attributes.push((this.aromatic.not?'!':'')+'A');
+// 			}
+// 			if(this.ringCount){
+// 				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
+// 			}
+// 		}
+// 		if(attributes.length>0){
+// 			sb.push('(');
+// 			sb.push(attributes.join(','));
+// 			sb.push(')');
+// 		}
+// 		return sb.join('');
+// 	};
+//
+// })(ChemDoodle.extensions, ChemDoodle.structures, Math);
 
 (function (ELEMENT, extensions, math, structures, m, m4, undefined) {
 	'use strict';
@@ -3746,120 +3743,120 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(ChemDoodle, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.RESIDUE, Math);
 
-(function(structures, m, m4, v3, undefined) {
-	'use strict';
-	let SB;
-	let lastVerticalResolution = -1;
-
-	function setupMatrices(verticalResolution) {
-		let n2 = verticalResolution * verticalResolution;
-		let n3 = verticalResolution * verticalResolution * verticalResolution;
-		let S = [ 6 / n3, 0, 0, 0, 6 / n3, 2 / n2, 0, 0, 1 / n3, 1 / n2, 1 / verticalResolution, 0, 0, 0, 0, 1 ];
-		let Bm = [ -1 / 6, 1 / 2, -1 / 2, 1 / 6, 1 / 2, -1, 1 / 2, 0, -1 / 2, 0, 1 / 2, 0, 1 / 6, 2 / 3, 1 / 6, 0 ];
-		SB = m4.multiply(Bm, S, []);
-		lastVerticalResolution = verticalResolution;
-	}
-
-	structures.Residue = function(resSeq) {
-		// number of vertical slashes per segment
-		this.resSeq = resSeq;
-	};
-	let _ = structures.Residue.prototype;
-	_.setup = function(nextAlpha, horizontalResolution) {
-		this.horizontalResolution = horizontalResolution;
-		// define plane
-		let A = [ nextAlpha.x - this.cp1.x, nextAlpha.y - this.cp1.y, nextAlpha.z - this.cp1.z ];
-		let B = [ this.cp2.x - this.cp1.x, this.cp2.y - this.cp1.y, this.cp2.z - this.cp1.z ];
-		let C = v3.cross(A, B, []);
-		this.D = v3.cross(C, A, []);
-		v3.normalize(C);
-		v3.normalize(this.D);
-		// generate guide coordinates
-		// guides for the narrow parts of the ribbons
-		this.guidePointsSmall = [];
-		// guides for the wide parts of the ribbons
-		this.guidePointsLarge = [];
-		// guides for the ribbon part of helix as cylinder model
-		let P = [ (nextAlpha.x + this.cp1.x) / 2, (nextAlpha.y + this.cp1.y) / 2, (nextAlpha.z + this.cp1.z) / 2 ];
-		if (this.helix) {
-			// expand helices
-			v3.scale(C, 1.5);
-			v3.add(P, C);
-		}
-		this.guidePointsSmall[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
-		for ( let i = 1; i < horizontalResolution; i++) {
-			this.guidePointsSmall[i] = new structures.Atom('', this.guidePointsSmall[0].x + this.D[0] * i / horizontalResolution, this.guidePointsSmall[0].y + this.D[1] * i / horizontalResolution, this.guidePointsSmall[0].z + this.D[2] * i / horizontalResolution);
-		}
-		v3.scale(this.D, 4);
-		this.guidePointsLarge[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
-		for ( let i = 1; i < horizontalResolution; i++) {
-			this.guidePointsLarge[i] = new structures.Atom('', this.guidePointsLarge[0].x + this.D[0] * i / horizontalResolution, this.guidePointsLarge[0].y + this.D[1] * i / horizontalResolution, this.guidePointsLarge[0].z + this.D[2] * i / horizontalResolution);
-		}
-	};
-	_.getGuidePointSet = function(type) {
-		if (type === 0) {
-			return this.helix || this.sheet ? this.guidePointsLarge : this.guidePointsSmall;
-		} else if (type === 1) {
-			return this.guidePointsSmall;
-		} else if (type === 2) {
-			return this.guidePointsLarge;
-		}
-	};
-	_.computeLineSegments = function(b2, b1, a1, doCartoon, verticalResolution) {
-		this.setVerticalResolution(verticalResolution);
-		this.split = a1.helix !== this.helix || a1.sheet !== this.sheet;
-		this.lineSegments = this.innerCompute(0, b2, b1, a1, false, verticalResolution);
-		if (doCartoon) {
-			this.lineSegmentsCartoon = this.innerCompute(this.helix || this.sheet ? 2 : 1, b2, b1, a1, true, verticalResolution);
-		}
-	};
-	_.innerCompute = function(set, b2, b1, a1, useArrows, verticalResolution) {
-		let segments = [];
-		let use = this.getGuidePointSet(set);
-		let useb2 = b2.getGuidePointSet(set);
-		let useb1 = b1.getGuidePointSet(set);
-		let usea1 = a1.getGuidePointSet(set);
-		for ( let l = 0, ll = use.length; l < ll; l++) {
-			let G = [ useb2[l].x, useb2[l].y, useb2[l].z, 1, useb1[l].x, useb1[l].y, useb1[l].z, 1, use[l].x, use[l].y, use[l].z, 1, usea1[l].x, usea1[l].y, usea1[l].z, 1 ];
-			let M = m4.multiply(G, SB, []);
-			let strand = [];
-			for ( let k = 0; k < verticalResolution; k++) {
-				for ( let i = 3; i > 0; i--) {
-					for ( let j = 0; j < 4; j++) {
-						M[i * 4 + j] += M[(i - 1) * 4 + j];
-					}
-				}
-				strand[k] = new structures.Atom('', M[12] / M[15], M[13] / M[15], M[14] / M[15]);
-			}
-			segments[l] = strand;
-		}
-		if (useArrows && this.arrow) {
-			for ( let i = 0, ii = verticalResolution; i < ii; i++) {
-				let mult = 1.5 - 1.3 * i / verticalResolution;
-				let mid = m.floor(this.horizontalResolution / 2);
-				let center = segments[mid];
-				for ( let j = 0, jj = segments.length; j < jj; j++) {
-					if (j !== mid) {
-						let o = center[i];
-						let f = segments[j][i];
-						let vec = [ f.x - o.x, f.y - o.y, f.z - o.z ];
-						v3.scale(vec, mult);
-						f.x = o.x + vec[0];
-						f.y = o.y + vec[1];
-						f.z = o.z + vec[2];
-					}
-				}
-			}
-		}
-		return segments;
-	};
-	_.setVerticalResolution = function(verticalResolution) {
-		if (verticalResolution !== lastVerticalResolution) {
-			setupMatrices(verticalResolution);
-		}
-	};
-
-})(ChemDoodle.structures, Math, ChemDoodle.lib.mat4, ChemDoodle.lib.vec3);
+// (function(structures, m, m4, v3, undefined) {
+// 	'use strict';
+// 	let SB;
+// 	let lastVerticalResolution = -1;
+//
+// 	function setupMatrices(verticalResolution) {
+// 		let n2 = verticalResolution * verticalResolution;
+// 		let n3 = verticalResolution * verticalResolution * verticalResolution;
+// 		let S = [ 6 / n3, 0, 0, 0, 6 / n3, 2 / n2, 0, 0, 1 / n3, 1 / n2, 1 / verticalResolution, 0, 0, 0, 0, 1 ];
+// 		let Bm = [ -1 / 6, 1 / 2, -1 / 2, 1 / 6, 1 / 2, -1, 1 / 2, 0, -1 / 2, 0, 1 / 2, 0, 1 / 6, 2 / 3, 1 / 6, 0 ];
+// 		SB = m4.multiply(Bm, S, []);
+// 		lastVerticalResolution = verticalResolution;
+// 	}
+//
+// 	structures.Residue = function(resSeq) {
+// 		// number of vertical slashes per segment
+// 		this.resSeq = resSeq;
+// 	};
+// 	let _ = structures.Residue.prototype;
+// 	_.setup = function(nextAlpha, horizontalResolution) {
+// 		this.horizontalResolution = horizontalResolution;
+// 		// define plane
+// 		let A = [ nextAlpha.x - this.cp1.x, nextAlpha.y - this.cp1.y, nextAlpha.z - this.cp1.z ];
+// 		let B = [ this.cp2.x - this.cp1.x, this.cp2.y - this.cp1.y, this.cp2.z - this.cp1.z ];
+// 		let C = v3.cross(A, B, []);
+// 		this.D = v3.cross(C, A, []);
+// 		v3.normalize(C);
+// 		v3.normalize(this.D);
+// 		// generate guide coordinates
+// 		// guides for the narrow parts of the ribbons
+// 		this.guidePointsSmall = [];
+// 		// guides for the wide parts of the ribbons
+// 		this.guidePointsLarge = [];
+// 		// guides for the ribbon part of helix as cylinder model
+// 		let P = [ (nextAlpha.x + this.cp1.x) / 2, (nextAlpha.y + this.cp1.y) / 2, (nextAlpha.z + this.cp1.z) / 2 ];
+// 		if (this.helix) {
+// 			// expand helices
+// 			v3.scale(C, 1.5);
+// 			v3.add(P, C);
+// 		}
+// 		this.guidePointsSmall[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
+// 		for ( let i = 1; i < horizontalResolution; i++) {
+// 			this.guidePointsSmall[i] = new structures.Atom('', this.guidePointsSmall[0].x + this.D[0] * i / horizontalResolution, this.guidePointsSmall[0].y + this.D[1] * i / horizontalResolution, this.guidePointsSmall[0].z + this.D[2] * i / horizontalResolution);
+// 		}
+// 		v3.scale(this.D, 4);
+// 		this.guidePointsLarge[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
+// 		for ( let i = 1; i < horizontalResolution; i++) {
+// 			this.guidePointsLarge[i] = new structures.Atom('', this.guidePointsLarge[0].x + this.D[0] * i / horizontalResolution, this.guidePointsLarge[0].y + this.D[1] * i / horizontalResolution, this.guidePointsLarge[0].z + this.D[2] * i / horizontalResolution);
+// 		}
+// 	};
+// 	_.getGuidePointSet = function(type) {
+// 		if (type === 0) {
+// 			return this.helix || this.sheet ? this.guidePointsLarge : this.guidePointsSmall;
+// 		} else if (type === 1) {
+// 			return this.guidePointsSmall;
+// 		} else if (type === 2) {
+// 			return this.guidePointsLarge;
+// 		}
+// 	};
+// 	_.computeLineSegments = function(b2, b1, a1, doCartoon, verticalResolution) {
+// 		this.setVerticalResolution(verticalResolution);
+// 		this.split = a1.helix !== this.helix || a1.sheet !== this.sheet;
+// 		this.lineSegments = this.innerCompute(0, b2, b1, a1, false, verticalResolution);
+// 		if (doCartoon) {
+// 			this.lineSegmentsCartoon = this.innerCompute(this.helix || this.sheet ? 2 : 1, b2, b1, a1, true, verticalResolution);
+// 		}
+// 	};
+// 	_.innerCompute = function(set, b2, b1, a1, useArrows, verticalResolution) {
+// 		let segments = [];
+// 		let use = this.getGuidePointSet(set);
+// 		let useb2 = b2.getGuidePointSet(set);
+// 		let useb1 = b1.getGuidePointSet(set);
+// 		let usea1 = a1.getGuidePointSet(set);
+// 		for ( let l = 0, ll = use.length; l < ll; l++) {
+// 			let G = [ useb2[l].x, useb2[l].y, useb2[l].z, 1, useb1[l].x, useb1[l].y, useb1[l].z, 1, use[l].x, use[l].y, use[l].z, 1, usea1[l].x, usea1[l].y, usea1[l].z, 1 ];
+// 			let M = m4.multiply(G, SB, []);
+// 			let strand = [];
+// 			for ( let k = 0; k < verticalResolution; k++) {
+// 				for ( let i = 3; i > 0; i--) {
+// 					for ( let j = 0; j < 4; j++) {
+// 						M[i * 4 + j] += M[(i - 1) * 4 + j];
+// 					}
+// 				}
+// 				strand[k] = new structures.Atom('', M[12] / M[15], M[13] / M[15], M[14] / M[15]);
+// 			}
+// 			segments[l] = strand;
+// 		}
+// 		if (useArrows && this.arrow) {
+// 			for ( let i = 0, ii = verticalResolution; i < ii; i++) {
+// 				let mult = 1.5 - 1.3 * i / verticalResolution;
+// 				let mid = m.floor(this.horizontalResolution / 2);
+// 				let center = segments[mid];
+// 				for ( let j = 0, jj = segments.length; j < jj; j++) {
+// 					if (j !== mid) {
+// 						let o = center[i];
+// 						let f = segments[j][i];
+// 						let vec = [ f.x - o.x, f.y - o.y, f.z - o.z ];
+// 						v3.scale(vec, mult);
+// 						f.x = o.x + vec[0];
+// 						f.y = o.y + vec[1];
+// 						f.z = o.z + vec[2];
+// 					}
+// 				}
+// 			}
+// 		}
+// 		return segments;
+// 	};
+// 	_.setVerticalResolution = function(verticalResolution) {
+// 		if (verticalResolution !== lastVerticalResolution) {
+// 			setupMatrices(verticalResolution);
+// 		}
+// 	};
+//
+// })(ChemDoodle.structures, Math, ChemDoodle.lib.mat4, ChemDoodle.lib.vec3);
 
 /** Spectrum structure */
 // (function(extensions, structures, math, m, undefined) {
@@ -4890,227 +4887,227 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
-// (function(math, jsb, structures, d2, m, undefined) {
-// 	'use strict';
-// 	let getPossibleAngles = function(o) {
-// 		let as = [];
-// 		if (o instanceof structures.Atom) {
-// 			if (o.bondNumber === 0) {
-// 				as.push(m.PI);
-// 			} else if (o.angles) {
-// 				if (o.angles.length === 1) {
-// 					as.push(o.angles[0] + m.PI);
-// 				} else {
-// 					for ( let i = 1, ii = o.angles.length; i < ii; i++) {
-// 						as.push(o.angles[i - 1] + (o.angles[i] - o.angles[i - 1]) / 2);
-// 					}
-// 					let firstIncreased = o.angles[0] + m.PI * 2;
-// 					let last = o.angles[o.angles.length - 1];
-// 					as.push(last + (firstIncreased - last) / 2);
-// 				}
-// 				if (o.largestAngle > m.PI) {
-// 					// always use angle of least interfearence if it is greater
-// 					// than 120
-// 					as = [ o.angleOfLeastInterference ];
-// 				}
-// 				if (o.bonds) {
-// 					// point up towards a carbonyl
-// 					for ( let i = 0, ii = o.bonds.length; i < ii; i++) {
-// 						let b = o.bonds[i];
-// 						if (b.bondOrder === 2) {
-// 							let n = b.getNeighbor(o);
-// 							if (n.label === 'O') {
-// 								as = [ n.angle(o) ];
-// 								break;
-// 							}
-// 						}
-// 					}
-// 				}
-// 			}
-// 		} else {
-// 			let angle = o.a1.angle(o.a2);
-// 			as.push(angle + m.PI / 2);
-// 			as.push(angle + 3 * m.PI / 2);
-// 		}
-// 		for ( let i = 0, ii = as.length; i < ii; i++) {
-// 			while (as[i] > m.PI * 2) {
-// 				as[i] -= m.PI * 2;
-// 			}
-// 			while (as[i] < 0) {
-// 				as[i] += m.PI * 2;
-// 			}
-// 		}
-// 		return as;
-// 	};
-// 	let getPullBack = function(o, styles) {
-// 		let pullback = 3;
-// 		if (o instanceof structures.Atom) {
-// 			if (o.isLabelVisible(styles)) {
-// 				pullback = 8;
-// 			}
-// 			if (o.charge !== 0 || o.numRadical !== 0 || o.numLonePair !== 0) {
-// 				pullback = 13;
-// 			}
-// 		} else if (o instanceof structures.Point) {
-// 			// this is the midpoint of a bond forming pusher
-// 			pullback = 0;
-// 		} else {
-// 			if (o.bondOrder > 1) {
-// 				pullback = 5;
-// 			}
-// 		}
-// 		return pullback;
-// 	};
-// 	let drawPusher = function(ctx, styles, o1, o2, p1, c1, c2, p2, numElectron, caches) {
-// 		let angle1 = c1.angle(p1);
-// 		let angle2 = c2.angle(p2);
-// 		let mcosa = m.cos(angle1);
-// 		let msina = m.sin(angle1);
-// 		// pull back from start
-// 		let pullBack = getPullBack(o1, styles);
-// 		p1.x -= mcosa * pullBack;
-// 		p1.y += msina * pullBack;
-// 		// arrow
-// 		let perpendicular = angle2 + m.PI / 2;
-// 		let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-// 		mcosa = m.cos(angle2);
-// 		msina = m.sin(angle2);
-// 		let mcosp = m.cos(perpendicular);
-// 		let msinp = m.sin(perpendicular);
-// 		p2.x -= mcosa * 5;
-// 		p2.y += msina * 5;
-// 		let nap = new structures.Point(p2.x, p2.y);
-// 		// pull back from end
-// 		pullBack = getPullBack(o2, styles) / 3;
-// 		nap.x -= mcosa * pullBack;
-// 		nap.y += msina * pullBack;
-// 		p2.x -= mcosa * (retract * 0.8 + pullBack);
-// 		p2.y += msina * (retract * 0.8 + pullBack);
-// 		let rx1 = nap.x - mcosa * retract * 0.8;
-// 		let ry1 = nap.y + msina * retract * 0.8;
-// 		let a1 = new structures.Point(nap.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
-// 		let a2 = new structures.Point(nap.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
-// 		let include1 = true, include2 = true;
-// 		if (numElectron === 1) {
-// 			if (a1.distance(c1) > a2.distance(c1)) {
-// 				include2 = false;
-// 			} else {
-// 				include1 = false;
-// 			}
-// 		}
-// 		ctx.beginPath();
-// 		ctx.moveTo(nap.x, nap.y);
-// 		if (include2) {
-// 			ctx.lineTo(a2.x, a2.y);
-// 		}
-// 		ctx.lineTo(rx1, ry1);
-// 		if (include1) {
-// 			ctx.lineTo(a1.x, a1.y);
-// 		}
-// 		ctx.closePath();
-// 		ctx.fill();
-// 		ctx.stroke();
-// 		// bezier
-// 		ctx.beginPath();
-// 		ctx.moveTo(p1.x, p1.y);
-// 		ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
-// 		ctx.stroke();
-// 		caches.push([ p1, c1, c2, p2 ]);
-// 	};
-//
-// 	d2.Pusher = function(o1, o2, numElectron) {
-// 		this.o1 = o1;
-// 		this.o2 = o2;
-// 		this.numElectron = numElectron ? numElectron : 1;
-// 	};
-// 	let _ = d2.Pusher.prototype = new d2._Shape();
-// 	_.drawDecorations = function(ctx, styles) {
-// 		if (this.isHover) {
-// 			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
-// 			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
-// 			let ps = [ p1, p2 ];
-// 			for ( let i = 0, ii = ps.length; i < ii; i++) {
-// 				let p = ps[i];
-// 				this.drawAnchor(ctx, styles, p, p === this.hoverPoint);
-// 			}
-// 		}
-// 	};
-// 	_.draw = function(ctx, styles) {
-// 		if (this.o1 && this.o2) {
-// 			ctx.strokeStyle = styles.shapes_color;
-// 			ctx.fillStyle = styles.shapes_color;
-// 			ctx.lineWidth = styles.shapes_lineWidth;
-// 			ctx.lineJoin = 'miter';
-// 			ctx.lineCap = 'butt';
-// 			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
-// 			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
-// 			let controlDist = 35;
-// 			let as1 = getPossibleAngles(this.o1);
-// 			let as2 = getPossibleAngles(this.o2);
-// 			let c1, c2;
-// 			let minDif = Infinity;
-// 			for ( let i = 0, ii = as1.length; i < ii; i++) {
-// 				for ( let j = 0, jj = as2.length; j < jj; j++) {
-// 					let c1c = new structures.Point(p1.x + controlDist * m.cos(as1[i]), p1.y - controlDist * m.sin(as1[i]));
-// 					let c2c = new structures.Point(p2.x + controlDist * m.cos(as2[j]), p2.y - controlDist * m.sin(as2[j]));
-// 					let dif = c1c.distance(c2c);
-// 					if (dif < minDif) {
-// 						minDif = dif;
-// 						c1 = c1c;
-// 						c2 = c2c;
-// 					}
-// 				}
-// 			}
-// 			this.caches = [];
-// 			if (this.numElectron === -1) {
-// 				let dist = p1.distance(p2)/2;
-// 				let angle = p1.angle(p2);
-// 				let perp = angle+m.PI/2;
-// 				let mcosa = m.cos(angle);
-// 				let msina = m.sin(angle);
-// 				let m1 = new structures.Point(p1.x+(dist-1)*mcosa, p1.y-(dist-1)*msina);
-// 				let cm1 = new structures.Point(m1.x+m.cos(perp+m.PI/6)*controlDist, m1.y - m.sin(perp+m.PI/6)*controlDist);
-// 				let m2 = new structures.Point(p1.x+(dist+1)*mcosa, p1.y-(dist+1)*msina);
-// 				let cm2 = new structures.Point(m2.x+m.cos(perp-m.PI/6)*controlDist, m2.y - m.sin(perp-m.PI/6)*controlDist);
-// 				drawPusher(ctx, styles, this.o1, m1, p1, c1, cm1, m1, 1, this.caches);
-// 				drawPusher(ctx, styles, this.o2, m2, p2, c2, cm2, m2, 1, this.caches);
-// 			} else {
-// 				if (math.intersectLines(p1.x, p1.y, c1.x, c1.y, p2.x, p2.y, c2.x, c2.y)) {
-// 					let tmp = c1;
-// 					c1 = c2;
-// 					c2 = tmp;
-// 				}
-// 				// try to clean up problems, like loops
-// 				let angle1 = c1.angle(p1);
-// 				let angle2 = c2.angle(p2);
-// 				let angleDif = (m.max(angle1, angle2) - m.min(angle1, angle2));
-// 				if (m.abs(angleDif - m.PI) < .001 && this.o1.molCenter === this.o2.molCenter) {
-// 					// in the case where the control tangents are parallel
-// 					angle1 += m.PI / 2;
-// 					angle2 -= m.PI / 2;
-// 					c1.x = p1.x + controlDist * m.cos(angle1 + m.PI);
-// 					c1.y = p1.y - controlDist * m.sin(angle1 + m.PI);
-// 					c2.x = p2.x + controlDist * m.cos(angle2 + m.PI);
-// 					c2.y = p2.y - controlDist * m.sin(angle2 + m.PI);
-// 				}
-// 				drawPusher(ctx, styles, this.o1, this.o2, p1, c1, c2, p2, this.numElectron, this.caches);
-// 			}
-// 		}
-// 	};
-// 	_.getPoints = function() {
-// 		return [];
-// 	};
-// 	_.isOver = function(p, barrier) {
-// 		for ( let i = 0, ii = this.caches.length; i < ii; i++) {
-// 			let r = jsb.distanceFromCurve(p, this.caches[i]);
-// 			if (r.distance < barrier) {
-// 				return true;
-// 			}
-// 		}
-// 		return false;
-// 	};
-//
-// })(ChemDoodle.math, ChemDoodle.lib.jsBezier, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
+(function(math, jsb, structures, d2, m, undefined) {
+	'use strict';
+	let getPossibleAngles = function(o) {
+		let as = [];
+		if (o instanceof structures.Atom) {
+			if (o.bondNumber === 0) {
+				as.push(m.PI);
+			} else if (o.angles) {
+				if (o.angles.length === 1) {
+					as.push(o.angles[0] + m.PI);
+				} else {
+					for ( let i = 1, ii = o.angles.length; i < ii; i++) {
+						as.push(o.angles[i - 1] + (o.angles[i] - o.angles[i - 1]) / 2);
+					}
+					let firstIncreased = o.angles[0] + m.PI * 2;
+					let last = o.angles[o.angles.length - 1];
+					as.push(last + (firstIncreased - last) / 2);
+				}
+				if (o.largestAngle > m.PI) {
+					// always use angle of least interfearence if it is greater
+					// than 120
+					as = [ o.angleOfLeastInterference ];
+				}
+				if (o.bonds) {
+					// point up towards a carbonyl
+					for ( let i = 0, ii = o.bonds.length; i < ii; i++) {
+						let b = o.bonds[i];
+						if (b.bondOrder === 2) {
+							let n = b.getNeighbor(o);
+							if (n.label === 'O') {
+								as = [ n.angle(o) ];
+								break;
+							}
+						}
+					}
+				}
+			}
+		} else {
+			let angle = o.a1.angle(o.a2);
+			as.push(angle + m.PI / 2);
+			as.push(angle + 3 * m.PI / 2);
+		}
+		for ( let i = 0, ii = as.length; i < ii; i++) {
+			while (as[i] > m.PI * 2) {
+				as[i] -= m.PI * 2;
+			}
+			while (as[i] < 0) {
+				as[i] += m.PI * 2;
+			}
+		}
+		return as;
+	};
+	let getPullBack = function(o, styles) {
+		let pullback = 3;
+		if (o instanceof structures.Atom) {
+			if (o.isLabelVisible(styles)) {
+				pullback = 8;
+			}
+			if (o.charge !== 0 || o.numRadical !== 0 || o.numLonePair !== 0) {
+				pullback = 13;
+			}
+		} else if (o instanceof structures.Point) {
+			// this is the midpoint of a bond forming pusher
+			pullback = 0;
+		} else {
+			if (o.bondOrder > 1) {
+				pullback = 5;
+			}
+		}
+		return pullback;
+	};
+	let drawPusher = function(ctx, styles, o1, o2, p1, c1, c2, p2, numElectron, caches) {
+		let angle1 = c1.angle(p1);
+		let angle2 = c2.angle(p2);
+		let mcosa = m.cos(angle1);
+		let msina = m.sin(angle1);
+		// pull back from start
+		let pullBack = getPullBack(o1, styles);
+		p1.x -= mcosa * pullBack;
+		p1.y += msina * pullBack;
+		// arrow
+		let perpendicular = angle2 + m.PI / 2;
+		let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+		mcosa = m.cos(angle2);
+		msina = m.sin(angle2);
+		let mcosp = m.cos(perpendicular);
+		let msinp = m.sin(perpendicular);
+		p2.x -= mcosa * 5;
+		p2.y += msina * 5;
+		let nap = new structures.Point(p2.x, p2.y);
+		// pull back from end
+		pullBack = getPullBack(o2, styles) / 3;
+		nap.x -= mcosa * pullBack;
+		nap.y += msina * pullBack;
+		p2.x -= mcosa * (retract * 0.8 + pullBack);
+		p2.y += msina * (retract * 0.8 + pullBack);
+		let rx1 = nap.x - mcosa * retract * 0.8;
+		let ry1 = nap.y + msina * retract * 0.8;
+		let a1 = new structures.Point(nap.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
+		let a2 = new structures.Point(nap.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract, nap.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract);
+		let include1 = true, include2 = true;
+		if (numElectron === 1) {
+			if (a1.distance(c1) > a2.distance(c1)) {
+				include2 = false;
+			} else {
+				include1 = false;
+			}
+		}
+		ctx.beginPath();
+		ctx.moveTo(nap.x, nap.y);
+		if (include2) {
+			ctx.lineTo(a2.x, a2.y);
+		}
+		ctx.lineTo(rx1, ry1);
+		if (include1) {
+			ctx.lineTo(a1.x, a1.y);
+		}
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();
+		// bezier
+		ctx.beginPath();
+		ctx.moveTo(p1.x, p1.y);
+		ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
+		ctx.stroke();
+		caches.push([ p1, c1, c2, p2 ]);
+	};
+
+	d2.Pusher = function(o1, o2, numElectron) {
+		this.o1 = o1;
+		this.o2 = o2;
+		this.numElectron = numElectron ? numElectron : 1;
+	};
+	let _ = d2.Pusher.prototype = new d2._Shape();
+	_.drawDecorations = function(ctx, styles) {
+		if (this.isHover) {
+			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
+			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
+			let ps = [ p1, p2 ];
+			for ( let i = 0, ii = ps.length; i < ii; i++) {
+				let p = ps[i];
+				this.drawAnchor(ctx, styles, p, p === this.hoverPoint);
+			}
+		}
+	};
+	_.draw = function(ctx, styles) {
+		if (this.o1 && this.o2) {
+			ctx.strokeStyle = styles.shapes_color;
+			ctx.fillStyle = styles.shapes_color;
+			ctx.lineWidth = styles.shapes_lineWidth;
+			ctx.lineJoin = 'miter';
+			ctx.lineCap = 'butt';
+			let p1 = this.o1 instanceof structures.Atom ? new structures.Point(this.o1.x, this.o1.y) : this.o1.getCenter();
+			let p2 = this.o2 instanceof structures.Atom ? new structures.Point(this.o2.x, this.o2.y) : this.o2.getCenter();
+			let controlDist = 35;
+			let as1 = getPossibleAngles(this.o1);
+			let as2 = getPossibleAngles(this.o2);
+			let c1, c2;
+			let minDif = Infinity;
+			for ( let i = 0, ii = as1.length; i < ii; i++) {
+				for ( let j = 0, jj = as2.length; j < jj; j++) {
+					let c1c = new structures.Point(p1.x + controlDist * m.cos(as1[i]), p1.y - controlDist * m.sin(as1[i]));
+					let c2c = new structures.Point(p2.x + controlDist * m.cos(as2[j]), p2.y - controlDist * m.sin(as2[j]));
+					let dif = c1c.distance(c2c);
+					if (dif < minDif) {
+						minDif = dif;
+						c1 = c1c;
+						c2 = c2c;
+					}
+				}
+			}
+			this.caches = [];
+			if (this.numElectron === -1) {
+				let dist = p1.distance(p2)/2;
+				let angle = p1.angle(p2);
+				let perp = angle+m.PI/2;
+				let mcosa = m.cos(angle);
+				let msina = m.sin(angle);
+				let m1 = new structures.Point(p1.x+(dist-1)*mcosa, p1.y-(dist-1)*msina);
+				let cm1 = new structures.Point(m1.x+m.cos(perp+m.PI/6)*controlDist, m1.y - m.sin(perp+m.PI/6)*controlDist);
+				let m2 = new structures.Point(p1.x+(dist+1)*mcosa, p1.y-(dist+1)*msina);
+				let cm2 = new structures.Point(m2.x+m.cos(perp-m.PI/6)*controlDist, m2.y - m.sin(perp-m.PI/6)*controlDist);
+				drawPusher(ctx, styles, this.o1, m1, p1, c1, cm1, m1, 1, this.caches);
+				drawPusher(ctx, styles, this.o2, m2, p2, c2, cm2, m2, 1, this.caches);
+			} else {
+				if (math.intersectLines(p1.x, p1.y, c1.x, c1.y, p2.x, p2.y, c2.x, c2.y)) {
+					let tmp = c1;
+					c1 = c2;
+					c2 = tmp;
+				}
+				// try to clean up problems, like loops
+				let angle1 = c1.angle(p1);
+				let angle2 = c2.angle(p2);
+				let angleDif = (m.max(angle1, angle2) - m.min(angle1, angle2));
+				if (m.abs(angleDif - m.PI) < .001 && this.o1.molCenter === this.o2.molCenter) {
+					// in the case where the control tangents are parallel
+					angle1 += m.PI / 2;
+					angle2 -= m.PI / 2;
+					c1.x = p1.x + controlDist * m.cos(angle1 + m.PI);
+					c1.y = p1.y - controlDist * m.sin(angle1 + m.PI);
+					c2.x = p2.x + controlDist * m.cos(angle2 + m.PI);
+					c2.y = p2.y - controlDist * m.sin(angle2 + m.PI);
+				}
+				drawPusher(ctx, styles, this.o1, this.o2, p1, c1, c2, p2, this.numElectron, this.caches);
+			}
+		}
+	};
+	_.getPoints = function() {
+		return [];
+	};
+	_.isOver = function(p, barrier) {
+		for ( let i = 0, ii = this.caches.length; i < ii; i++) {
+			let r = jsb.distanceFromCurve(p, this.caches[i]);
+			if (r.distance < barrier) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+})(ChemDoodle.math, ChemDoodle.lib.jsBezier, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
 
 // (function(math, structures, d2, m, undefined) {
 // 	'use strict';
@@ -5201,7 +5198,6 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 // 	};
 //
 // })(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, Math);
-
 
 // (function(structures, extensions, m, undefined) {
 // 	'use strict';
@@ -6525,6 +6521,169 @@ ChemDoodle.io = (function(undefined) {
 	};
 
 })(ChemDoodle, ChemDoodle.io, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.structures.d3, JSON);
+
+(function(c, ELEMENT, io, structures) {
+	'use strict';
+	io.MOLInterpreter = function() {
+	};
+	var _ = io.MOLInterpreter.prototype = new io._Interpreter();
+	_.read = function(content, multiplier) {
+		if (!multiplier) {
+			multiplier = c.DEFAULT_STYLES.bondLength_2D;
+		}
+		var molecule = new structures.Molecule();
+		if (!content) {
+			return molecule;
+		}
+		var currentTagTokens = content.split('\n');
+
+		var counts = currentTagTokens[3];
+		var numAtoms = parseInt(counts.substring(0, 3));
+		var numBonds = parseInt(counts.substring(3, 6));
+
+		for ( var i = 0; i < numAtoms; i++) {
+			var line = currentTagTokens[4 + i];
+			molecule.atoms[i] = new structures.Atom(line.substring(31, 34), parseFloat(line.substring(0, 10)) * multiplier, (multiplier === 1 ? 1 : -1) * parseFloat(line.substring(10, 20)) * multiplier, parseFloat(line.substring(20, 30)) * multiplier);
+			var massDif = parseInt(line.substring(34, 36));
+			if (massDif !== 0 && ELEMENT[molecule.atoms[i].label]) {
+				molecule.atoms[i].mass = ELEMENT[molecule.atoms[i].label].mass + massDif;
+			}
+			switch (parseInt(line.substring(36, 39))) {
+				case 1:
+					molecule.atoms[i].charge = 3;
+					break;
+				case 2:
+					molecule.atoms[i].charge = 2;
+					break;
+				case 3:
+					molecule.atoms[i].charge = 1;
+					break;
+				case 5:
+					molecule.atoms[i].charge = -1;
+					break;
+				case 6:
+					molecule.atoms[i].charge = -2;
+					break;
+				case 7:
+					molecule.atoms[i].charge = -3;
+					break;
+			}
+		}
+		for ( var i = 0; i < numBonds; i++) {
+			var line = currentTagTokens[4 + numAtoms + i];
+			var bondOrder = parseInt(line.substring(6, 9));
+			var stereo = parseInt(line.substring(9, 12));
+			if (bondOrder > 3) {
+				switch (bondOrder) {
+					case 4:
+						bondOrder = 1.5;
+						break;
+					default:
+						bondOrder = 1;
+						break;
+				}
+			}
+			var b = new structures.Bond(molecule.atoms[parseInt(line.substring(0, 3)) - 1], molecule.atoms[parseInt(line.substring(3, 6)) - 1], bondOrder);
+			switch (stereo) {
+				case 3:
+					b.stereo = structures.Bond.STEREO_AMBIGUOUS;
+					break;
+				case 1:
+					b.stereo = structures.Bond.STEREO_PROTRUDING;
+					break;
+				case 6:
+					b.stereo = structures.Bond.STEREO_RECESSED;
+					break;
+			}
+			molecule.bonds[i] = b;
+		}
+		return molecule;
+	};
+	_.write = function(molecule) {
+		var sb = [];
+		sb.push('Molecule from ChemDoodle Web Components\n\nhttp://www.ichemlabs.com\n');
+		sb.push(this.fit(molecule.atoms.length.toString(), 3));
+		sb.push(this.fit(molecule.bonds.length.toString(), 3));
+		sb.push('  0  0  0  0            999 V2000\n');
+		var p = molecule.getCenter();
+		for ( var i = 0, ii = molecule.atoms.length; i < ii; i++) {
+			var a = molecule.atoms[i];
+			var mass = ' 0';
+			if (a.mass !== -1 && ELEMENT[a.label]) {
+				var dif = a.mass - ELEMENT[a.label].mass;
+				if (dif < 5 && dif > -4) {
+					mass = (dif > -1 ? ' ' : '') + dif;
+				}
+			}
+			var charge = '  0';
+			if (a.charge !== 0) {
+				switch (a.charge) {
+					case 3:
+						charge = '  1';
+						break;
+					case 2:
+						charge = '  2';
+						break;
+					case 1:
+						charge = '  3';
+						break;
+					case -1:
+						charge = '  5';
+						break;
+					case -2:
+						charge = '  6';
+						break;
+					case -3:
+						charge = '  7';
+						break;
+				}
+			}
+			sb.push(this.fit(((a.x - p.x) / c.DEFAULT_STYLES.bondLength_2D).toFixed(4), 10));
+			sb.push(this.fit((-(a.y - p.y) / c.DEFAULT_STYLES.bondLength_2D).toFixed(4), 10));
+			sb.push(this.fit((a.z / c.DEFAULT_STYLES.bondLength_2D).toFixed(4), 10));
+			sb.push(' ');
+			sb.push(this.fit(a.label, 3, true));
+			sb.push(mass);
+			sb.push(charge);
+			sb.push('  0  0  0  0\n');
+		}
+		for ( var i = 0, ii = molecule.bonds.length; i < ii; i++) {
+			var b = molecule.bonds[i];
+			var stereo = 0;
+			if (b.stereo === structures.Bond.STEREO_AMBIGUOUS) {
+				stereo = 3;
+			} else if (b.stereo === structures.Bond.STEREO_PROTRUDING) {
+				stereo = 1;
+			} else if (b.stereo === structures.Bond.STEREO_RECESSED) {
+				stereo = 6;
+			}
+			sb.push(this.fit((molecule.atoms.indexOf(b.a1) + 1).toString(), 3));
+			sb.push(this.fit((molecule.atoms.indexOf(b.a2) + 1).toString(), 3));
+			var btype = b.bondOrder;
+			if(btype==1.5){
+				btype = 4;
+			}else if(btype>3 || btype%1!=0){
+				btype = 1;
+			}
+			sb.push(this.fit(btype, 3));
+			sb.push('  ');
+			sb.push(stereo);
+			sb.push('     0  0\n');
+		}
+		sb.push('M  END');
+		return sb.join('');
+	};
+
+	// shortcuts
+	var interpreter = new io.MOLInterpreter();
+	c.readMOL = function(content, multiplier) {
+		return interpreter.read(content, multiplier);
+	};
+	c.writeMOL = function(mol) {
+		return interpreter.write(mol);
+	};
+
+})(ChemDoodle, ChemDoodle.ELEMENT, ChemDoodle.io, ChemDoodle.structures);
 
 ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 	'use strict';

@@ -331,6 +331,7 @@ function attachIO(ChemDoodle) {
 		};
 
 	})(ChemDoodle, ChemDoodle.ELEMENT, ChemDoodle.io, ChemDoodle.structures);
+
 	//
 	//  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 	//
