@@ -2,6 +2,8 @@ const path = require('path');
 const express = require('express');
 const webpack = require('webpack');
 const WebpackDevMiddleware = require('webpack-dev-middleware');
+const WebpackHotMiddleware = require('webpack-hot-middleware');
+
 const config = require('../../webpack.config.js');
 
 const app = express(),
@@ -12,6 +14,8 @@ const app = express(),
 app.use(WebpackDevMiddleware(compiler, {
     publicPath: config.output.publicPath
 }))
+
+app.use(WebpackHotMiddleware(compiler))
 
 
 app.get('*', (req, res) => {

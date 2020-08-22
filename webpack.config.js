@@ -1,10 +1,12 @@
 const path = require("path")
 const webpack = require('webpack')
 const HtmlWebPackPlugin = require("html-webpack-plugin")
+
 module.exports = {
     mode: "development",
     entry: {
-        main: './src/core.js'
+        // main: './src/core.js'
+        main: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/core.js']
     },
     output: {
         path: path.join(__dirname, 'dist'),
@@ -35,6 +37,7 @@ module.exports = {
             template: "./src/index.html",
             filename: "./index.html",
             excludeChunks: [ 'server' ]
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin()
     ]
 }

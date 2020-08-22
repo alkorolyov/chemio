@@ -9,3 +9,4 @@ npm install -D webpack webpack-cli webpack-node-externals
 npm install -D html-loader html-webpack-plugin
 npm install -D rimraf
 npm install -D webpack-dev-middleware
+npm install --save-dev webpack-hot-middleware

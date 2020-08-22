@@ -8361,3 +8361,8 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 // })(ChemDoodle, ChemDoodle.extensions, ChemDoodle.math, document);
 
 module.exports = ChemDoodle;
+
+// Needed for Hot Module Replacement
+if(typeof(module.hot) !== 'undefined') {
+	module.hot.accept() // eslint-disable-line no-undef
+}
