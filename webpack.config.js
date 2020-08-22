@@ -45,7 +45,8 @@ module.exports = {
         new MergeIntoSingleFilePlugin({
             files: {
                 'main.js': [
-                    '.src/app.js'
+                    '.src/core.js',
+                    '.src/ui.js'
                 ]
             }
         })

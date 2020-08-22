@@ -4,6 +4,12 @@
 
 console.log('hello')
 
+//******************************************************************
+
+//********************************* Core *****************************
+
+//******************************************************************
+
 let Chemio = (function() {
     'use strict';
     let c = {};
@@ -26,12 +32,7 @@ let Chemio = (function() {
 
 })();
 
-//******************************************************************
-
-//********************************* Core *****************************
-
-//******************************************************************
-
+//region **************** CORE **************************
 
 // Chemio.animations = (function(window, undefined) {
 // 	'use strict';
@@ -8373,6 +8374,7 @@ Chemio.monitor = (function(featureDetection, document, undefined) {
 //
 // })(Chemio, Chemio.extensions, Chemio.math, document);
 //endregion
+//endregion
 
 
 //******************************************************************
@@ -8396,6 +8398,9 @@ Chemio.uis = (function(undefined) {
     return p;
 
 })();
+
+
+//region **************** UI ************************
 
 Chemio.uis.gui.imageDepot = (function (undefined) {
     'use strict';
@@ -8527,6 +8532,7 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     return d;
 
 })();
+
 
 // Chemio.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
 // 	'use strict';
@@ -9537,7 +9543,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 // 	return d;
 //
 // })(JSON, localStorage);
-
 
 //********************************* ACTIONS *****************************
 
@@ -17301,6 +17306,7 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 // 	};
 //
 // })(Chemio, Chemio.uis.gui.desktop, Chemio.lib.jQuery, document);
+//endregion
 
 
 // export Chemio object
