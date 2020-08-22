@@ -1945,10 +1945,10 @@
 
     states.ShapeState.LINE = 1;
     states.ShapeState.ARROW_SYNTHETIC = 2;
-    // states.ShapeState.ARROW_RETROSYNTHETIC = 3;
-    // states.ShapeState.ARROW_RESONANCE = 4;
-    // states.ShapeState.ARROW_EQUILIBRIUM = 5;
-    // states.ShapeState.BRACKET = 10;
+    states.ShapeState.ARROW_RETROSYNTHETIC = 3;
+    states.ShapeState.ARROW_RESONANCE = 4;
+    states.ShapeState.ARROW_EQUILIBRIUM = 5;
+    states.ShapeState.BRACKET = 10;
 
 })(Chemio.math, Chemio.monitor, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states, Math);
 

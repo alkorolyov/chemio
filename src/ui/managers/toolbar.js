@@ -121,8 +121,6 @@
         this.leftToolBar.buttons.push(this.buttonCycloheptane);
         this.leftToolBar.buttons.push(this.buttonCyclohexane);
 
-
-
         this.leftToolBar.columnCount = 2;
 
         // clear
