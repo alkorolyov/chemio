@@ -16,9 +16,6 @@ module.exports = (env, argv) => ({
         contentBase: './src', // searches in this folder for index.html automatically
         watchContentBase: true
     },
-    optimization: {
-        minimize: true
-    },
     plugins: [
         new MergeIntoSingleFilePlugin({
             files: {
@@ -42,21 +39,20 @@ module.exports = (env, argv) => ({
                     'src/ui/managers/toolbar.js',
                     'src/ui/managers/copypaste.js',
                     'src/ui/sketchercanvas.js'
-
                 ],
                 'styles.css': [
                     'src/styles.css'
                 ]
             },
-            transform:  argv.mode === 'production' ? {
+            transform: argv.mode === 'production' ? {
                 'bundle.js': code => require("uglify-es").minify(code).code
             } : {}
         }),
-        new WatchExternalFilesPlugin({
+        new WatchExternalFilesPlugin( argv.mode === 'development' ? {
             files: [
                 './src/**/*.js'
             ],
             verbose: true
-        })
+        } : {})
     ]
 })
