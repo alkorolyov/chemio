@@ -8,22 +8,28 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "start": "webpack-dev-server"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alkorolyov/ChemDoodleWeb-9.1.0.git"
+    "build": "webpack --inline --colors --progress --display-error-details --display-cached --config webpack.prod.conf.js",
+    "start": "webpack-dev-server --inline --colors --progress --display-error-details --display-cached --open --config webpack.dev.conf.js",
+    "min": "uglifyjs --compress -m --verbose --warn /dist/app.js --output dist/app.min.js"
   },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/alkorolyov/ChemDoodleWeb-9.1.0/issues"
-  },
-  "homepage": "https://github.com/alkorolyov/ChemDoodleWeb-9.1.0#readme",
   "devDependencies": {
+    "babel-loader": "^8.1.0",
+    "html-webpack-plugin": "^4.3.0",
+    "merge": "^1.2.1",
+    "path": "^0.12.7",
+    "uglify-es": "^3.3.9",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "webpack-livereload-plugin": "^2.3.0",
+    "webpack-merge": "^5.1.2",
+    "webpack-merge-and-include-globally": "^2.1.25",
+    "webpack-plugin-serve": "^1.0.1"
+  },
+  "dependencies": {
+    "raw-loader": "^4.0.1"
   }
 }

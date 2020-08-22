@@ -2511,217 +2511,217 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 
 })(ChemDoodle.uis.actions, ChemDoodle.uis.states);
 
-(function(extensions, math, structures, d2, actions, states, m, undefined) {
-	'use strict';
-	let controlsize = 4;
-
-	states.DynamicBracketState = function(sketcher) {
-		this.setup(sketcher);
-		this.dontTranslateOnDrag = true;
-	};
-	let _ = states.DynamicBracketState.prototype = new states._State();
-	_.superDoubleClick = _.dblclick;
-	_.dblclick = function(e) {
-		// override double click not to center when editing controls
-		if (!this.control) {
-			this.superDoubleClick(e);
-		}
-	};
-	_.innermousedown = function(e) {
-		if (this.control) {
-			// this part controls the limits
-			let cont = true;
-			let c = this.control.t > 0 ? 1 : -1;
-			switch (m.abs(this.control.t)) {
-			case 1:{
-					let nn = this.control.s.n1 + c;
-					if(nn<0 || nn>this.control.s.n2){
-						cont = false;
-					}
-					break;
-				}
-			case 2:{
-					let nn = this.control.s.n2 + c;
-					if(nn>20 || nn<this.control.s.n1){
-						cont = false;
-					}
-					break;
-				}
-			}
-			if(cont){
-				this.sketcher.historyManager.pushUndo(new actions.ChangeDynamicBracketAttributeAction(this.control.s, this.control.t));
-				this.sketcher.repaint();
-			}
-		} else if (this.sketcher.hovering && this.start!==this.sketcher.hovering && this.sketcher.hovering instanceof structures.Bond) {
-			if(!this.start){
-				this.start = this.sketcher.hovering;
-			}
-		}else{
-			this.start = undefined;
-			this.end = undefined;
-			this.sketcher.repaint();
-		}
-	};
-	_.innerdrag = function(e) {
-		this.control = undefined;
-		if (this.start) {
-			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e.p, false, true);
-			this.sketcher.repaint();
-		}
-	};
-	_.innermouseup = function(e) {
-		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-			let dup;
-			let remove = false;
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if (s instanceof d2.DynamicBracket) {
-					if (s.b1 === this.start && s.b2 === this.sketcher.hovering || s.b2 === this.start && s.b1 === this.sketcher.hovering) {
-						dup = s;
-						remove = true;
-					}
-				}
-			}
-			if (dup) {
-				if (remove) {
-					this.sketcher.historyManager.pushUndo(new actions.DeleteShapeAction(this.sketcher, dup));
-				}
-				this.start = undefined;
-				this.end = undefined;
-				this.sketcher.repaint();
-			} else {
-				let shape = new d2.DynamicBracket(this.start, this.sketcher.hovering);
-				this.start = undefined;
-				this.end = undefined;
-				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, shape));
-			}
-		} else if(this.sketcher.hovering instanceof d2.DynamicBracket){
-			this.sketcher.historyManager.pushUndo(new actions.FlipDynamicBracketAction(this.sketcher.hovering));
-		} else {
-			//this.start = undefined;
-			//this.end = undefined;
-			//this.sketcher.repaint();
-		}
-	};
-	_.innermousemove = function(e) {
-		this.control = undefined;
-		if(this.start){
-			this.end = new structures.Point(e.p.x, e.p.y);
-		}else{
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if (s instanceof d2.DynamicBracket && !s.error) {
-					let hits = [];
-					hits.push({
-						x : s.textPos.x-1,
-						y : s.textPos.y+6,
-						v : 1
-					});
-					hits.push({
-						x : s.textPos.x+13,
-						y : s.textPos.y+6,
-						v : 2
-					});
-					for ( let j = 0, jj = hits.length; j < jj; j++) {
-						let h = hits[j];
-						if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y - controlsize, h.y+3)) {
-							this.control = {
-								s : s,
-								t : h.v
-							};
-							break;
-						} else if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y + controlsize-2, h.y + controlsize * 2+3)) {
-							this.control = {
-								s : s,
-								t : -1 * h.v
-							};
-							break;
-						}
-					}
-					if (this.control) {
-						break;
-					}
-				}
-			}
-		}
-		if(this.control){
-			this.clearHover();
-		}else{
-			this.findHoveredObject(e.p, false, true, true);
-			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2._Shape && !(this.sketcher.hovering instanceof d2.DynamicBracket)){
-				this.clearHover();
-			}
-		}
-		this.sketcher.repaint();
-	};
-	function drawBracketControl(ctx, styles, x, y, control, type) {
-		if (control && m.abs(control.t) === type) {
-			ctx.fillStyle = styles.colorHover;
-			ctx.beginPath();
-			if (control.t > 0) {
-				ctx.moveTo(x, y);
-				ctx.lineTo(x + controlsize, y - controlsize);
-				ctx.lineTo(x + controlsize * 2, y);
-			} else {
-				ctx.moveTo(x, y + controlsize);
-				ctx.lineTo(x + controlsize, y + controlsize * 2);
-				ctx.lineTo(x + controlsize * 2, y + controlsize);
-			}
-			ctx.closePath();
-			ctx.fill();
-		}
-		ctx.strokeStyle = 'blue';
-		ctx.beginPath();
-		ctx.moveTo(x, y);
-		ctx.lineTo(x + controlsize, y - controlsize);
-		ctx.lineTo(x + controlsize * 2, y);
-		ctx.moveTo(x, y + controlsize);
-		ctx.lineTo(x + controlsize, y + controlsize * 2);
-		ctx.lineTo(x + controlsize * 2, y + controlsize);
-		ctx.stroke();
-	}
-	_.draw = function(ctx, styles) {
-		if (this.start && this.end) {
-			ctx.strokeStyle = styles.colorPreview;
-			ctx.fillStyle = styles.colorPreview;
-			ctx.lineWidth = 1;
-			let p1 = this.start.getCenter();
-			let p2 = this.end;
-			if (this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-				p2 = this.sketcher.hovering.getCenter();
-			}
-			ctx.beginPath();
-			ctx.moveTo(p1.x, p1.y);
-			ctx.lineTo(p2.x, p2.y);
-			ctx.setLineDash([2]);
-			ctx.stroke();
-			ctx.setLineDash([]);
-		}else {
-			// controls
-			ctx.lineWidth = 2;
-			ctx.lineJoin = 'miter';
-			ctx.lineCap = 'butt';
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if (s instanceof d2.DynamicBracket && !s.error) {
-					let c = this.control && this.control.s === s ? this.control : undefined;
-					drawBracketControl(ctx, styles, s.textPos.x-1, s.textPos.y+6, c, 1);
-					drawBracketControl(ctx, styles, s.textPos.x+13, s.textPos.y+6, c, 2);
-				}
-			}
-			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2.DynamicBracket && this.sketcher.hovering.contents.flippable){
-				let s = this.sketcher.hovering;
-				ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
-				ctx.fillStyle = styles.colorPreview;
-				ctx.textAlign = 'left';
-				ctx.textBaseline = 'bottom';
-				ctx.fillText('flip?', s.textPos.x+(s.error?0:20), s.textPos.y);
-			}
-		}
-	};
-
-})(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states, Math);
+// (function(extensions, math, structures, d2, actions, states, m, undefined) {
+// 	'use strict';
+// 	let controlsize = 4;
+//
+// 	states.DynamicBracketState = function(sketcher) {
+// 		this.setup(sketcher);
+// 		this.dontTranslateOnDrag = true;
+// 	};
+// 	let _ = states.DynamicBracketState.prototype = new states._State();
+// 	_.superDoubleClick = _.dblclick;
+// 	_.dblclick = function(e) {
+// 		// override double click not to center when editing controls
+// 		if (!this.control) {
+// 			this.superDoubleClick(e);
+// 		}
+// 	};
+// 	_.innermousedown = function(e) {
+// 		if (this.control) {
+// 			// this part controls the limits
+// 			let cont = true;
+// 			let c = this.control.t > 0 ? 1 : -1;
+// 			switch (m.abs(this.control.t)) {
+// 			case 1:{
+// 					let nn = this.control.s.n1 + c;
+// 					if(nn<0 || nn>this.control.s.n2){
+// 						cont = false;
+// 					}
+// 					break;
+// 				}
+// 			case 2:{
+// 					let nn = this.control.s.n2 + c;
+// 					if(nn>20 || nn<this.control.s.n1){
+// 						cont = false;
+// 					}
+// 					break;
+// 				}
+// 			}
+// 			if(cont){
+// 				this.sketcher.historyManager.pushUndo(new actions.ChangeDynamicBracketAttributeAction(this.control.s, this.control.t));
+// 				this.sketcher.repaint();
+// 			}
+// 		} else if (this.sketcher.hovering && this.start!==this.sketcher.hovering && this.sketcher.hovering instanceof structures.Bond) {
+// 			if(!this.start){
+// 				this.start = this.sketcher.hovering;
+// 			}
+// 		}else{
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innerdrag = function(e) {
+// 		this.control = undefined;
+// 		if (this.start) {
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, false, true);
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermouseup = function(e) {
+// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 			let dup;
+// 			let remove = false;
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.DynamicBracket) {
+// 					if (s.b1 === this.start && s.b2 === this.sketcher.hovering || s.b2 === this.start && s.b1 === this.sketcher.hovering) {
+// 						dup = s;
+// 						remove = true;
+// 					}
+// 				}
+// 			}
+// 			if (dup) {
+// 				if (remove) {
+// 					this.sketcher.historyManager.pushUndo(new actions.DeleteShapeAction(this.sketcher, dup));
+// 				}
+// 				this.start = undefined;
+// 				this.end = undefined;
+// 				this.sketcher.repaint();
+// 			} else {
+// 				let shape = new d2.DynamicBracket(this.start, this.sketcher.hovering);
+// 				this.start = undefined;
+// 				this.end = undefined;
+// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, shape));
+// 			}
+// 		} else if(this.sketcher.hovering instanceof d2.DynamicBracket){
+// 			this.sketcher.historyManager.pushUndo(new actions.FlipDynamicBracketAction(this.sketcher.hovering));
+// 		} else {
+// 			//this.start = undefined;
+// 			//this.end = undefined;
+// 			//this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		this.control = undefined;
+// 		if(this.start){
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 		}else{
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.DynamicBracket && !s.error) {
+// 					let hits = [];
+// 					hits.push({
+// 						x : s.textPos.x-1,
+// 						y : s.textPos.y+6,
+// 						v : 1
+// 					});
+// 					hits.push({
+// 						x : s.textPos.x+13,
+// 						y : s.textPos.y+6,
+// 						v : 2
+// 					});
+// 					for ( let j = 0, jj = hits.length; j < jj; j++) {
+// 						let h = hits[j];
+// 						if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y - controlsize, h.y+3)) {
+// 							this.control = {
+// 								s : s,
+// 								t : h.v
+// 							};
+// 							break;
+// 						} else if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y + controlsize-2, h.y + controlsize * 2+3)) {
+// 							this.control = {
+// 								s : s,
+// 								t : -1 * h.v
+// 							};
+// 							break;
+// 						}
+// 					}
+// 					if (this.control) {
+// 						break;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if(this.control){
+// 			this.clearHover();
+// 		}else{
+// 			this.findHoveredObject(e.p, false, true, true);
+// 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2._Shape && !(this.sketcher.hovering instanceof d2.DynamicBracket)){
+// 				this.clearHover();
+// 			}
+// 		}
+// 		this.sketcher.repaint();
+// 	};
+// 	function drawBracketControl(ctx, styles, x, y, control, type) {
+// 		if (control && m.abs(control.t) === type) {
+// 			ctx.fillStyle = styles.colorHover;
+// 			ctx.beginPath();
+// 			if (control.t > 0) {
+// 				ctx.moveTo(x, y);
+// 				ctx.lineTo(x + controlsize, y - controlsize);
+// 				ctx.lineTo(x + controlsize * 2, y);
+// 			} else {
+// 				ctx.moveTo(x, y + controlsize);
+// 				ctx.lineTo(x + controlsize, y + controlsize * 2);
+// 				ctx.lineTo(x + controlsize * 2, y + controlsize);
+// 			}
+// 			ctx.closePath();
+// 			ctx.fill();
+// 		}
+// 		ctx.strokeStyle = 'blue';
+// 		ctx.beginPath();
+// 		ctx.moveTo(x, y);
+// 		ctx.lineTo(x + controlsize, y - controlsize);
+// 		ctx.lineTo(x + controlsize * 2, y);
+// 		ctx.moveTo(x, y + controlsize);
+// 		ctx.lineTo(x + controlsize, y + controlsize * 2);
+// 		ctx.lineTo(x + controlsize * 2, y + controlsize);
+// 		ctx.stroke();
+// 	}
+// 	_.draw = function(ctx, styles) {
+// 		if (this.start && this.end) {
+// 			ctx.strokeStyle = styles.colorPreview;
+// 			ctx.fillStyle = styles.colorPreview;
+// 			ctx.lineWidth = 1;
+// 			let p1 = this.start.getCenter();
+// 			let p2 = this.end;
+// 			if (this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 				p2 = this.sketcher.hovering.getCenter();
+// 			}
+// 			ctx.beginPath();
+// 			ctx.moveTo(p1.x, p1.y);
+// 			ctx.lineTo(p2.x, p2.y);
+// 			ctx.setLineDash([2]);
+// 			ctx.stroke();
+// 			ctx.setLineDash([]);
+// 		}else {
+// 			// controls
+// 			ctx.lineWidth = 2;
+// 			ctx.lineJoin = 'miter';
+// 			ctx.lineCap = 'butt';
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.DynamicBracket && !s.error) {
+// 					let c = this.control && this.control.s === s ? this.control : undefined;
+// 					drawBracketControl(ctx, styles, s.textPos.x-1, s.textPos.y+6, c, 1);
+// 					drawBracketControl(ctx, styles, s.textPos.x+13, s.textPos.y+6, c, 2);
+// 				}
+// 			}
+// 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2.DynamicBracket && this.sketcher.hovering.contents.flippable){
+// 				let s = this.sketcher.hovering;
+// 				ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
+// 				ctx.fillStyle = styles.colorPreview;
+// 				ctx.textAlign = 'left';
+// 				ctx.textBaseline = 'bottom';
+// 				ctx.fillText('flip?', s.textPos.x+(s.error?0:20), s.textPos.y);
+// 			}
+// 		}
+// 	};
+//
+// })(ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states, Math);
 
 (function(actions, states, structures, d2, undefined) {
 	'use strict';
@@ -3201,26 +3201,26 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 
 })(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.uis.tools, ChemDoodle.uis.gui.imageDepot, Math);
 
-(function(actions, states, undefined) {
-	'use strict';
-	states.LonePairState = function(sketcher) {
-		this.setup(sketcher);
-	};
-	let _ = states.LonePairState.prototype = new states._State();
-	_.delta = 1;
-	_.innermouseup = function(e) {
-		if (this.delta < 0 && this.sketcher.hovering.numLonePair < 1) {
-			return;
-		}
-		if (this.sketcher.hovering) {
-			this.sketcher.historyManager.pushUndo(new actions.ChangeLonePairAction(this.sketcher.hovering, this.delta));
-		}
-	};
-	_.innermousemove = function(e) {
-		this.findHoveredObject(e.p, true, false);
-	};
-
-})(ChemDoodle.uis.actions, ChemDoodle.uis.states);
+// (function(actions, states, undefined) {
+// 	'use strict';
+// 	states.LonePairState = function(sketcher) {
+// 		this.setup(sketcher);
+// 	};
+// 	let _ = states.LonePairState.prototype = new states._State();
+// 	_.delta = 1;
+// 	_.innermouseup = function(e) {
+// 		if (this.delta < 0 && this.sketcher.hovering.numLonePair < 1) {
+// 			return;
+// 		}
+// 		if (this.sketcher.hovering) {
+// 			this.sketcher.historyManager.pushUndo(new actions.ChangeLonePairAction(this.sketcher.hovering, this.delta));
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		this.findHoveredObject(e.p, true, false);
+// 	};
+//
+// })(ChemDoodle.uis.actions, ChemDoodle.uis.states);
 (function(actions, states, structures, undefined) {
 	'use strict';
 	states.MoveState = function(sketcher) {
@@ -3947,332 +3947,332 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 	};
 
 })(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.structures, Math);
-(function(math, monitor, actions, states, io, structures, m, undefined) {
-	'use strict';
+// (function(math, monitor, actions, states, io, structures, m, undefined) {
+// 	'use strict';
+//
+// 	let INTERPRETER = new io.JSONInterpreter();
+//
+// 	states.NewTemplateState = function(sketcher) {
+// 		this.setup(sketcher);
+// 		this.template = {"a":[{"x":270,"i":"a0","y":105},{"x":252.6795,"i":"a1","y":115},{"x":252.6795,"i":"a2","y":135},{"x":270,"i":"a3","y":145},{"x":287.3205,"i":"a4","y":135},{"x":287.3205,"i":"a5","y":115},{"x":270,"i":"a6","y":85},{"x":287.3205,"i":"a7","y":75},{"x":270,"i":"a8","y":165,"l":"O"},{"x":252.6795,"i":"a9","y":175},{"x":252.6795,"i":"a10","y":195},{"x":252.6795,"i":"a11","y":215},{"x":252.6795,"i":"a12","y":235,"l":"Si"},{"x":272.6795,"i":"a13","y":235},{"x":232.6795,"i":"a14","y":235},{"x":252.6795,"i":"a15","y":255}],"b":[{"b":0,"e":1,"i":"b0","o":2},{"b":1,"e":2,"i":"b1"},{"b":2,"e":3,"i":"b2","o":2},{"b":3,"e":4,"i":"b3"},{"b":4,"e":5,"i":"b4","o":2},{"b":5,"e":0,"i":"b5"},{"b":0,"e":6,"i":"b6"},{"b":6,"e":7,"i":"b7","o":2},{"b":3,"e":8,"i":"b8"},{"b":8,"e":9,"i":"b9"},{"b":9,"e":10,"i":"b10"},{"b":10,"e":11,"i":"b11","o":3},{"b":11,"e":12,"i":"b12"},{"b":12,"e":13,"i":"b13"},{"b":12,"e":14,"i":"b14"},{"b":12,"e":15,"i":"b15"}]};
+// 		this.attachPos = 0;
+// 	};
+// 	let _ = states.NewTemplateState.prototype = new states._State();
+// 	_.getTemplate = function(p) {
+// 		let origin = this.sketcher.hovering;
+// 		let newMol = INTERPRETER.molFrom(this.template);
+// 		newMol.scaleToAverageBondLength(this.sketcher.styles.bondLength_2D);
+// 		let pivot = newMol.atoms[this.attachPos];
+// 		let thrad = origin.angle(p);
+// 		let rotate = true;
+// 		if (!monitor.ALT) {
+// 			if (origin.distance(p) < 15) {
+// 				let angles = this.sketcher.getMoleculeByAtom(this.sketcher.hovering).getAngles(this.sketcher.hovering);
+// 				if (angles.length === 0) {
+// 					thrad = 0;
+// 					rotate = false;
+// 				} else if (angles.length === 1) {
+// 					thrad = angles[0] + m.PI;
+// 				} else {
+// 					thrad = math.angleBetweenLargest(angles).angle;
+// 				}
+// 				let angles2 = newMol.getAngles(pivot);
+// 				if (angles2.length === 1) {
+// 					thrad -= angles2[0] + (angles.length === 1 ? m.PI / 3 : 0);
+// 				} else {
+// 					thrad -= math.angleBetweenLargest(angles2).angle + m.PI;
+// 				}
+// 			} else {
+// 				let divider = m.round(thrad / (m.PI / 6));
+// 				thrad = divider * m.PI / 6;
+// 			}
+// 		}
+// 		let difx = origin.x-pivot.x;
+// 		let dify = origin.y-pivot.y;
+// 		for(let i = 0, ii = newMol.atoms.length; i<ii; i++){
+// 			let a = newMol.atoms[i];
+// 			a.x+=difx;
+// 			a.y+=dify;
+// 		}
+// 		if (rotate) {
+// 			for(let i = 0, ii = newMol.atoms.length; i<ii; i++){
+// 				let a = newMol.atoms[i];
+// 				let angleUse = a.angle(origin) + thrad;
+// 				let distance = pivot.distance(a);
+// 				if (monitor.SHIFT) {
+// 					distance *= origin.distance(p) / this.sketcher.styles.bondLength_2D;
+// 				}
+// 				a.x = origin.x - m.cos(angleUse) * distance;
+// 				a.y = origin.y + m.sin(angleUse) * distance;
+// 			}
+// 		}
+// 		let allAs = this.sketcher.getAllAtoms();
+// 		let allBs = this.sketcher.getAllBonds();
+// 		for ( let j = 0, jj = allAs.length; j < jj; j++) {
+// 			let a2 = allAs[j];
+// 			a2.isOverlap = false;
+// 			let hits = [];
+// 			for(let i = 0, ii = newMol.atoms.length; i<ii; i++){
+// 				let a = newMol.atoms[i];
+// 				if (a2.distance(a) < 5) {
+// 					hits.push(i);
+// 				}
+// 			}
+// 			// make sure to look for the closest, as several atoms may
+// 			// try to merge onto a single atom...
+// 			let closest = -1;
+// 			for(let i = 0, ii = hits.length; i<ii; i++){
+// 				let h = hits[i];
+// 				if (closest === -1 || a2.distance(newMol.atoms[h]) < a2.distance(newMol.atoms[closest])) {
+// 					closest = h;
+// 				}
+// 			}
+// 			if (closest !== -1) {
+// 				let a = newMol.atoms[closest];
+// 				newMol.atoms.splice(closest,1);
+// 				if (a2.x!==pivot.x || a2.y!==pivot.y) {
+// 					a2.isOverlap = true;
+// 				}
+// 				for(let i = 0, ii = newMol.bonds.length; i<ii; i++){
+// 					let b = newMol.bonds[i];
+// 					if(b.a1===a){
+// 						b.a1 = a2;
+// 						b.tmpreplace1 = true;
+// 					}else if(b.a2===a){
+// 						b.a2 = a2;
+// 						b.tmpreplace2 = true;
+// 					}
+// 					if(b.tmpreplace1 && b.tmpreplace2){
+// 						// get rid of the bond if both atoms are overlapping
+// 						// just double check that that bond doesn't exist even if the atoms have both been replaced
+// 						let match = false;
+// 						for(let k = 0, kk = allBs.length; k<kk; k++){
+// 							let b2 = allBs[k];
+// 							if(b.a1===b2.a1 && b.a2===b2.a2 || b.a2===b2.a1 && b.a1===b2.a2){
+// 								match = true;
+// 								break;
+// 							}
+// 						}
+// 						if(match){
+// 							newMol.bonds.splice(i--,1);
+// 							ii--;
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 		newMol.check();
+// 		newMol.check(true);
+// 		return newMol;
+// 	};
+//
+// 	_.innerexit = function() {
+// 		this.removeStartAtom();
+// 	};
+// 	_.innerdrag = function(e) {
+// 		this.newMolAllowed = false;
+// 		this.removeStartAtom();
+// 		if (this.sketcher.hovering) {
+// 			this.sketcher.tempTemplate = this.getTemplate(e.p);
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innerclick = function(e) {
+// 		if (!this.sketcher.hovering && this.newMolAllowed) {
+// 			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom('C', e.p.x, e.p.y) ], []));
+// 			if (!this.sketcher.isMobile) {
+// 				this.mousemove(e);
+// 			}
+// 			this.newMolAllowed = false;
+// 		}
+// 	};
+// 	_.innermousedown = function(e) {
+// 		this.newMolAllowed = true;
+// 		if (this.sketcher.hovering) {
+// 			this.sketcher.hovering.isHover = false;
+// 			this.sketcher.hovering.isSelected = true;
+// 			this.drag(e);
+// 		}else if(!this.sketcher.requireStartingAtom){
+// 			this.placeRequiredAtom(e);
+// 		}
+// 	};
+// 	_.innermouseup = function(e) {
+// 		if (this.sketcher.hovering && this.sketcher.tempTemplate) {
+// 			if(this.sketcher.tempTemplate.atoms.length!==0){
+// 				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, this.sketcher.hovering, this.sketcher.tempTemplate.atoms, this.sketcher.tempTemplate.bonds));
+// 			}
+// 			let allAs = this.sketcher.getAllAtoms();
+// 			for ( let i = 0, ii = allAs.length; i < ii; i++) {
+// 				allAs[i].isOverlap = false;
+// 			}
+// 			this.sketcher.tempTemplate = undefined;
+// 		}
+// 		if (!this.sketcher.isMobile) {
+// 			this.mousemove(e);
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		if (this.sketcher.tempAtom) {
+// 			return;
+// 		}
+// 		this.findHoveredObject(e.p, true);
+// 		if (this.sketcher.startAtom) {
+// 			if (this.sketcher.hovering) {
+// 				this.sketcher.startAtom.x = -10;
+// 				this.sketcher.startAtom.y = -10;
+// 			} else {
+// 				this.sketcher.startAtom.x = e.p.x;
+// 				this.sketcher.startAtom.y = e.p.y;
+// 			}
+// 		}
+// 	};
+// 	_.innermouseout = function(e) {
+// 		this.removeStartAtom();
+// 	};
+//
+// })(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.io, ChemDoodle.structures, Math);
 
-	let INTERPRETER = new io.JSONInterpreter();
+// (function(structures, d2, actions, states, undefined) {
+// 	'use strict';
+// 	states.PusherState = function(sketcher) {
+// 		this.setup(sketcher);
+// 		this.dontTranslateOnDrag = true;
+// 	};
+// 	let _ = states.PusherState.prototype = new states._State();
+// 	_.numElectron = 1;
+// 	_.innermousedown = function(e) {
+// 		if (this.sketcher.hovering && this.start!==this.sketcher.hovering) {
+// 			if(!this.start){
+// 				this.start = this.sketcher.hovering;
+// 			}
+// 		}else{
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innerdrag = function(e) {
+// 		if (this.start) {
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, true, this.numElectron!=-10);
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermouseup = function(e) {
+// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 			let dup;
+// 			let remove = false;
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.Pusher) {
+// 					if (s.o1 === this.start && s.o2 === this.sketcher.hovering) {
+// 						dup = s;
+// 					} else if (s.o2 === this.start && s.o1 === this.sketcher.hovering) {
+// 						dup = s;
+// 						remove = true;
+// 					}
+// 				}else if (s instanceof d2.AtomMapping) {
+// 					if (s.o1 === this.start && s.o2 === this.sketcher.hovering || s.o2 === this.start && s.o1 === this.sketcher.hovering) {
+// 						dup = s;
+// 						remove = true;
+// 					}
+// 				}
+// 			}
+// 			if (dup) {
+// 				if (remove) {
+// 					this.sketcher.historyManager.pushUndo(new actions.DeleteShapeAction(this.sketcher, dup));
+// 				}
+// 				this.start = undefined;
+// 				this.end = undefined;
+// 				this.sketcher.repaint();
+// 			} else {
+// 				let shape;
+// 				if(this.numElectron==-10){
+// 					shape = new d2.AtomMapping(this.start, this.sketcher.hovering);
+// 				}else{
+// 					shape = new d2.Pusher(this.start, this.sketcher.hovering, this.numElectron);
+// 				}
+// 				this.start = undefined;
+// 				this.end = undefined;
+// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, shape));
+// 			}
+// 		} else {
+// 			//this.start = undefined;
+// 			//this.end = undefined;
+// 			//this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		if(this.start){
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 		}
+// 		this.findHoveredObject(e.p, true, this.numElectron!=-10);
+// 		this.sketcher.repaint();
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		if (this.start && this.end) {
+// 			ctx.strokeStyle = styles.colorPreview;
+// 			ctx.fillStyle = styles.colorPreview;
+// 			ctx.lineWidth = 1;
+// 			let p1 = this.start instanceof structures.Atom ? this.start : this.start.getCenter();
+// 			let p2 = this.end;
+// 			if (this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 				p2 = this.sketcher.hovering instanceof structures.Atom ? this.sketcher.hovering : this.sketcher.hovering.getCenter();
+// 			}
+// 			ctx.beginPath();
+// 			ctx.moveTo(p1.x, p1.y);
+// 			ctx.lineTo(p2.x, p2.y);
+// 			ctx.setLineDash([2]);
+// 			ctx.stroke();
+// 			ctx.setLineDash([]);
+// 		}
+// 	};
+//
+// })(ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states);
 
-	states.NewTemplateState = function(sketcher) {
-		this.setup(sketcher);
-		this.template = {"a":[{"x":270,"i":"a0","y":105},{"x":252.6795,"i":"a1","y":115},{"x":252.6795,"i":"a2","y":135},{"x":270,"i":"a3","y":145},{"x":287.3205,"i":"a4","y":135},{"x":287.3205,"i":"a5","y":115},{"x":270,"i":"a6","y":85},{"x":287.3205,"i":"a7","y":75},{"x":270,"i":"a8","y":165,"l":"O"},{"x":252.6795,"i":"a9","y":175},{"x":252.6795,"i":"a10","y":195},{"x":252.6795,"i":"a11","y":215},{"x":252.6795,"i":"a12","y":235,"l":"Si"},{"x":272.6795,"i":"a13","y":235},{"x":232.6795,"i":"a14","y":235},{"x":252.6795,"i":"a15","y":255}],"b":[{"b":0,"e":1,"i":"b0","o":2},{"b":1,"e":2,"i":"b1"},{"b":2,"e":3,"i":"b2","o":2},{"b":3,"e":4,"i":"b3"},{"b":4,"e":5,"i":"b4","o":2},{"b":5,"e":0,"i":"b5"},{"b":0,"e":6,"i":"b6"},{"b":6,"e":7,"i":"b7","o":2},{"b":3,"e":8,"i":"b8"},{"b":8,"e":9,"i":"b9"},{"b":9,"e":10,"i":"b10"},{"b":10,"e":11,"i":"b11","o":3},{"b":11,"e":12,"i":"b12"},{"b":12,"e":13,"i":"b13"},{"b":12,"e":14,"i":"b14"},{"b":12,"e":15,"i":"b15"}]};
-		this.attachPos = 0;
-	};
-	let _ = states.NewTemplateState.prototype = new states._State();
-	_.getTemplate = function(p) {
-		let origin = this.sketcher.hovering;
-		let newMol = INTERPRETER.molFrom(this.template);
-		newMol.scaleToAverageBondLength(this.sketcher.styles.bondLength_2D);
-		let pivot = newMol.atoms[this.attachPos];
-		let thrad = origin.angle(p);
-		let rotate = true;
-		if (!monitor.ALT) {
-			if (origin.distance(p) < 15) {
-				let angles = this.sketcher.getMoleculeByAtom(this.sketcher.hovering).getAngles(this.sketcher.hovering);
-				if (angles.length === 0) {
-					thrad = 0;
-					rotate = false;
-				} else if (angles.length === 1) {
-					thrad = angles[0] + m.PI;
-				} else {
-					thrad = math.angleBetweenLargest(angles).angle;
-				}
-				let angles2 = newMol.getAngles(pivot);
-				if (angles2.length === 1) {
-					thrad -= angles2[0] + (angles.length === 1 ? m.PI / 3 : 0);
-				} else {
-					thrad -= math.angleBetweenLargest(angles2).angle + m.PI;
-				}
-			} else {
-				let divider = m.round(thrad / (m.PI / 6));
-				thrad = divider * m.PI / 6;
-			}
-		}
-		let difx = origin.x-pivot.x;
-		let dify = origin.y-pivot.y;
-		for(let i = 0, ii = newMol.atoms.length; i<ii; i++){
-			let a = newMol.atoms[i];
-			a.x+=difx;
-			a.y+=dify;
-		}
-		if (rotate) {
-			for(let i = 0, ii = newMol.atoms.length; i<ii; i++){
-				let a = newMol.atoms[i];
-				let angleUse = a.angle(origin) + thrad;
-				let distance = pivot.distance(a);
-				if (monitor.SHIFT) {
-					distance *= origin.distance(p) / this.sketcher.styles.bondLength_2D;
-				}
-				a.x = origin.x - m.cos(angleUse) * distance;
-				a.y = origin.y + m.sin(angleUse) * distance;
-			}
-		}
-		let allAs = this.sketcher.getAllAtoms();
-		let allBs = this.sketcher.getAllBonds();
-		for ( let j = 0, jj = allAs.length; j < jj; j++) {
-			let a2 = allAs[j];
-			a2.isOverlap = false;
-			let hits = [];
-			for(let i = 0, ii = newMol.atoms.length; i<ii; i++){
-				let a = newMol.atoms[i];
-				if (a2.distance(a) < 5) {
-					hits.push(i);
-				}
-			}
-			// make sure to look for the closest, as several atoms may
-			// try to merge onto a single atom...
-			let closest = -1;
-			for(let i = 0, ii = hits.length; i<ii; i++){
-				let h = hits[i];
-				if (closest === -1 || a2.distance(newMol.atoms[h]) < a2.distance(newMol.atoms[closest])) {
-					closest = h;
-				}
-			}
-			if (closest !== -1) {
-				let a = newMol.atoms[closest];
-				newMol.atoms.splice(closest,1);
-				if (a2.x!==pivot.x || a2.y!==pivot.y) {
-					a2.isOverlap = true;
-				}
-				for(let i = 0, ii = newMol.bonds.length; i<ii; i++){
-					let b = newMol.bonds[i];
-					if(b.a1===a){
-						b.a1 = a2;
-						b.tmpreplace1 = true;
-					}else if(b.a2===a){
-						b.a2 = a2;
-						b.tmpreplace2 = true;
-					}
-					if(b.tmpreplace1 && b.tmpreplace2){
-						// get rid of the bond if both atoms are overlapping
-						// just double check that that bond doesn't exist even if the atoms have both been replaced
-						let match = false;
-						for(let k = 0, kk = allBs.length; k<kk; k++){
-							let b2 = allBs[k];
-							if(b.a1===b2.a1 && b.a2===b2.a2 || b.a2===b2.a1 && b.a1===b2.a2){
-								match = true;
-								break;
-							}
-						}
-						if(match){
-							newMol.bonds.splice(i--,1);
-							ii--;
-						}
-					}
-				}
-			}
-		}
-		newMol.check();
-		newMol.check(true);
-		return newMol;
-	};
+// (function(actions, states, structures, d2, undefined) {
+// 	'use strict';
+// 	states.QueryState = function(sketcher) {
+// 		this.setup(sketcher);
+// 	};
+// 	let _ = states.QueryState.prototype = new states._State();
+// 	_.innermouseup = function(e) {
+// 		if (this.sketcher.hovering) {
+// 			if(this.sketcher.hovering instanceof structures.Atom){
+// 				this.sketcher.dialogManager.atomQueryDialog.setAtom(this.sketcher.hovering);
+// 				this.sketcher.dialogManager.atomQueryDialog.open();
+// 			}else if(this.sketcher.hovering instanceof structures.Bond){
+// 				this.sketcher.dialogManager.bondQueryDialog.setBond(this.sketcher.hovering);
+// 				this.sketcher.dialogManager.bondQueryDialog.open();
+// 			}
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		this.findHoveredObject(e.p, true, true, false);
+// 	};
+//
+// })(ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.structures, ChemDoodle.structures.d2);
 
-	_.innerexit = function() {
-		this.removeStartAtom();
-	};
-	_.innerdrag = function(e) {
-		this.newMolAllowed = false;
-		this.removeStartAtom();
-		if (this.sketcher.hovering) {
-			this.sketcher.tempTemplate = this.getTemplate(e.p);
-			this.sketcher.repaint();
-		}
-	};
-	_.innerclick = function(e) {
-		if (!this.sketcher.hovering && this.newMolAllowed) {
-			this.sketcher.historyManager.pushUndo(new actions.NewMoleculeAction(this.sketcher, [ new structures.Atom('C', e.p.x, e.p.y) ], []));
-			if (!this.sketcher.isMobile) {
-				this.mousemove(e);
-			}
-			this.newMolAllowed = false;
-		}
-	};
-	_.innermousedown = function(e) {
-		this.newMolAllowed = true;
-		if (this.sketcher.hovering) {
-			this.sketcher.hovering.isHover = false;
-			this.sketcher.hovering.isSelected = true;
-			this.drag(e);
-		}else if(!this.sketcher.requireStartingAtom){
-			this.placeRequiredAtom(e);
-		}
-	};
-	_.innermouseup = function(e) {
-		if (this.sketcher.hovering && this.sketcher.tempTemplate) {
-			if(this.sketcher.tempTemplate.atoms.length!==0){
-				this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, this.sketcher.hovering, this.sketcher.tempTemplate.atoms, this.sketcher.tempTemplate.bonds));
-			}
-			let allAs = this.sketcher.getAllAtoms();
-			for ( let i = 0, ii = allAs.length; i < ii; i++) {
-				allAs[i].isOverlap = false;
-			}
-			this.sketcher.tempTemplate = undefined;
-		}
-		if (!this.sketcher.isMobile) {
-			this.mousemove(e);
-		}
-	};
-	_.innermousemove = function(e) {
-		if (this.sketcher.tempAtom) {
-			return;
-		}
-		this.findHoveredObject(e.p, true);
-		if (this.sketcher.startAtom) {
-			if (this.sketcher.hovering) {
-				this.sketcher.startAtom.x = -10;
-				this.sketcher.startAtom.y = -10;
-			} else {
-				this.sketcher.startAtom.x = e.p.x;
-				this.sketcher.startAtom.y = e.p.y;
-			}
-		}
-	};
-	_.innermouseout = function(e) {
-		this.removeStartAtom();
-	};
-
-})(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.io, ChemDoodle.structures, Math);
-
-(function(structures, d2, actions, states, undefined) {
-	'use strict';
-	states.PusherState = function(sketcher) {
-		this.setup(sketcher);
-		this.dontTranslateOnDrag = true;
-	};
-	let _ = states.PusherState.prototype = new states._State();
-	_.numElectron = 1;
-	_.innermousedown = function(e) {
-		if (this.sketcher.hovering && this.start!==this.sketcher.hovering) {
-			if(!this.start){
-				this.start = this.sketcher.hovering;
-			}
-		}else{
-			this.start = undefined;
-			this.end = undefined;
-			this.sketcher.repaint();
-		}
-	};
-	_.innerdrag = function(e) {
-		if (this.start) {
-			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e.p, true, this.numElectron!=-10);
-			this.sketcher.repaint();
-		}
-	};
-	_.innermouseup = function(e) {
-		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-			let dup;
-			let remove = false;
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if (s instanceof d2.Pusher) {
-					if (s.o1 === this.start && s.o2 === this.sketcher.hovering) {
-						dup = s;
-					} else if (s.o2 === this.start && s.o1 === this.sketcher.hovering) {
-						dup = s;
-						remove = true;
-					}
-				}else if (s instanceof d2.AtomMapping) {
-					if (s.o1 === this.start && s.o2 === this.sketcher.hovering || s.o2 === this.start && s.o1 === this.sketcher.hovering) {
-						dup = s;
-						remove = true;
-					}
-				}
-			}
-			if (dup) {
-				if (remove) {
-					this.sketcher.historyManager.pushUndo(new actions.DeleteShapeAction(this.sketcher, dup));
-				}
-				this.start = undefined;
-				this.end = undefined;
-				this.sketcher.repaint();
-			} else {
-				let shape;
-				if(this.numElectron==-10){
-					shape = new d2.AtomMapping(this.start, this.sketcher.hovering);
-				}else{
-					shape = new d2.Pusher(this.start, this.sketcher.hovering, this.numElectron);
-				}
-				this.start = undefined;
-				this.end = undefined;
-				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, shape));
-			}
-		} else {
-			//this.start = undefined;
-			//this.end = undefined;
-			//this.sketcher.repaint();
-		}
-	};
-	_.innermousemove = function(e) {
-		if(this.start){
-			this.end = new structures.Point(e.p.x, e.p.y);
-		}
-		this.findHoveredObject(e.p, true, this.numElectron!=-10);
-		this.sketcher.repaint();
-	};
-	_.draw = function(ctx, styles) {
-		if (this.start && this.end) {
-			ctx.strokeStyle = styles.colorPreview;
-			ctx.fillStyle = styles.colorPreview;
-			ctx.lineWidth = 1;
-			let p1 = this.start instanceof structures.Atom ? this.start : this.start.getCenter();
-			let p2 = this.end;
-			if (this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-				p2 = this.sketcher.hovering instanceof structures.Atom ? this.sketcher.hovering : this.sketcher.hovering.getCenter();
-			}
-			ctx.beginPath();
-			ctx.moveTo(p1.x, p1.y);
-			ctx.lineTo(p2.x, p2.y);
-			ctx.setLineDash([2]);
-			ctx.stroke();
-			ctx.setLineDash([]);
-		}
-	};
-
-})(ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states);
-
-(function(actions, states, structures, d2, undefined) {
-	'use strict';
-	states.QueryState = function(sketcher) {
-		this.setup(sketcher);
-	};
-	let _ = states.QueryState.prototype = new states._State();
-	_.innermouseup = function(e) {
-		if (this.sketcher.hovering) {
-			if(this.sketcher.hovering instanceof structures.Atom){
-				this.sketcher.dialogManager.atomQueryDialog.setAtom(this.sketcher.hovering);
-				this.sketcher.dialogManager.atomQueryDialog.open();
-			}else if(this.sketcher.hovering instanceof structures.Bond){
-				this.sketcher.dialogManager.bondQueryDialog.setBond(this.sketcher.hovering);
-				this.sketcher.dialogManager.bondQueryDialog.open();
-			}
-		}
-	};
-	_.innermousemove = function(e) {
-		this.findHoveredObject(e.p, true, true, false);
-	};
-
-})(ChemDoodle.uis.actions, ChemDoodle.uis.states, ChemDoodle.structures, ChemDoodle.structures.d2);
-
-(function(actions, states, undefined) {
-	'use strict';
-	states.RadicalState = function(sketcher) {
-		this.setup(sketcher);
-	};
-	let _ = states.RadicalState.prototype = new states._State();
-	_.delta = 1;
-	_.innermouseup = function(e) {
-		if (this.delta < 0 && this.sketcher.hovering.numRadical < 1) {
-			return;
-		}
-		if (this.sketcher.hovering) {
-			this.sketcher.historyManager.pushUndo(new actions.ChangeRadicalAction(this.sketcher.hovering, this.delta));
-		}
-	};
-	_.innermousemove = function(e) {
-		this.findHoveredObject(e.p, true, false);
-	};
-
-})(ChemDoodle.uis.actions, ChemDoodle.uis.states);
+// (function(actions, states, undefined) {
+// 	'use strict';
+// 	states.RadicalState = function(sketcher) {
+// 		this.setup(sketcher);
+// 	};
+// 	let _ = states.RadicalState.prototype = new states._State();
+// 	_.delta = 1;
+// 	_.innermouseup = function(e) {
+// 		if (this.delta < 0 && this.sketcher.hovering.numRadical < 1) {
+// 			return;
+// 		}
+// 		if (this.sketcher.hovering) {
+// 			this.sketcher.historyManager.pushUndo(new actions.ChangeRadicalAction(this.sketcher.hovering, this.delta));
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		this.findHoveredObject(e.p, true, false);
+// 	};
+//
+// })(ChemDoodle.uis.actions, ChemDoodle.uis.states);
 
 (function(math, monitor, structures, d2, actions, states, m, undefined) {
 	'use strict';
@@ -4487,183 +4487,183 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 
 })(ChemDoodle.math, ChemDoodle.monitor, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states, Math);
 
-(function(math, structures, d2, actions, states, undefined) {
-	'use strict';
-	states.VAPState = function(sketcher) {
-		this.setup(sketcher);
-		this.dontTranslateOnDrag = true;
-	};
-	let _ = states.VAPState.prototype = new states._State();
-	_.innermousedown = function(e) {
-		if(!this.sketcher.hovering && (!this.start || !(this.start instanceof d2.VAP))){
-			// out of convenience, since the user cannot drag from the VAP asterisk and may accidentally try to, don't allow placement of another vap within 30 pixels
-			let add = true;
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if(s instanceof d2.VAP && s.asterisk.distance(e.p)<30){
-					add = false;
-				}
-			}
-			if(add){
-				let vap = new d2.VAP(e.p.x, e.p.y);
-				if (!this.sketcher.isMobile) {
-					vap.isHover = true;
-					this.sketcher.hovering = vap;
-				}
-				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, vap));
-			}
-		}else if (this.sketcher.hovering && this.start!==this.sketcher.hovering) {
-			if(this.sketcher.hovering.hoverBond){
-				let vap = this.sketcher.hovering;
-				if(vap.hoverBond===vap.substituent){
-					let nbo = 1;
-					if(vap.bondType===1 || vap.bondType===2){
-						nbo = vap.bondType+1;
-					}else if(vap.bondType===3){
-						nbo = .5;
-					}
-					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPOrderAction(vap, nbo));
-				}else {
-					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPSubstituentAction(vap, this.sketcher.hovering.hoverBond));
-				}
-			}else if(!this.start){
-				this.start = this.sketcher.hovering;
-			}
-		}else{
-			this.start = undefined;
-			this.end = undefined;
-			this.sketcher.repaint();
-		}
-	};
-	_.innerdrag = function(e) {
-		if (this.start) {
-			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
-			this.sketcher.repaint();
-		}
-	};
-	_.innermouseup = function(e) {
-		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-			let vap = this.sketcher.hovering;
-			let attach = this.start;
-			if(attach instanceof d2.VAP){
-				let tmp = vap;
-				vap = attach;
-				attach = tmp;
-			}
-			if(vap.substituent!==attach && vap.attachments.indexOf(attach)===-1){
-				this.sketcher.historyManager.pushUndo(new actions.AddVAPAttachementAction(vap, attach, vap.substituent===undefined));
-			}
-			this.start = undefined;
-			this.end = undefined;
-			this.sketcher.repaint();
-		} else {
-			//this.start = undefined;
-			//this.end = undefined;
-			//this.sketcher.repaint();
-		}
-	};
-	_.innermousemove = function(e) {
-		if(this.start){
-			this.end = new structures.Point(e.p.x, e.p.y);
-			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
-		}else{
-			this.findHoveredObject(e.p, true, true, true);
-		}
-		this.sketcher.repaint();
-	};
-	_.draw = function(ctx, styles) {
-		if (this.start && this.end) {
-			ctx.strokeStyle = styles.colorPreview;
-			ctx.fillStyle = styles.colorPreview;
-			ctx.lineWidth = 1;
-			let p1 = this.start;
-			let p2 = this.end;
-			if (this.sketcher.hovering) {
-				p2 = this.sketcher.hovering;
-			}
-			if(p1 instanceof d2.VAP){
-				p1 = p1.asterisk;
-			}
-			if(p2 instanceof d2.VAP){
-				p2 = p2.asterisk;
-			}
-			ctx.beginPath();
-			ctx.moveTo(p1.x, p1.y);
-			ctx.lineTo(p2.x, p2.y);
-			ctx.setLineDash([2]);
-			ctx.stroke();
-			ctx.setLineDash([]);
-		}
-	};
-	_.findHoveredObject = function(e, includeAtoms, includeVAPsBonds, includeVAPsAsterisks) {
-		this.clearHover();
-		let min = Infinity;
-		let hovering;
-		let hoverdist = 10;
-		if (!this.sketcher.isMobile) {
-			hoverdist /= this.sketcher.styles.scale;
-		}
-		if (includeAtoms) {
-			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-				let mol = this.sketcher.molecules[i];
-				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-					let a = mol.atoms[j];
-					a.isHover = false;
-					let dist = e.p.distance(a);
-					if (dist < hoverdist && dist < min) {
-						min = dist;
-						hovering = a;
-					}
-				}
-			}
-		}
-		if (includeVAPsBonds) {
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if(s instanceof d2.VAP){
-					s.hoverBond = undefined;
-					if(s.substituent){
-						let att = s.substituent;
-						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
-						if (dist !== -1 && dist < hoverdist && dist < min) {
-							min = dist;
-							s.hoverBond = att;
-							hovering = s;
-						}
-					}
-					for ( let j = 0, jj = s.attachments.length; j < jj; j++) {
-						let att = s.attachments[j];
-						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
-						if (dist !== -1 && dist < hoverdist && dist < min) {
-							min = dist;
-							s.hoverBond = att;
-							hovering = s;
-						}
-					}
-				}
-			}
-		}
-		if (includeVAPsAsterisks) {
-			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-				let s = this.sketcher.shapes[i];
-				if(s instanceof d2.VAP){
-					s.isHover = false;
-					let dist = e.p.distance(s.asterisk);
-					if (dist < hoverdist && dist < min) {
-						min = dist;
-						hovering = s;
-					}
-				}
-			}
-		}
-		if (hovering) {
-			hovering.isHover = true;
-			this.sketcher.hovering = hovering;
-		}
-	};
-
-})(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states);
+// (function(math, structures, d2, actions, states, undefined) {
+// 	'use strict';
+// 	states.VAPState = function(sketcher) {
+// 		this.setup(sketcher);
+// 		this.dontTranslateOnDrag = true;
+// 	};
+// 	let _ = states.VAPState.prototype = new states._State();
+// 	_.innermousedown = function(e) {
+// 		if(!this.sketcher.hovering && (!this.start || !(this.start instanceof d2.VAP))){
+// 			// out of convenience, since the user cannot drag from the VAP asterisk and may accidentally try to, don't allow placement of another vap within 30 pixels
+// 			let add = true;
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if(s instanceof d2.VAP && s.asterisk.distance(e.p)<30){
+// 					add = false;
+// 				}
+// 			}
+// 			if(add){
+// 				let vap = new d2.VAP(e.p.x, e.p.y);
+// 				if (!this.sketcher.isMobile) {
+// 					vap.isHover = true;
+// 					this.sketcher.hovering = vap;
+// 				}
+// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, vap));
+// 			}
+// 		}else if (this.sketcher.hovering && this.start!==this.sketcher.hovering) {
+// 			if(this.sketcher.hovering.hoverBond){
+// 				let vap = this.sketcher.hovering;
+// 				if(vap.hoverBond===vap.substituent){
+// 					let nbo = 1;
+// 					if(vap.bondType===1 || vap.bondType===2){
+// 						nbo = vap.bondType+1;
+// 					}else if(vap.bondType===3){
+// 						nbo = .5;
+// 					}
+// 					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPOrderAction(vap, nbo));
+// 				}else {
+// 					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPSubstituentAction(vap, this.sketcher.hovering.hoverBond));
+// 				}
+// 			}else if(!this.start){
+// 				this.start = this.sketcher.hovering;
+// 			}
+// 		}else{
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innerdrag = function(e) {
+// 		if (this.start) {
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermouseup = function(e) {
+// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 			let vap = this.sketcher.hovering;
+// 			let attach = this.start;
+// 			if(attach instanceof d2.VAP){
+// 				let tmp = vap;
+// 				vap = attach;
+// 				attach = tmp;
+// 			}
+// 			if(vap.substituent!==attach && vap.attachments.indexOf(attach)===-1){
+// 				this.sketcher.historyManager.pushUndo(new actions.AddVAPAttachementAction(vap, attach, vap.substituent===undefined));
+// 			}
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		} else {
+// 			//this.start = undefined;
+// 			//this.end = undefined;
+// 			//this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		if(this.start){
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
+// 		}else{
+// 			this.findHoveredObject(e.p, true, true, true);
+// 		}
+// 		this.sketcher.repaint();
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		if (this.start && this.end) {
+// 			ctx.strokeStyle = styles.colorPreview;
+// 			ctx.fillStyle = styles.colorPreview;
+// 			ctx.lineWidth = 1;
+// 			let p1 = this.start;
+// 			let p2 = this.end;
+// 			if (this.sketcher.hovering) {
+// 				p2 = this.sketcher.hovering;
+// 			}
+// 			if(p1 instanceof d2.VAP){
+// 				p1 = p1.asterisk;
+// 			}
+// 			if(p2 instanceof d2.VAP){
+// 				p2 = p2.asterisk;
+// 			}
+// 			ctx.beginPath();
+// 			ctx.moveTo(p1.x, p1.y);
+// 			ctx.lineTo(p2.x, p2.y);
+// 			ctx.setLineDash([2]);
+// 			ctx.stroke();
+// 			ctx.setLineDash([]);
+// 		}
+// 	};
+// 	_.findHoveredObject = function(e, includeAtoms, includeVAPsBonds, includeVAPsAsterisks) {
+// 		this.clearHover();
+// 		let min = Infinity;
+// 		let hovering;
+// 		let hoverdist = 10;
+// 		if (!this.sketcher.isMobile) {
+// 			hoverdist /= this.sketcher.styles.scale;
+// 		}
+// 		if (includeAtoms) {
+// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+// 				let mol = this.sketcher.molecules[i];
+// 				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
+// 					let a = mol.atoms[j];
+// 					a.isHover = false;
+// 					let dist = e.p.distance(a);
+// 					if (dist < hoverdist && dist < min) {
+// 						min = dist;
+// 						hovering = a;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if (includeVAPsBonds) {
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if(s instanceof d2.VAP){
+// 					s.hoverBond = undefined;
+// 					if(s.substituent){
+// 						let att = s.substituent;
+// 						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
+// 						if (dist !== -1 && dist < hoverdist && dist < min) {
+// 							min = dist;
+// 							s.hoverBond = att;
+// 							hovering = s;
+// 						}
+// 					}
+// 					for ( let j = 0, jj = s.attachments.length; j < jj; j++) {
+// 						let att = s.attachments[j];
+// 						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
+// 						if (dist !== -1 && dist < hoverdist && dist < min) {
+// 							min = dist;
+// 							s.hoverBond = att;
+// 							hovering = s;
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if (includeVAPsAsterisks) {
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if(s instanceof d2.VAP){
+// 					s.isHover = false;
+// 					let dist = e.p.distance(s.asterisk);
+// 					if (dist < hoverdist && dist < min) {
+// 						min = dist;
+// 						hovering = s;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if (hovering) {
+// 			hovering.isHover = true;
+// 			this.sketcher.hovering = hovering;
+// 		}
+// 	};
+//
+// })(ChemDoodle.math, ChemDoodle.structures, ChemDoodle.structures.d2, ChemDoodle.uis.actions, ChemDoodle.uis.states);
 
 /** State manager */
 (function(states, imageDepot, undefined) {
@@ -4672,22 +4672,22 @@ ChemDoodle.uis.gui.imageDepot = (function (undefined) {
 		this.STATE_NEW_BOND = new states.NewBondState(sketcher);
 		this.STATE_NEW_RING = new states.NewRingState(sketcher);
 		this.STATE_NEW_CHAIN = new states.NewChainState(sketcher);
-		this.STATE_NEW_TEMPLATE= new states.NewTemplateState(sketcher);
-		if(states.TextInputState){
-			this.STATE_TEXT_INPUT= new states.TextInputState(sketcher);
-		}
+		// this.STATE_NEW_TEMPLATE= new states.NewTemplateState(sketcher);
+		// if(states.TextInputState){
+		// 	this.STATE_TEXT_INPUT= new states.TextInputState(sketcher);
+		// }
 		this.STATE_CHARGE = new states.ChargeState(sketcher);
-		this.STATE_LONE_PAIR = new states.LonePairState(sketcher);
-		this.STATE_RADICAL = new states.RadicalState(sketcher);
+		// this.STATE_LONE_PAIR = new states.LonePairState(sketcher);
+		// this.STATE_RADICAL = new states.RadicalState(sketcher);
 		this.STATE_MOVE = new states.MoveState(sketcher);
 		this.STATE_ERASE = new states.EraseState(sketcher);
 		this.STATE_LABEL = new states.LabelState(sketcher);
 		this.STATE_LASSO = new states.LassoState(sketcher);
-		this.STATE_SHAPE = new states.ShapeState(sketcher);
-		this.STATE_PUSHER = new states.PusherState(sketcher);
-		this.STATE_DYNAMIC_BRACKET = new states.DynamicBracketState(sketcher);
-		this.STATE_VAP = new states.VAPState(sketcher);
-		this.STATE_QUERY = new states.QueryState(sketcher);
+		// this.STATE_SHAPE = new states.ShapeState(sketcher);
+		// this.STATE_PUSHER = new states.PusherState(sketcher);
+		// this.STATE_DYNAMIC_BRACKET = new states.DynamicBracketState(sketcher);
+		// this.STATE_VAP = new states.VAPState(sketcher);
+		// this.STATE_QUERY = new states.QueryState(sketcher);
 		let currentState = this.STATE_NEW_BOND;
 		this.setState = function(nextState) {
 			if (nextState !== currentState) {

@@ -1,11 +1,12 @@
 //
 //  Copyright 2006-2010 iChemLabs, LLC.  All rights reserved.
 //
+console.log('hi');
+
 let ChemDoodle = (function() {
 	'use strict';
 	var c = {};
 
-	c.iChemLabs = {};
 	c.informatics = {};
 	c.io = {};
 	c.lib = {};
@@ -14,7 +15,7 @@ let ChemDoodle = (function() {
 	c.structures.d2 = {};
 	c.structures.d3 = {};
 
-	var VERSION = '7.0.1';
+	let VERSION = '7.0.1';
 
 	c.getVersion = function() {
 		return VERSION;
@@ -209,66 +210,66 @@ ChemDoodle.extensions = (function(structures, v3, m, undefined) {
 
 })(ChemDoodle.structures, ChemDoodle.lib.vec3, Math);
 
-(function(Object, Math, undefined) {
-	'use strict';
-
-	// polyfills exist here, mostly for IE11 support
-
-	// Math.sign used by SESSurface.generate()
-	if (!Math.sign) {
-	  Math.sign = function(x) {
-	    // If x is NaN, the result is NaN.
-	    // If x is -0, the result is -0.
-	    // If x is +0, the result is +0.
-	    // If x is negative and not -0, the result is -1.
-	    // If x is positive and not +0, the result is +1.
-	    return ((x > 0) - (x < 0)) || +x;
-	    // A more aesthetic pseudo-representation:
-	    // ( (x > 0) ? 1 : 0 )  // if x is positive, then positive one
-	    //          +           // else (because you can't be both - and +)
-	    // ( (x < 0) ? -1 : 0 ) // if x is negative, then negative one
-	    //         ||           // if x is 0, -0, or NaN, or not a number,
-	    //         +x           // then the result will be x, (or) if x is
-	    //                      // not a number, then x converts to number
-	  };
-	}
-
-	// polyfill for Object.assign on IE11
-	// used by Styles constructor
-	if (typeof Object.assign != 'function') {
-	    Object.assign = function (target, varArgs) {
-	        'use strict';
-	        if (target == null) { // TypeError if undefined or null
-	            throw new TypeError('Cannot convert undefined or null to object');
-	        }
-
-	        var to = Object(target);
-
-	        for (var index = 1; index < arguments.length; index++) {
-	            var nextSource = arguments[index];
-
-	            if (nextSource != null) { // Skip over if undefined or null
-	                for (var nextKey in nextSource) {
-	                    // Avoid bugs when hasOwnProperty is shadowed
-	                    if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-	                        to[nextKey] = nextSource[nextKey];
-	                    }
-	                }
-	            }
-	        }
-	        return to;
-	    };
-	}
-
-	// polyfill for String.startsWith() on IE11
-	if (!String.prototype.startsWith) {
-		String.prototype.startsWith = function(searchString, position){
-		  position = position || 0;
-		  return this.substr(position, searchString.length) === searchString;
-	  };
-	}
-
-})(Object, Math);
+// (function(Object, Math, undefined) {
+// 	'use strict';
+//
+// 	// polyfills exist here, mostly for IE11 support
+//
+// 	// Math.sign used by SESSurface.generate()
+// 	if (!Math.sign) {
+// 	  Math.sign = function(x) {
+// 	    // If x is NaN, the result is NaN.
+// 	    // If x is -0, the result is -0.
+// 	    // If x is +0, the result is +0.
+// 	    // If x is negative and not -0, the result is -1.
+// 	    // If x is positive and not +0, the result is +1.
+// 	    return ((x > 0) - (x < 0)) || +x;
+// 	    // A more aesthetic pseudo-representation:
+// 	    // ( (x > 0) ? 1 : 0 )  // if x is positive, then positive one
+// 	    //          +           // else (because you can't be both - and +)
+// 	    // ( (x < 0) ? -1 : 0 ) // if x is negative, then negative one
+// 	    //         ||           // if x is 0, -0, or NaN, or not a number,
+// 	    //         +x           // then the result will be x, (or) if x is
+// 	    //                      // not a number, then x converts to number
+// 	  };
+// 	}
+//
+// 	// polyfill for Object.assign on IE11
+// 	// used by Styles constructor
+// 	if (typeof Object.assign != 'function') {
+// 	    Object.assign = function (target, varArgs) {
+// 	        'use strict';
+// 	        if (target == null) { // TypeError if undefined or null
+// 	            throw new TypeError('Cannot convert undefined or null to object');
+// 	        }
+//
+// 	        var to = Object(target);
+//
+// 	        for (var index = 1; index < arguments.length; index++) {
+// 	            var nextSource = arguments[index];
+//
+// 	            if (nextSource != null) { // Skip over if undefined or null
+// 	                for (var nextKey in nextSource) {
+// 	                    // Avoid bugs when hasOwnProperty is shadowed
+// 	                    if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+// 	                        to[nextKey] = nextSource[nextKey];
+// 	                    }
+// 	                }
+// 	            }
+// 	        }
+// 	        return to;
+// 	    };
+// 	}
+//
+// 	// polyfill for String.startsWith() on IE11
+// 	if (!String.prototype.startsWith) {
+// 		String.prototype.startsWith = function(searchString, position){
+// 		  position = position || 0;
+// 		  return this.substr(position, searchString.length) === searchString;
+// 	  };
+// 	}
+//
+// })(Object, Math);
 
 ChemDoodle.math = (function(c, structures, m, undefined) {
 	'use strict';
@@ -1002,6 +1003,8 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 // 	return R;
 //
 // })();
+
+/** Structures */
 
 (function(structures, undefined) {
 	'use strict';
@@ -3858,7 +3861,7 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 //
 // })(ChemDoodle.structures, Math, ChemDoodle.lib.mat4, ChemDoodle.lib.vec3);
 
-/** Spectrum structure */
+// Spectrum structure
 // (function(extensions, structures, math, m, undefined) {
 // 	'use strict';
 // 	structures.Spectrum = function() {
@@ -4281,6 +4284,8 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 // 	};
 //
 // })(ChemDoodle.extensions, ChemDoodle.structures, ChemDoodle.math, Math);
+
+/** Shapes */
 
 (function(math, d2, m, undefined) {
 	'use strict';
@@ -5292,6 +5297,8 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 //
 // })(ChemDoodle.structures, ChemDoodle.extensions, Math);
 
+/** Styles */
+
 (function (c, structures, m, JSON, Object, undefined) {
 	'use strict';
 
@@ -5554,6 +5561,8 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 	};
 
 })(ChemDoodle, ChemDoodle.structures, Math, JSON, Object);
+
+/** Informatics */
 
 (function(c, ELEMENT, informatics, structures, undefined) {
 	'use strict';
@@ -6019,8 +6028,6 @@ ChemDoodle.ELEMENT = (function(SYMBOLS, undefined) {
 
 /** IO */
 
-//attachIO(ChemDoodle);
-
 ChemDoodle.io = (function(undefined) {
 	'use strict';
 	let io = {}
@@ -6039,7 +6046,7 @@ ChemDoodle.io = (function(undefined) {
 	return io
 })();
 
-/** JSON interpreter */
+
 (function(c, io, structures, d2, d3, JSON) {
 	'use strict';
 	io.JSONInterpreter = function() {
@@ -6762,6 +6769,8 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 	return m;
 
 })(ChemDoodle.featureDetection, document);
+
+/** Canvases */
 
 (function(c, featureDetection, math, monitor, structures, m, document, window, userAgent, undefined) {
 	'use strict';
@@ -7959,7 +7968,7 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 
 })(ChemDoodle);
 
-/** Spectrum canvas */
+// Spectrum canvas
 // (function(c, document, undefined) {
 // 	'use strict';
 // 	c._SpectrumCanvas = function(id, width, height) {
