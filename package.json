@@ -38,7 +38,8 @@
     "webpack-merge": "^5.1.2",
     "webpack-merge-and-include-globally": "^2.1.25",
     "webpack-node-externals": "^2.5.1",
-    "webpack-plugin-serve": "^1.0.1"
+    "webpack-plugin-serve": "^1.0.1",
+    "webpack-watch-files-plugin": "^1.0.3"
   },
   "dependencies": {
     "raw-loader": "^4.0.1",

@@ -4,6 +4,8 @@
 
 //******************************************************************
 
+console.log('update 3 from core.js');
+
 let Chemio = (function() {
 	'use strict';
 	let c = {};
