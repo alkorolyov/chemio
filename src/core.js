@@ -8360,6 +8360,7 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 //
 // })(ChemDoodle, ChemDoodle.extensions, ChemDoodle.math, document);
 
+// export ChemDoodle object
 module.exports = ChemDoodle;
 
 // Needed for Hot Module Replacement

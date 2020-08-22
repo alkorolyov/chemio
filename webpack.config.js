@@ -1,22 +1,21 @@
 const path = require("path")
 const webpack = require('webpack')
 const HtmlWebPackPlugin = require("html-webpack-plugin")
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-    mode: "development",
     entry: {
-        // main: './src/core.js'
-        main: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './src/core.js']
+        main: './src/app.js'
     },
+    target: "web",
+    devtool: false,
     output: {
         path: path.join(__dirname, 'dist'),
         publicPath: '/',
         filename: '[name].js',
-        library: 'chemio',
+        library: 'Chemio',
         libraryTarget: "global"
     },
-    target: 'web',
-    devtool: 'source-map',
     module: {
         rules: [
             {
@@ -29,15 +28,29 @@ module.exports = {
                         //options: { minimize: true }
                     }
                 ]
+            },
+            {
+                test: /\.css$/,
+                use: [ 'style-loader', 'css-loader' ]
             }
         ]
     },
+    optimization: {
+        minimize: false,
+        minimizer: [new TerserPlugin({
+            terserOptions: {
+                output: {
+                    comments: false,
+                },
+            },
+            extractComments: false,
+        })]
+    },
     plugins: [
         new HtmlWebPackPlugin({
+            inject: false,
             template: "./src/index.html",
-            filename: "./index.html",
-            excludeChunks: [ 'server' ]
+            filename: "./index.html"
         }),
-        new webpack.HotModuleReplacementPlugin()
     ]
 }

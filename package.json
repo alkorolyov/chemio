@@ -8,20 +8,25 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rimraf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development",
-    "start": "node ./dist/server.js",
-    "min": "uglifyjs --compress -m --verbose --warn /dist/app.js --output dist/app.min.js"
+    "build": "rimraf dist && webpack --mode production",
+    "start": "webpack-dev-server --open --mode development",
+    "min": "uglifyjs --verbose --warn ./src/app.js --output ./src/app.min.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.11.4",
     "babel-loader": "^8.1.0",
+    "css-loader": "^4.2.1",
     "express": "^4.17.1",
+    "file-loader": "^6.0.0",
     "html-loader": "^1.2.1",
     "html-webpack-plugin": "^4.3.0",
     "merge": "^1.2.1",
     "path": "^0.12.7",
     "rimraf": "^3.0.2",
+    "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^4.1.0",
     "uglify-es": "^3.3.9",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.44.1",
@@ -36,6 +41,7 @@
     "webpack-plugin-serve": "^1.0.1"
   },
   "dependencies": {
-    "raw-loader": "^4.0.1"
+    "raw-loader": "^4.0.1",
+    "remove-comments-loader": "^0.1.2"
   }
 }

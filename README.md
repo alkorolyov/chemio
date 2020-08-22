@@ -10,3 +10,7 @@ npm install -D html-loader html-webpack-plugin
 npm install -D rimraf
 npm install -D webpack-dev-middleware
 npm install --save-dev webpack-hot-middleware
+npm install --save-dev css-loader file-loader style-loader
+npm install -D babel-loader @babel/core
+npm install uglify-es -D
+npm install terser-webpack-plugin --save-dev
