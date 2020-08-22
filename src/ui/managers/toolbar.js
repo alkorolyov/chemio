@@ -95,22 +95,31 @@
 
 
         this.leftToolBar =  new desktop.ButtonSet(sketcher.id + '_left_toolbar');
-        this.leftToolBar.buttons.push(this.buttonDashed);
-        this.leftToolBar.buttons.push(this.buttonLasso);
-        this.leftToolBar.buttons.push(this.buttonWedged);
-        this.leftToolBar.buttons.push(this.buttonSingle);
-        this.leftToolBar.buttons.push(this.buttonErase);
-        this.leftToolBar.buttons.push(this.buttonChain);
+
         this.leftToolBar.buttons.push(this.buttonChargePlus);
+        this.leftToolBar.buttons.push(this.buttonLasso);
+
         this.leftToolBar.buttons.push(this.buttonChargeMinus);
-        this.leftToolBar.buttons.push(this.buttonArrowSynthetic);
-        this.leftToolBar.buttons.push(this.buttonBenzene);
-        this.leftToolBar.buttons.push(this.buttonCyclohexane);
-        this.leftToolBar.buttons.push(this.buttonCyclopropane);
+        this.leftToolBar.buttons.push(this.buttonErase);
+
         this.leftToolBar.buttons.push(this.buttonCyclobutane);
+        this.leftToolBar.buttons.push(this.buttonSingle);
+
+        this.leftToolBar.buttons.push(this.buttonBenzene);
+        this.leftToolBar.buttons.push(this.buttonWedged);
+
+
+        this.leftToolBar.buttons.push(this.buttonCyclopropane);
+        this.leftToolBar.buttons.push(this.buttonDashed);
+
         this.leftToolBar.buttons.push(this.buttonCyclopentane);
-        this.leftToolBar.buttons.push(this.buttonCycloheptane);
+        this.leftToolBar.buttons.push(this.buttonChain);
+
         this.leftToolBar.buttons.push(this.buttonCyclooctane);
+        this.leftToolBar.buttons.push(this.buttonArrowSynthetic);
+
+        this.leftToolBar.buttons.push(this.buttonCycloheptane);
+        this.leftToolBar.buttons.push(this.buttonCyclohexane);
 
 
 
