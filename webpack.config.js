@@ -1,7 +1,7 @@
 const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 const WatchExternalFilesPlugin  = require('webpack-watch-files-plugin').default;
 
-module.exports = {
+module.exports = (env, argv) => ({
     entry: {
         main: './src/index.js'
     },
@@ -47,7 +47,10 @@ module.exports = {
                 'styles.css': [
                     'src/styles.css'
                 ]
-            }
+            },
+            transform:  argv.mode === 'production' ? {
+                'merge.js': code => require("uglify-es").minify(code).code
+            } : {}
         }),
         new WatchExternalFilesPlugin({
             files: [
@@ -56,4 +59,4 @@ module.exports = {
             verbose: true
         })
     ]
-}
+})

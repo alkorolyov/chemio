@@ -554,8 +554,9 @@
             } else if (this.sketcher.hovering instanceof structures.Bond) {
                 action = new actions.DeleteAction(this.sketcher, this.sketcher.hovering.a1, [], [ this.sketcher.hovering ]);
             } else if (this.sketcher.hovering instanceof d2._Shape) {
+                let s = this.sketcher.hovering;
                 action = new actions.DeleteShapeAction(this.sketcher, s);
-                // let s = this.sketcher.hovering;
+
                 // if(s.hoverBond){
                 //     // delete only the hovered bond in the VAP
                 //     action = new actions.DeleteVAPConnectionAction(s, s.hoverBond);
