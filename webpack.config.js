@@ -10,7 +10,7 @@ module.exports = (env, argv) => ({
     output: {
         // path: path.join(__dirname, 'dist'),
         publicPath: '/',
-        filename: 'main.js',
+        filename: 'webpack-livereload.js',
     },
     devServer: {
         contentBase: './src', // searches in this folder for index.html automatically
@@ -22,7 +22,7 @@ module.exports = (env, argv) => ({
     plugins: [
         new MergeIntoSingleFilePlugin({
             files: {
-                'merge.js': [
+                'bundle.js': [
                     'src/core/core.js',
                     'src/core/structures.js',
                     'src/core/shapes.js',
@@ -49,7 +49,7 @@ module.exports = (env, argv) => ({
                 ]
             },
             transform:  argv.mode === 'production' ? {
-                'merge.js': code => require("uglify-es").minify(code).code
+                'bundle.js': code => require("uglify-es").minify(code).code
             } : {}
         }),
         new WatchExternalFilesPlugin({
