@@ -8,25 +8,30 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --inline --colors --progress --display-error-details --display-cached --config webpack.prod.conf.js",
-    "start": "webpack-dev-server --inline --colors --progress --display-error-details --display-cached --open --config webpack.dev.conf.js",
+    "build": "rimraf dist && webpack --mode development --config webpack.server.config.js && webpack --mode development",
+    "start": "node ./dist/server.js",
     "min": "uglifyjs --compress -m --verbose --warn /dist/app.js --output dist/app.min.js"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "babel-loader": "^8.1.0",
+    "express": "^4.17.1",
+    "html-loader": "^1.2.1",
     "html-webpack-plugin": "^4.3.0",
     "merge": "^1.2.1",
     "path": "^0.12.7",
+    "rimraf": "^3.0.2",
     "uglify-es": "^3.3.9",
     "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
+    "webpack-dev-middleware": "^3.7.2",
     "webpack-dev-server": "^3.11.0",
     "webpack-livereload-plugin": "^2.3.0",
     "webpack-merge": "^5.1.2",
     "webpack-merge-and-include-globally": "^2.1.25",
+    "webpack-node-externals": "^2.5.1",
     "webpack-plugin-serve": "^1.0.1"
   },
   "dependencies": {

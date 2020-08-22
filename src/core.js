@@ -8359,3 +8359,5 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
 // 	};
 //
 // })(ChemDoodle, ChemDoodle.extensions, ChemDoodle.math, document);
+
+module.exports = ChemDoodle;
