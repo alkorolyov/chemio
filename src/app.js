@@ -2,7 +2,7 @@
 //  Copyright 2006-2010 iChemLabs, LLC.  All rights reserved.
 //
 
-console.log('hi')
+console.log('hello')
 
 let Chemio = (function() {
     'use strict';
@@ -1185,179 +1185,6 @@ Chemio.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(Chemio.structures, Math);
 
-// (function(extensions, structures, m, undefined) {
-// 	'use strict';
-//
-// 	let COMMA_SPACE_REGEX = /[ ,]+/;
-// 	let COMMA_DASH_REGEX = /\-+/;
-// 	let FONTS = [ 'Helvetica', 'Arial', 'Dialog' ];
-//
-// 	structures.Query = function(type) {
-// 		this.type = type;
-// 		// atom properties
-// 		this.elements = {v:[],not:false};
-// 		this.charge = undefined;
-// 		this.chirality = undefined;
-// 		this.connectivity = undefined;
-// 		this.connectivityNoH = undefined;
-// 		this.hydrogens = undefined;
-// 		this.saturation = undefined;
-// 		// bond properties
-// 		this.orders = {v:[],not:false};
-// 		this.stereo = undefined;
-// 		// generic properties
-// 		this.aromatic = undefined;
-// 		this.ringCount = undefined;
-// 		// cache the string value
-// 		this.cache = undefined;
-// 	};
-// 	structures.Query.TYPE_ATOM = 0;
-// 	structures.Query.TYPE_BOND = 1;
-// 	let _ = structures.Query.prototype;
-// 	_.parseRange = function(range){
-// 		let points = [];
-// 		let splits = range.split(COMMA_SPACE_REGEX);
-// 		for(let i = 0, ii = splits.length; i<ii; i++){
-// 			let t = splits[i];
-// 			let neg = false;
-// 			let neg2 = false;
-// 			if(t.charAt(0)==='-'){
-// 				neg = true;
-// 				t = t.substring(1);
-// 			}
-// 			if (t.indexOf('--')!=-1) {
-// 				neg2 = true;
-// 			}
-// 			if (t.indexOf('-')!=-1) {
-// 				let parts = t.split(COMMA_DASH_REGEX);
-// 				let p = {x:parseInt(parts[0]) * (neg ? -1 : 1),y:parseInt(parts[1]) * (neg2 ? -1 : 1)};
-// 				if (p.y < p.x) {
-// 					let tmp = p.y;
-// 					p.y = p.x;
-// 					p.x = tmp;
-// 				}
-// 				points.push(p);
-// 			} else {
-// 				points.push({x:parseInt(t) * (neg ? -1 : 1)});
-// 			}
-// 		}
-// 		return points;
-// 	};
-// 	_.draw = function(ctx, styles, pos) {
-// 		if(!this.cache){
-// 			this.cache = this.toString();
-// 		}
-// 		let top = this.cache;
-// 		let bottom = undefined;
-// 		let split = top.indexOf('(');
-// 		if(split!=-1){
-// 			top = this.cache.substring(0, split);
-// 			bottom = this.cache.substring(split, this.cache.length);
-// 		}
-// 		ctx.textAlign = 'center';
-// 		ctx.textBaseline = 'middle';
-// 		ctx.font = extensions.getFontString(12, FONTS, true, false);
-// 		let tw = ctx.measureText(top).width;
-// 		ctx.fillStyle = styles.backgroundColor;
-// 		ctx.fillRect(pos.x-tw/2, pos.y-6, tw, 12);
-// 		ctx.fillStyle = 'black';
-// 		ctx.fillText(top, pos.x, pos.y);
-// 		if(bottom){
-// 			ctx.font = extensions.getFontString(10, FONTS, false, true);
-// 			tw = ctx.measureText(bottom).width;
-// 			ctx.fillStyle = styles.backgroundColor;
-// 			ctx.fillRect(pos.x-tw/2, pos.y+6, tw, 11);
-// 			ctx.fillStyle = 'black';
-// 			ctx.fillText(bottom, pos.x, pos.y+11);
-// 		}
-// 	};
-// 	_.outputRange = function(array){
-// 		let comma = false;
-// 		let sb = [];
-// 		for(let i = 0, ii = array.length; i<ii; i++){
-// 			if(comma){
-// 				sb.push(',');
-// 			}
-// 			comma = true;
-// 			let p = array[i];
-// 			if(p.y){
-// 				sb.push(p.x);
-// 				sb.push('-');
-// 				sb.push(p.y);
-// 			}else{
-// 				sb.push(p.x);
-// 			}
-// 		}
-// 		return sb.join('');
-// 	};
-// 	_.toString = function() {
-// 		let sb = [];
-// 		let attributes = [];
-// 		if(this.type===structures.Query.TYPE_ATOM){
-// 			if(!this.elements || this.elements.v.length===0){
-// 				sb.push('[a]');
-// 			}else{
-// 				if(this.elements.not){
-// 					sb.push('!');
-// 				}
-// 				sb.push('[');
-// 				sb.push(this.elements.v.join(','));
-// 				sb.push(']');
-// 			}
-// 			if(this.chirality){
-// 				attributes.push((this.chirality.not?'!':'')+'@='+this.chirality.v);
-// 			}
-// 			if(this.aromatic){
-// 				attributes.push((this.aromatic.not?'!':'')+'A');
-// 			}
-// 			if(this.charge){
-// 				attributes.push((this.charge.not?'!':'')+'C='+this.outputRange(this.charge.v));
-// 			}
-// 			if(this.hydrogens){
-// 				attributes.push((this.hydrogens.not?'!':'')+'H='+this.outputRange(this.hydrogens.v));
-// 			}
-// 			if(this.ringCount){
-// 				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
-// 			}
-// 			if(this.saturation){
-// 				attributes.push((this.saturation.not?'!':'')+'S');
-// 			}
-// 			if(this.connectivity){
-// 				attributes.push((this.connectivity.not?'!':'')+'X='+this.outputRange(this.connectivity.v));
-// 			}
-// 			if(this.connectivityNoH){
-// 				attributes.push((this.connectivityNoH.not?'!':'')+'x='+this.outputRange(this.connectivityNoH.v));
-// 			}
-// 		}else if(this.type===structures.Query.TYPE_BOND){
-// 			if(!this.orders || this.orders.v.length===0){
-// 				sb.push('[a]');
-// 			}else{
-// 				if(this.orders.not){
-// 					sb.push('!');
-// 				}
-// 				sb.push('[');
-// 				sb.push(this.orders.v.join(','));
-// 				sb.push(']');
-// 			}
-// 			if(this.stereo){
-// 				attributes.push((this.stereo.not?'!':'')+'@='+this.stereo.v);
-// 			}
-// 			if(this.aromatic){
-// 				attributes.push((this.aromatic.not?'!':'')+'A');
-// 			}
-// 			if(this.ringCount){
-// 				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
-// 			}
-// 		}
-// 		if(attributes.length>0){
-// 			sb.push('(');
-// 			sb.push(attributes.join(','));
-// 			sb.push(')');
-// 		}
-// 		return sb.join('');
-// 	};
-//
-// })(Chemio.extensions, Chemio.structures, Math);
 
 (function (ELEMENT, extensions, math, structures, m, m4, undefined) {
     'use strict';
@@ -3753,121 +3580,7 @@ Chemio.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(Chemio, Chemio.math, Chemio.structures, Chemio.RESIDUE, Math);
 
-// (function(structures, m, m4, v3, undefined) {
-// 	'use strict';
-// 	let SB;
-// 	let lastVerticalResolution = -1;
-//
-// 	function setupMatrices(verticalResolution) {
-// 		let n2 = verticalResolution * verticalResolution;
-// 		let n3 = verticalResolution * verticalResolution * verticalResolution;
-// 		let S = [ 6 / n3, 0, 0, 0, 6 / n3, 2 / n2, 0, 0, 1 / n3, 1 / n2, 1 / verticalResolution, 0, 0, 0, 0, 1 ];
-// 		let Bm = [ -1 / 6, 1 / 2, -1 / 2, 1 / 6, 1 / 2, -1, 1 / 2, 0, -1 / 2, 0, 1 / 2, 0, 1 / 6, 2 / 3, 1 / 6, 0 ];
-// 		SB = m4.multiply(Bm, S, []);
-// 		lastVerticalResolution = verticalResolution;
-// 	}
-//
-// 	structures.Residue = function(resSeq) {
-// 		// number of vertical slashes per segment
-// 		this.resSeq = resSeq;
-// 	};
-// 	let _ = structures.Residue.prototype;
-// 	_.setup = function(nextAlpha, horizontalResolution) {
-// 		this.horizontalResolution = horizontalResolution;
-// 		// define plane
-// 		let A = [ nextAlpha.x - this.cp1.x, nextAlpha.y - this.cp1.y, nextAlpha.z - this.cp1.z ];
-// 		let B = [ this.cp2.x - this.cp1.x, this.cp2.y - this.cp1.y, this.cp2.z - this.cp1.z ];
-// 		let C = v3.cross(A, B, []);
-// 		this.D = v3.cross(C, A, []);
-// 		v3.normalize(C);
-// 		v3.normalize(this.D);
-// 		// generate guide coordinates
-// 		// guides for the narrow parts of the ribbons
-// 		this.guidePointsSmall = [];
-// 		// guides for the wide parts of the ribbons
-// 		this.guidePointsLarge = [];
-// 		// guides for the ribbon part of helix as cylinder model
-// 		let P = [ (nextAlpha.x + this.cp1.x) / 2, (nextAlpha.y + this.cp1.y) / 2, (nextAlpha.z + this.cp1.z) / 2 ];
-// 		if (this.helix) {
-// 			// expand helices
-// 			v3.scale(C, 1.5);
-// 			v3.add(P, C);
-// 		}
-// 		this.guidePointsSmall[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
-// 		for ( let i = 1; i < horizontalResolution; i++) {
-// 			this.guidePointsSmall[i] = new structures.Atom('', this.guidePointsSmall[0].x + this.D[0] * i / horizontalResolution, this.guidePointsSmall[0].y + this.D[1] * i / horizontalResolution, this.guidePointsSmall[0].z + this.D[2] * i / horizontalResolution);
-// 		}
-// 		v3.scale(this.D, 4);
-// 		this.guidePointsLarge[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
-// 		for ( let i = 1; i < horizontalResolution; i++) {
-// 			this.guidePointsLarge[i] = new structures.Atom('', this.guidePointsLarge[0].x + this.D[0] * i / horizontalResolution, this.guidePointsLarge[0].y + this.D[1] * i / horizontalResolution, this.guidePointsLarge[0].z + this.D[2] * i / horizontalResolution);
-// 		}
-// 	};
-// 	_.getGuidePointSet = function(type) {
-// 		if (type === 0) {
-// 			return this.helix || this.sheet ? this.guidePointsLarge : this.guidePointsSmall;
-// 		} else if (type === 1) {
-// 			return this.guidePointsSmall;
-// 		} else if (type === 2) {
-// 			return this.guidePointsLarge;
-// 		}
-// 	};
-// 	_.computeLineSegments = function(b2, b1, a1, doCartoon, verticalResolution) {
-// 		this.setVerticalResolution(verticalResolution);
-// 		this.split = a1.helix !== this.helix || a1.sheet !== this.sheet;
-// 		this.lineSegments = this.innerCompute(0, b2, b1, a1, false, verticalResolution);
-// 		if (doCartoon) {
-// 			this.lineSegmentsCartoon = this.innerCompute(this.helix || this.sheet ? 2 : 1, b2, b1, a1, true, verticalResolution);
-// 		}
-// 	};
-// 	_.innerCompute = function(set, b2, b1, a1, useArrows, verticalResolution) {
-// 		let segments = [];
-// 		let use = this.getGuidePointSet(set);
-// 		let useb2 = b2.getGuidePointSet(set);
-// 		let useb1 = b1.getGuidePointSet(set);
-// 		let usea1 = a1.getGuidePointSet(set);
-// 		for ( let l = 0, ll = use.length; l < ll; l++) {
-// 			let G = [ useb2[l].x, useb2[l].y, useb2[l].z, 1, useb1[l].x, useb1[l].y, useb1[l].z, 1, use[l].x, use[l].y, use[l].z, 1, usea1[l].x, usea1[l].y, usea1[l].z, 1 ];
-// 			let M = m4.multiply(G, SB, []);
-// 			let strand = [];
-// 			for ( let k = 0; k < verticalResolution; k++) {
-// 				for ( let i = 3; i > 0; i--) {
-// 					for ( let j = 0; j < 4; j++) {
-// 						M[i * 4 + j] += M[(i - 1) * 4 + j];
-// 					}
-// 				}
-// 				strand[k] = new structures.Atom('', M[12] / M[15], M[13] / M[15], M[14] / M[15]);
-// 			}
-// 			segments[l] = strand;
-// 		}
-// 		if (useArrows && this.arrow) {
-// 			for ( let i = 0, ii = verticalResolution; i < ii; i++) {
-// 				let mult = 1.5 - 1.3 * i / verticalResolution;
-// 				let mid = m.floor(this.horizontalResolution / 2);
-// 				let center = segments[mid];
-// 				for ( let j = 0, jj = segments.length; j < jj; j++) {
-// 					if (j !== mid) {
-// 						let o = center[i];
-// 						let f = segments[j][i];
-// 						let vec = [ f.x - o.x, f.y - o.y, f.z - o.z ];
-// 						v3.scale(vec, mult);
-// 						f.x = o.x + vec[0];
-// 						f.y = o.y + vec[1];
-// 						f.z = o.z + vec[2];
-// 					}
-// 				}
-// 			}
-// 		}
-// 		return segments;
-// 	};
-// 	_.setVerticalResolution = function(verticalResolution) {
-// 		if (verticalResolution !== lastVerticalResolution) {
-// 			setupMatrices(verticalResolution);
-// 		}
-// 	};
-//
-// })(Chemio.structures, Math, Chemio.lib.mat4, Chemio.lib.vec3);
-
+//region Unused structures
 // Spectrum structure
 // (function(extensions, structures, math, m, undefined) {
 // 	'use strict';
@@ -4292,6 +4005,297 @@ Chemio.ELEMENT = (function(SYMBOLS, undefined) {
 //
 // })(Chemio.extensions, Chemio.structures, Chemio.math, Math);
 
+// (function(extensions, structures, m, undefined) {
+// 	'use strict';
+//
+// 	let COMMA_SPACE_REGEX = /[ ,]+/;
+// 	let COMMA_DASH_REGEX = /\-+/;
+// 	let FONTS = [ 'Helvetica', 'Arial', 'Dialog' ];
+//
+// 	structures.Query = function(type) {
+// 		this.type = type;
+// 		// atom properties
+// 		this.elements = {v:[],not:false};
+// 		this.charge = undefined;
+// 		this.chirality = undefined;
+// 		this.connectivity = undefined;
+// 		this.connectivityNoH = undefined;
+// 		this.hydrogens = undefined;
+// 		this.saturation = undefined;
+// 		// bond properties
+// 		this.orders = {v:[],not:false};
+// 		this.stereo = undefined;
+// 		// generic properties
+// 		this.aromatic = undefined;
+// 		this.ringCount = undefined;
+// 		// cache the string value
+// 		this.cache = undefined;
+// 	};
+// 	structures.Query.TYPE_ATOM = 0;
+// 	structures.Query.TYPE_BOND = 1;
+// 	let _ = structures.Query.prototype;
+// 	_.parseRange = function(range){
+// 		let points = [];
+// 		let splits = range.split(COMMA_SPACE_REGEX);
+// 		for(let i = 0, ii = splits.length; i<ii; i++){
+// 			let t = splits[i];
+// 			let neg = false;
+// 			let neg2 = false;
+// 			if(t.charAt(0)==='-'){
+// 				neg = true;
+// 				t = t.substring(1);
+// 			}
+// 			if (t.indexOf('--')!=-1) {
+// 				neg2 = true;
+// 			}
+// 			if (t.indexOf('-')!=-1) {
+// 				let parts = t.split(COMMA_DASH_REGEX);
+// 				let p = {x:parseInt(parts[0]) * (neg ? -1 : 1),y:parseInt(parts[1]) * (neg2 ? -1 : 1)};
+// 				if (p.y < p.x) {
+// 					let tmp = p.y;
+// 					p.y = p.x;
+// 					p.x = tmp;
+// 				}
+// 				points.push(p);
+// 			} else {
+// 				points.push({x:parseInt(t) * (neg ? -1 : 1)});
+// 			}
+// 		}
+// 		return points;
+// 	};
+// 	_.draw = function(ctx, styles, pos) {
+// 		if(!this.cache){
+// 			this.cache = this.toString();
+// 		}
+// 		let top = this.cache;
+// 		let bottom = undefined;
+// 		let split = top.indexOf('(');
+// 		if(split!=-1){
+// 			top = this.cache.substring(0, split);
+// 			bottom = this.cache.substring(split, this.cache.length);
+// 		}
+// 		ctx.textAlign = 'center';
+// 		ctx.textBaseline = 'middle';
+// 		ctx.font = extensions.getFontString(12, FONTS, true, false);
+// 		let tw = ctx.measureText(top).width;
+// 		ctx.fillStyle = styles.backgroundColor;
+// 		ctx.fillRect(pos.x-tw/2, pos.y-6, tw, 12);
+// 		ctx.fillStyle = 'black';
+// 		ctx.fillText(top, pos.x, pos.y);
+// 		if(bottom){
+// 			ctx.font = extensions.getFontString(10, FONTS, false, true);
+// 			tw = ctx.measureText(bottom).width;
+// 			ctx.fillStyle = styles.backgroundColor;
+// 			ctx.fillRect(pos.x-tw/2, pos.y+6, tw, 11);
+// 			ctx.fillStyle = 'black';
+// 			ctx.fillText(bottom, pos.x, pos.y+11);
+// 		}
+// 	};
+// 	_.outputRange = function(array){
+// 		let comma = false;
+// 		let sb = [];
+// 		for(let i = 0, ii = array.length; i<ii; i++){
+// 			if(comma){
+// 				sb.push(',');
+// 			}
+// 			comma = true;
+// 			let p = array[i];
+// 			if(p.y){
+// 				sb.push(p.x);
+// 				sb.push('-');
+// 				sb.push(p.y);
+// 			}else{
+// 				sb.push(p.x);
+// 			}
+// 		}
+// 		return sb.join('');
+// 	};
+// 	_.toString = function() {
+// 		let sb = [];
+// 		let attributes = [];
+// 		if(this.type===structures.Query.TYPE_ATOM){
+// 			if(!this.elements || this.elements.v.length===0){
+// 				sb.push('[a]');
+// 			}else{
+// 				if(this.elements.not){
+// 					sb.push('!');
+// 				}
+// 				sb.push('[');
+// 				sb.push(this.elements.v.join(','));
+// 				sb.push(']');
+// 			}
+// 			if(this.chirality){
+// 				attributes.push((this.chirality.not?'!':'')+'@='+this.chirality.v);
+// 			}
+// 			if(this.aromatic){
+// 				attributes.push((this.aromatic.not?'!':'')+'A');
+// 			}
+// 			if(this.charge){
+// 				attributes.push((this.charge.not?'!':'')+'C='+this.outputRange(this.charge.v));
+// 			}
+// 			if(this.hydrogens){
+// 				attributes.push((this.hydrogens.not?'!':'')+'H='+this.outputRange(this.hydrogens.v));
+// 			}
+// 			if(this.ringCount){
+// 				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
+// 			}
+// 			if(this.saturation){
+// 				attributes.push((this.saturation.not?'!':'')+'S');
+// 			}
+// 			if(this.connectivity){
+// 				attributes.push((this.connectivity.not?'!':'')+'X='+this.outputRange(this.connectivity.v));
+// 			}
+// 			if(this.connectivityNoH){
+// 				attributes.push((this.connectivityNoH.not?'!':'')+'x='+this.outputRange(this.connectivityNoH.v));
+// 			}
+// 		}else if(this.type===structures.Query.TYPE_BOND){
+// 			if(!this.orders || this.orders.v.length===0){
+// 				sb.push('[a]');
+// 			}else{
+// 				if(this.orders.not){
+// 					sb.push('!');
+// 				}
+// 				sb.push('[');
+// 				sb.push(this.orders.v.join(','));
+// 				sb.push(']');
+// 			}
+// 			if(this.stereo){
+// 				attributes.push((this.stereo.not?'!':'')+'@='+this.stereo.v);
+// 			}
+// 			if(this.aromatic){
+// 				attributes.push((this.aromatic.not?'!':'')+'A');
+// 			}
+// 			if(this.ringCount){
+// 				attributes.push((this.ringCount.not?'!':'')+'R='+this.outputRange(this.ringCount.v));
+// 			}
+// 		}
+// 		if(attributes.length>0){
+// 			sb.push('(');
+// 			sb.push(attributes.join(','));
+// 			sb.push(')');
+// 		}
+// 		return sb.join('');
+// 	};
+//
+// })(Chemio.extensions, Chemio.structures, Math);
+
+// (function(structures, m, m4, v3, undefined) {
+// 	'use strict';
+// 	let SB;
+// 	let lastVerticalResolution = -1;
+//
+// 	function setupMatrices(verticalResolution) {
+// 		let n2 = verticalResolution * verticalResolution;
+// 		let n3 = verticalResolution * verticalResolution * verticalResolution;
+// 		let S = [ 6 / n3, 0, 0, 0, 6 / n3, 2 / n2, 0, 0, 1 / n3, 1 / n2, 1 / verticalResolution, 0, 0, 0, 0, 1 ];
+// 		let Bm = [ -1 / 6, 1 / 2, -1 / 2, 1 / 6, 1 / 2, -1, 1 / 2, 0, -1 / 2, 0, 1 / 2, 0, 1 / 6, 2 / 3, 1 / 6, 0 ];
+// 		SB = m4.multiply(Bm, S, []);
+// 		lastVerticalResolution = verticalResolution;
+// 	}
+//
+// 	structures.Residue = function(resSeq) {
+// 		// number of vertical slashes per segment
+// 		this.resSeq = resSeq;
+// 	};
+// 	let _ = structures.Residue.prototype;
+// 	_.setup = function(nextAlpha, horizontalResolution) {
+// 		this.horizontalResolution = horizontalResolution;
+// 		// define plane
+// 		let A = [ nextAlpha.x - this.cp1.x, nextAlpha.y - this.cp1.y, nextAlpha.z - this.cp1.z ];
+// 		let B = [ this.cp2.x - this.cp1.x, this.cp2.y - this.cp1.y, this.cp2.z - this.cp1.z ];
+// 		let C = v3.cross(A, B, []);
+// 		this.D = v3.cross(C, A, []);
+// 		v3.normalize(C);
+// 		v3.normalize(this.D);
+// 		// generate guide coordinates
+// 		// guides for the narrow parts of the ribbons
+// 		this.guidePointsSmall = [];
+// 		// guides for the wide parts of the ribbons
+// 		this.guidePointsLarge = [];
+// 		// guides for the ribbon part of helix as cylinder model
+// 		let P = [ (nextAlpha.x + this.cp1.x) / 2, (nextAlpha.y + this.cp1.y) / 2, (nextAlpha.z + this.cp1.z) / 2 ];
+// 		if (this.helix) {
+// 			// expand helices
+// 			v3.scale(C, 1.5);
+// 			v3.add(P, C);
+// 		}
+// 		this.guidePointsSmall[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
+// 		for ( let i = 1; i < horizontalResolution; i++) {
+// 			this.guidePointsSmall[i] = new structures.Atom('', this.guidePointsSmall[0].x + this.D[0] * i / horizontalResolution, this.guidePointsSmall[0].y + this.D[1] * i / horizontalResolution, this.guidePointsSmall[0].z + this.D[2] * i / horizontalResolution);
+// 		}
+// 		v3.scale(this.D, 4);
+// 		this.guidePointsLarge[0] = new structures.Atom('', P[0] - this.D[0] / 2, P[1] - this.D[1] / 2, P[2] - this.D[2] / 2);
+// 		for ( let i = 1; i < horizontalResolution; i++) {
+// 			this.guidePointsLarge[i] = new structures.Atom('', this.guidePointsLarge[0].x + this.D[0] * i / horizontalResolution, this.guidePointsLarge[0].y + this.D[1] * i / horizontalResolution, this.guidePointsLarge[0].z + this.D[2] * i / horizontalResolution);
+// 		}
+// 	};
+// 	_.getGuidePointSet = function(type) {
+// 		if (type === 0) {
+// 			return this.helix || this.sheet ? this.guidePointsLarge : this.guidePointsSmall;
+// 		} else if (type === 1) {
+// 			return this.guidePointsSmall;
+// 		} else if (type === 2) {
+// 			return this.guidePointsLarge;
+// 		}
+// 	};
+// 	_.computeLineSegments = function(b2, b1, a1, doCartoon, verticalResolution) {
+// 		this.setVerticalResolution(verticalResolution);
+// 		this.split = a1.helix !== this.helix || a1.sheet !== this.sheet;
+// 		this.lineSegments = this.innerCompute(0, b2, b1, a1, false, verticalResolution);
+// 		if (doCartoon) {
+// 			this.lineSegmentsCartoon = this.innerCompute(this.helix || this.sheet ? 2 : 1, b2, b1, a1, true, verticalResolution);
+// 		}
+// 	};
+// 	_.innerCompute = function(set, b2, b1, a1, useArrows, verticalResolution) {
+// 		let segments = [];
+// 		let use = this.getGuidePointSet(set);
+// 		let useb2 = b2.getGuidePointSet(set);
+// 		let useb1 = b1.getGuidePointSet(set);
+// 		let usea1 = a1.getGuidePointSet(set);
+// 		for ( let l = 0, ll = use.length; l < ll; l++) {
+// 			let G = [ useb2[l].x, useb2[l].y, useb2[l].z, 1, useb1[l].x, useb1[l].y, useb1[l].z, 1, use[l].x, use[l].y, use[l].z, 1, usea1[l].x, usea1[l].y, usea1[l].z, 1 ];
+// 			let M = m4.multiply(G, SB, []);
+// 			let strand = [];
+// 			for ( let k = 0; k < verticalResolution; k++) {
+// 				for ( let i = 3; i > 0; i--) {
+// 					for ( let j = 0; j < 4; j++) {
+// 						M[i * 4 + j] += M[(i - 1) * 4 + j];
+// 					}
+// 				}
+// 				strand[k] = new structures.Atom('', M[12] / M[15], M[13] / M[15], M[14] / M[15]);
+// 			}
+// 			segments[l] = strand;
+// 		}
+// 		if (useArrows && this.arrow) {
+// 			for ( let i = 0, ii = verticalResolution; i < ii; i++) {
+// 				let mult = 1.5 - 1.3 * i / verticalResolution;
+// 				let mid = m.floor(this.horizontalResolution / 2);
+// 				let center = segments[mid];
+// 				for ( let j = 0, jj = segments.length; j < jj; j++) {
+// 					if (j !== mid) {
+// 						let o = center[i];
+// 						let f = segments[j][i];
+// 						let vec = [ f.x - o.x, f.y - o.y, f.z - o.z ];
+// 						v3.scale(vec, mult);
+// 						f.x = o.x + vec[0];
+// 						f.y = o.y + vec[1];
+// 						f.z = o.z + vec[2];
+// 					}
+// 				}
+// 			}
+// 		}
+// 		return segments;
+// 	};
+// 	_.setVerticalResolution = function(verticalResolution) {
+// 		if (verticalResolution !== lastVerticalResolution) {
+// 			setupMatrices(verticalResolution);
+// 		}
+// 	};
+//
+// })(Chemio.structures, Math, Chemio.lib.mat4, Chemio.lib.vec3);
+//endregion
+
+
 // ************************** Shapes ******************************
 
 (function(math, d2, m, undefined) {
@@ -4364,6 +4368,231 @@ Chemio.ELEMENT = (function(SYMBOLS, undefined) {
 
 })(Chemio.math, Chemio.structures.d2, Math);
 
+(function(extensions, math, structures, d2, m, undefined) {
+    'use strict';
+    d2.Line = function(p1, p2) {
+        this.p1 = p1 ? p1 : new structures.Point();
+        this.p2 = p2 ? p2 : new structures.Point();
+    };
+    d2.Line.ARROW_SYNTHETIC = 'synthetic';
+    d2.Line.ARROW_RETROSYNTHETIC = 'retrosynthetic';
+    d2.Line.ARROW_RESONANCE = 'resonance';
+    d2.Line.ARROW_EQUILIBRIUM = 'equilibrium';
+    let _ = d2.Line.prototype = new d2._Shape();
+    _.arrowType = undefined;
+    _.topText = undefined;
+    _.bottomText = undefined;
+    _.draw = function(ctx, styles) {
+        if (this.isLassoed) {
+            let useDist = 2.5;
+            let perpendicular = this.p1.angle(this.p2) + m.PI / 2;
+            let mcosp = m.cos(perpendicular);
+            let msinp = m.sin(perpendicular);
+            let cx1 = this.p1.x - mcosp * useDist;
+            let cy1 = this.p1.y + msinp * useDist;
+            let cx2 = this.p1.x + mcosp * useDist;
+            let cy2 = this.p1.y - msinp * useDist;
+            let cx3 = this.p2.x + mcosp * useDist;
+            let cy3 = this.p2.y - msinp * useDist;
+            let cx4 = this.p2.x - mcosp * useDist;
+            let cy4 = this.p2.y + msinp * useDist;
+            ctx.fillStyle = styles.colorSelect;
+            ctx.beginPath();
+            ctx.moveTo(cx1, cy1);
+            ctx.lineTo(cx2, cy2);
+            ctx.lineTo(cx3, cy3);
+            ctx.lineTo(cx4, cy4);
+            ctx.closePath();
+            ctx.fill();
+        }
+        ctx.strokeStyle = styles.shapes_color;
+        ctx.fillStyle = styles.shapes_color;
+        ctx.lineWidth = styles.shapes_lineWidth;
+        ctx.lineJoin = 'miter';
+        ctx.lineCap = 'butt';
+        if (this.p1.x !== this.p2.x || this.p1.y !== this.p2.y) {
+            // only render if the points are different, otherwise this will
+            // cause fill overflows
+            if (this.arrowType === d2.Line.ARROW_RETROSYNTHETIC) {
+                let r2 = m.sqrt(2) * 2;
+                let useDist = styles.shapes_arrowLength_2D / r2;
+                let angle = this.p1.angle(this.p2);
+                let perpendicular = angle + m.PI / 2;
+                let retract = styles.shapes_arrowLength_2D / r2;
+                let mcosa = m.cos(angle);
+                let msina = m.sin(angle);
+                let mcosp = m.cos(perpendicular);
+                let msinp = m.sin(perpendicular);
+                let cx1 = this.p1.x - mcosp * useDist;
+                let cy1 = this.p1.y + msinp * useDist;
+                let cx2 = this.p1.x + mcosp * useDist;
+                let cy2 = this.p1.y - msinp * useDist;
+                let cx3 = this.p2.x + mcosp * useDist - mcosa * retract;
+                let cy3 = this.p2.y - msinp * useDist + msina * retract;
+                let cx4 = this.p2.x - mcosp * useDist - mcosa * retract;
+                let cy4 = this.p2.y + msinp * useDist + msina * retract;
+                let ax1 = this.p2.x + mcosp * useDist * 2 - mcosa * retract * 2;
+                let ay1 = this.p2.y - msinp * useDist * 2 + msina * retract * 2;
+                let ax2 = this.p2.x - mcosp * useDist * 2 - mcosa * retract * 2;
+                let ay2 = this.p2.y + msinp * useDist * 2 + msina * retract * 2;
+                ctx.beginPath();
+                ctx.moveTo(cx2, cy2);
+                ctx.lineTo(cx3, cy3);
+                ctx.moveTo(ax1, ay1);
+                ctx.lineTo(this.p2.x, this.p2.y);
+                ctx.lineTo(ax2, ay2);
+                ctx.moveTo(cx4, cy4);
+                ctx.lineTo(cx1, cy1);
+                ctx.stroke();
+            } else if (this.arrowType === d2.Line.ARROW_EQUILIBRIUM) {
+                let r2 = m.sqrt(2) * 2;
+                let useDist = styles.shapes_arrowLength_2D / r2 / 2;
+                let angle = this.p1.angle(this.p2);
+                let perpendicular = angle + m.PI / 2;
+                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+                let mcosa = m.cos(angle);
+                let msina = m.sin(angle);
+                let mcosp = m.cos(perpendicular);
+                let msinp = m.sin(perpendicular);
+                let cx1 = this.p1.x - mcosp * useDist;
+                let cy1 = this.p1.y + msinp * useDist;
+                let cx2 = this.p1.x + mcosp * useDist;
+                let cy2 = this.p1.y - msinp * useDist;
+                let cx3 = this.p2.x + mcosp * useDist;
+                let cy3 = this.p2.y - msinp * useDist;
+                let cx4 = this.p2.x - mcosp * useDist;
+                let cy4 = this.p2.y + msinp * useDist;
+                ctx.beginPath();
+                ctx.moveTo(cx2, cy2);
+                ctx.lineTo(cx3, cy3);
+                ctx.moveTo(cx4, cy4);
+                ctx.lineTo(cx1, cy1);
+                ctx.stroke();
+                // right arrow
+                let rx1 = cx3 - mcosa * retract * .8;
+                let ry1 = cy3 + msina * retract * .8;
+                let ax1 = cx3 + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+                let ay1 = cy3 - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+                ctx.beginPath();
+                ctx.moveTo(cx3, cy3);
+                ctx.lineTo(ax1, ay1);
+                ctx.lineTo(rx1, ry1);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                // left arrow
+                rx1 = cx1 + mcosa * retract * .8;
+                ry1 = cy1 - msina * retract * .8;
+                ax1 = cx1 - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
+                ay1 = cy1 + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
+                ctx.beginPath();
+                ctx.moveTo(cx1, cy1);
+                ctx.lineTo(ax1, ay1);
+                ctx.lineTo(rx1, ry1);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            } else if (this.arrowType === d2.Line.ARROW_SYNTHETIC) {
+                let angle = this.p1.angle(this.p2);
+                let perpendicular = angle + m.PI / 2;
+                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+                let mcosa = m.cos(angle);
+                let msina = m.sin(angle);
+                let mcosp = m.cos(perpendicular);
+                let msinp = m.sin(perpendicular);
+                ctx.beginPath();
+                ctx.moveTo(this.p1.x, this.p1.y);
+                ctx.lineTo(this.p2.x - mcosa * retract / 2, this.p2.y + msina * retract / 2);
+                ctx.stroke();
+                let rx1 = this.p2.x - mcosa * retract * .8;
+                let ry1 = this.p2.y + msina * retract * .8;
+                let ax1 = this.p2.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+                let ay1 = this.p2.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+                let ax2 = this.p2.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+                let ay2 = this.p2.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+                ctx.beginPath();
+                ctx.moveTo(this.p2.x, this.p2.y);
+                ctx.lineTo(ax2, ay2);
+                ctx.lineTo(rx1, ry1);
+                ctx.lineTo(ax1, ay1);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            } else if (this.arrowType === d2.Line.ARROW_RESONANCE) {
+                let angle = this.p1.angle(this.p2);
+                let perpendicular = angle + m.PI / 2;
+                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+                let mcosa = m.cos(angle);
+                let msina = m.sin(angle);
+                let mcosp = m.cos(perpendicular);
+                let msinp = m.sin(perpendicular);
+                ctx.beginPath();
+                ctx.moveTo(this.p1.x + mcosa * retract / 2, this.p1.y - msina * retract / 2);
+                ctx.lineTo(this.p2.x - mcosa * retract / 2, this.p2.y + msina * retract / 2);
+                ctx.stroke();
+                // right arrow
+                let rx1 = this.p2.x - mcosa * retract * .8;
+                let ry1 = this.p2.y + msina * retract * .8;
+                let ax1 = this.p2.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+                let ay1 = this.p2.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+                let ax2 = this.p2.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+                let ay2 = this.p2.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+                ctx.beginPath();
+                ctx.moveTo(this.p2.x, this.p2.y);
+                ctx.lineTo(ax2, ay2);
+                ctx.lineTo(rx1, ry1);
+                ctx.lineTo(ax1, ay1);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                // left arrow
+                rx1 = this.p1.x + mcosa * retract * .8;
+                ry1 = this.p1.y - msina * retract * .8;
+                ax1 = this.p1.x - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
+                ay1 = this.p1.y + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
+                ax2 = this.p1.x + mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
+                ay2 = this.p1.y - msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
+                ctx.beginPath();
+                ctx.moveTo(this.p1.x, this.p1.y);
+                ctx.lineTo(ax2, ay2);
+                ctx.lineTo(rx1, ry1);
+                ctx.lineTo(ax1, ay1);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(this.p1.x, this.p1.y);
+                ctx.lineTo(this.p2.x, this.p2.y);
+                ctx.stroke();
+            }
+            if(this.topText || this.bottomText){
+                ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
+                ctx.fillStyle = styles.text_color;
+            }
+            if(this.topText){
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(this.topText, (this.p1.x+this.p2.x)/2, this.p1.y-5);
+            }
+            if(this.bottomText){
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText(this.bottomText, (this.p1.x+this.p2.x)/2, this.p1.y+5);
+            }
+        }
+    };
+    _.getPoints = function() {
+        return [ this.p1, this.p2 ];
+    };
+    _.isOver = function(p, barrier) {
+        let dist = math.distanceFromPointToLineInclusive(p, this.p1, this.p2);
+        return dist !== -1 && dist < barrier;
+    };
+
+})(Chemio.extensions, Chemio.math, Chemio.structures, Chemio.structures.d2, Math);
+
+//region Unused shapes
 // (function(extensions, math, structures, d2, m, undefined) {
 // 	'use strict';
 //
@@ -4674,230 +4903,6 @@ Chemio.ELEMENT = (function(SYMBOLS, undefined) {
 // 	};
 //
 // })(Chemio.extensions, Chemio.math, Chemio.lib.jsBezier, Chemio.structures, Chemio.structures.d2, Math);
-
-(function(extensions, math, structures, d2, m, undefined) {
-    'use strict';
-    d2.Line = function(p1, p2) {
-        this.p1 = p1 ? p1 : new structures.Point();
-        this.p2 = p2 ? p2 : new structures.Point();
-    };
-    d2.Line.ARROW_SYNTHETIC = 'synthetic';
-    d2.Line.ARROW_RETROSYNTHETIC = 'retrosynthetic';
-    d2.Line.ARROW_RESONANCE = 'resonance';
-    d2.Line.ARROW_EQUILIBRIUM = 'equilibrium';
-    let _ = d2.Line.prototype = new d2._Shape();
-    _.arrowType = undefined;
-    _.topText = undefined;
-    _.bottomText = undefined;
-    _.draw = function(ctx, styles) {
-        if (this.isLassoed) {
-            let useDist = 2.5;
-            let perpendicular = this.p1.angle(this.p2) + m.PI / 2;
-            let mcosp = m.cos(perpendicular);
-            let msinp = m.sin(perpendicular);
-            let cx1 = this.p1.x - mcosp * useDist;
-            let cy1 = this.p1.y + msinp * useDist;
-            let cx2 = this.p1.x + mcosp * useDist;
-            let cy2 = this.p1.y - msinp * useDist;
-            let cx3 = this.p2.x + mcosp * useDist;
-            let cy3 = this.p2.y - msinp * useDist;
-            let cx4 = this.p2.x - mcosp * useDist;
-            let cy4 = this.p2.y + msinp * useDist;
-            ctx.fillStyle = styles.colorSelect;
-            ctx.beginPath();
-            ctx.moveTo(cx1, cy1);
-            ctx.lineTo(cx2, cy2);
-            ctx.lineTo(cx3, cy3);
-            ctx.lineTo(cx4, cy4);
-            ctx.closePath();
-            ctx.fill();
-        }
-        ctx.strokeStyle = styles.shapes_color;
-        ctx.fillStyle = styles.shapes_color;
-        ctx.lineWidth = styles.shapes_lineWidth;
-        ctx.lineJoin = 'miter';
-        ctx.lineCap = 'butt';
-        if (this.p1.x !== this.p2.x || this.p1.y !== this.p2.y) {
-            // only render if the points are different, otherwise this will
-            // cause fill overflows
-            if (this.arrowType === d2.Line.ARROW_RETROSYNTHETIC) {
-                let r2 = m.sqrt(2) * 2;
-                let useDist = styles.shapes_arrowLength_2D / r2;
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D / r2;
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                let cx1 = this.p1.x - mcosp * useDist;
-                let cy1 = this.p1.y + msinp * useDist;
-                let cx2 = this.p1.x + mcosp * useDist;
-                let cy2 = this.p1.y - msinp * useDist;
-                let cx3 = this.p2.x + mcosp * useDist - mcosa * retract;
-                let cy3 = this.p2.y - msinp * useDist + msina * retract;
-                let cx4 = this.p2.x - mcosp * useDist - mcosa * retract;
-                let cy4 = this.p2.y + msinp * useDist + msina * retract;
-                let ax1 = this.p2.x + mcosp * useDist * 2 - mcosa * retract * 2;
-                let ay1 = this.p2.y - msinp * useDist * 2 + msina * retract * 2;
-                let ax2 = this.p2.x - mcosp * useDist * 2 - mcosa * retract * 2;
-                let ay2 = this.p2.y + msinp * useDist * 2 + msina * retract * 2;
-                ctx.beginPath();
-                ctx.moveTo(cx2, cy2);
-                ctx.lineTo(cx3, cy3);
-                ctx.moveTo(ax1, ay1);
-                ctx.lineTo(this.p2.x, this.p2.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.moveTo(cx4, cy4);
-                ctx.lineTo(cx1, cy1);
-                ctx.stroke();
-            } else if (this.arrowType === d2.Line.ARROW_EQUILIBRIUM) {
-                let r2 = m.sqrt(2) * 2;
-                let useDist = styles.shapes_arrowLength_2D / r2 / 2;
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                let cx1 = this.p1.x - mcosp * useDist;
-                let cy1 = this.p1.y + msinp * useDist;
-                let cx2 = this.p1.x + mcosp * useDist;
-                let cy2 = this.p1.y - msinp * useDist;
-                let cx3 = this.p2.x + mcosp * useDist;
-                let cy3 = this.p2.y - msinp * useDist;
-                let cx4 = this.p2.x - mcosp * useDist;
-                let cy4 = this.p2.y + msinp * useDist;
-                ctx.beginPath();
-                ctx.moveTo(cx2, cy2);
-                ctx.lineTo(cx3, cy3);
-                ctx.moveTo(cx4, cy4);
-                ctx.lineTo(cx1, cy1);
-                ctx.stroke();
-                // right arrow
-                let rx1 = cx3 - mcosa * retract * .8;
-                let ry1 = cy3 + msina * retract * .8;
-                let ax1 = cx3 + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay1 = cy3 - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(cx3, cy3);
-                ctx.lineTo(ax1, ay1);
-                ctx.lineTo(rx1, ry1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                // left arrow
-                rx1 = cx1 + mcosa * retract * .8;
-                ry1 = cy1 - msina * retract * .8;
-                ax1 = cx1 - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
-                ay1 = cy1 + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(cx1, cy1);
-                ctx.lineTo(ax1, ay1);
-                ctx.lineTo(rx1, ry1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            } else if (this.arrowType === d2.Line.ARROW_SYNTHETIC) {
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                ctx.beginPath();
-                ctx.moveTo(this.p1.x, this.p1.y);
-                ctx.lineTo(this.p2.x - mcosa * retract / 2, this.p2.y + msina * retract / 2);
-                ctx.stroke();
-                let rx1 = this.p2.x - mcosa * retract * .8;
-                let ry1 = this.p2.y + msina * retract * .8;
-                let ax1 = this.p2.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay1 = this.p2.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                let ax2 = this.p2.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay2 = this.p2.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(this.p2.x, this.p2.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.lineTo(rx1, ry1);
-                ctx.lineTo(ax1, ay1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            } else if (this.arrowType === d2.Line.ARROW_RESONANCE) {
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                ctx.beginPath();
-                ctx.moveTo(this.p1.x + mcosa * retract / 2, this.p1.y - msina * retract / 2);
-                ctx.lineTo(this.p2.x - mcosa * retract / 2, this.p2.y + msina * retract / 2);
-                ctx.stroke();
-                // right arrow
-                let rx1 = this.p2.x - mcosa * retract * .8;
-                let ry1 = this.p2.y + msina * retract * .8;
-                let ax1 = this.p2.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay1 = this.p2.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                let ax2 = this.p2.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay2 = this.p2.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(this.p2.x, this.p2.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.lineTo(rx1, ry1);
-                ctx.lineTo(ax1, ay1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                // left arrow
-                rx1 = this.p1.x + mcosa * retract * .8;
-                ry1 = this.p1.y - msina * retract * .8;
-                ax1 = this.p1.x - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
-                ay1 = this.p1.y + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
-                ax2 = this.p1.x + mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
-                ay2 = this.p1.y - msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(this.p1.x, this.p1.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.lineTo(rx1, ry1);
-                ctx.lineTo(ax1, ay1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            } else {
-                ctx.beginPath();
-                ctx.moveTo(this.p1.x, this.p1.y);
-                ctx.lineTo(this.p2.x, this.p2.y);
-                ctx.stroke();
-            }
-            if(this.topText || this.bottomText){
-                ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
-                ctx.fillStyle = styles.text_color;
-            }
-            if(this.topText){
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(this.topText, (this.p1.x+this.p2.x)/2, this.p1.y-5);
-            }
-            if(this.bottomText){
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'top';
-                ctx.fillText(this.bottomText, (this.p1.x+this.p2.x)/2, this.p1.y+5);
-            }
-        }
-    };
-    _.getPoints = function() {
-        return [ this.p1, this.p2 ];
-    };
-    _.isOver = function(p, barrier) {
-        let dist = math.distanceFromPointToLineInclusive(p, this.p1, this.p2);
-        return dist !== -1 && dist < barrier;
-    };
-
-})(Chemio.extensions, Chemio.math, Chemio.structures, Chemio.structures.d2, Math);
 
 // (function(math, jsb, structures, d2, m, undefined) {
 //     'use strict';
@@ -5303,6 +5308,7 @@ Chemio.ELEMENT = (function(SYMBOLS, undefined) {
 // 	};
 //
 // })(Chemio.structures, Chemio.extensions, Math);
+//endregion
 
 // ************************** Styles ******************************
 
@@ -7492,6 +7498,55 @@ Chemio.monitor = (function(featureDetection, document, undefined) {
 
 })(Chemio, Chemio.featureDetection, Chemio.math, Chemio.monitor, Chemio.structures, Math, document, window, navigator.userAgent);
 
+(function(c, undefined) {
+    'use strict';
+    c.ViewerCanvas = function(id, width, height) {
+        if (id) {
+            this.create(id, width, height);
+        }
+    };
+    c.ViewerCanvas.prototype = new c._Canvas();
+
+})(Chemio);
+
+//region Unused canvases
+// Spectrum canvas
+// (function(c, document, undefined) {
+// 	'use strict';
+// 	c._SpectrumCanvas = function(id, width, height) {
+// 		if (id) {
+// 			this.create(id, width, height);
+// 		}
+// 	};
+// 	let _ = c._SpectrumCanvas.prototype = new c._Canvas();
+// 	_.spectrum = undefined;
+// 	_.emptyMessage = 'No Spectrum Loaded or Recognized';
+// 	_.loadMolecule = undefined;
+// 	_.getMolecule = undefined;
+// 	_.innerRepaint = function(ctx) {
+// 		if (this.spectrum && this.spectrum.data.length > 0) {
+// 			this.spectrum.draw(ctx, this.styles, this.width, this.height);
+// 		} else if (this.emptyMessage) {
+// 			ctx.fillStyle = '#737683';
+// 			ctx.textAlign = 'center';
+// 			ctx.textBaseline = 'middle';
+// 			ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
+// 			ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
+// 		}
+// 	};
+// 	_.loadSpectrum = function(spectrum) {
+// 		this.spectrum = spectrum;
+// 		this.repaint();
+// 	};
+// 	_.getSpectrum = function() {
+// 		return this.spectrum;
+// 	};
+// 	_.getSpectrumCoordinates = function(x, y) {
+// 		return spectrum.getInternalCoordinates(x, y, this.width, this.height);
+// 	};
+//
+// })(Chemio, document);
+
 // (function(c, animations, undefined) {
 // 	'use strict';
 // 	c._AnimatorCanvas = function(id, width, height) {
@@ -7963,54 +8018,6 @@ Chemio.monitor = (function(featureDetection, document, undefined) {
 //
 // })(Chemio, Chemio.monitor, Chemio.structures, Math, Chemio.lib.mat4);
 
-(function(c, undefined) {
-    'use strict';
-    c.ViewerCanvas = function(id, width, height) {
-        if (id) {
-            this.create(id, width, height);
-        }
-    };
-    c.ViewerCanvas.prototype = new c._Canvas();
-
-})(Chemio);
-
-// Spectrum canvas
-// (function(c, document, undefined) {
-// 	'use strict';
-// 	c._SpectrumCanvas = function(id, width, height) {
-// 		if (id) {
-// 			this.create(id, width, height);
-// 		}
-// 	};
-// 	let _ = c._SpectrumCanvas.prototype = new c._Canvas();
-// 	_.spectrum = undefined;
-// 	_.emptyMessage = 'No Spectrum Loaded or Recognized';
-// 	_.loadMolecule = undefined;
-// 	_.getMolecule = undefined;
-// 	_.innerRepaint = function(ctx) {
-// 		if (this.spectrum && this.spectrum.data.length > 0) {
-// 			this.spectrum.draw(ctx, this.styles, this.width, this.height);
-// 		} else if (this.emptyMessage) {
-// 			ctx.fillStyle = '#737683';
-// 			ctx.textAlign = 'center';
-// 			ctx.textBaseline = 'middle';
-// 			ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
-// 			ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
-// 		}
-// 	};
-// 	_.loadSpectrum = function(spectrum) {
-// 		this.spectrum = spectrum;
-// 		this.repaint();
-// 	};
-// 	_.getSpectrum = function() {
-// 		return this.spectrum;
-// 	};
-// 	_.getSpectrumCoordinates = function(x, y) {
-// 		return spectrum.getInternalCoordinates(x, y, this.width, this.height);
-// 	};
-//
-// })(Chemio, document);
-
 // (function(c, undefined) {
 // 	'use strict';
 // 	c.ObserverCanvas = function(id, width, height) {
@@ -8365,6 +8372,7 @@ Chemio.monitor = (function(featureDetection, document, undefined) {
 // 	};
 //
 // })(Chemio, Chemio.extensions, Chemio.math, document);
+//endregion
 
 
 //******************************************************************
@@ -9558,7 +9566,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-
 (function(informatics, structures, actions, undefined) {
     'use strict';
     actions.AddAction = function(sketcher, molIdentifier, addedAtoms, addedBonds) {
@@ -9646,7 +9653,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.informatics, Chemio.structures, Chemio.uis.actions);
-
 (function(actions, undefined) {
     'use strict';
     actions.AddContentAction = function(sketcher, mols, shapes) {
@@ -9669,7 +9675,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-
 (function(actions, undefined) {
     'use strict';
     actions.AddShapeAction = function(sketcher, s) {
@@ -9685,30 +9690,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-// (function(actions, undefined) {
-//     'use strict';
-//     actions.AddVAPAttachementAction = function(vap, a, substituent) {
-//         this.vap = vap;
-//         this.atom = a;
-//         this.substituent = substituent;
-//     };
-//     let _ = actions.AddVAPAttachementAction.prototype = new actions._Action();
-//     _.innerForward = function() {
-//         if(this.substituent){
-//             this.vap.substituent = this.atom;
-//         }else{
-//             this.vap.attachments.push(this.atom);
-//         }
-//     };
-//     _.innerReverse = function() {
-//         if(this.substituent){
-//             this.vap.substituent = undefined;
-//         }else{
-//             this.vap.attachments.pop();
-//         }
-//     };
-//
-// })(Chemio.uis.actions);
 (function(actions, Bond, m, undefined) {
     'use strict';
     actions.ChangeBondAction = function(b, orderAfter, stereoAfter) {
@@ -9741,74 +9722,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions, Chemio.structures.Bond, Math);
-// (function(actions, m, undefined) {
-//     'use strict';
-//     actions.ChangeDynamicBracketAttributeAction = function(s, type) {
-//         this.s = s;
-//         this.type = type;
-//     };
-//     let _ = actions.ChangeDynamicBracketAttributeAction.prototype = new actions._Action();
-//     _.innerForward = function() {
-//         let c = this.type > 0 ? 1 : -1;
-//         switch (m.abs(this.type)) {
-//             case 1:
-//                 this.s.n1 += c;
-//                 break;
-//             case 2:
-//                 this.s.n2 += c;
-//                 break;
-//         }
-//     };
-//     _.innerReverse = function() {
-//         let c = this.type > 0 ? -1 : 1;
-//         switch (m.abs(this.type)) {
-//             case 1:
-//                 this.s.n1 += c;
-//                 break;
-//             case 2:
-//                 this.s.n2 += c;
-//                 break;
-//         }
-//     };
-//
-// })(Chemio.uis.actions, Math);
-// (function(actions, m, undefined) {
-//     'use strict';
-//     actions.ChangeBracketAttributeAction = function(s, type) {
-//         this.s = s;
-//         this.type = type;
-//     };
-//     let _ = actions.ChangeBracketAttributeAction.prototype = new actions._Action();
-//     _.innerForward = function() {
-//         let c = this.type > 0 ? 1 : -1;
-//         switch (m.abs(this.type)) {
-//             case 1:
-//                 this.s.charge += c;
-//                 break;
-//             case 2:
-//                 this.s.repeat += c;
-//                 break;
-//             case 3:
-//                 this.s.mult += c;
-//                 break;
-//         }
-//     };
-//     _.innerReverse = function() {
-//         let c = this.type > 0 ? -1 : 1;
-//         switch (m.abs(this.type)) {
-//             case 1:
-//                 this.s.charge += c;
-//                 break;
-//             case 2:
-//                 this.s.repeat += c;
-//                 break;
-//             case 3:
-//                 this.s.mult += c;
-//                 break;
-//         }
-//     };
-//
-// })(Chemio.uis.actions, Math);
 (function(actions, undefined) {
     'use strict';
     actions.ChangeChargeAction = function(a, delta) {
@@ -9821,35 +9734,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
     _.innerReverse = function() {
         this.atom.charge -= this.delta;
-    };
-
-})(Chemio.uis.actions);
-(function(actions, undefined) {
-    'use strict';
-    actions.ChangeCoordinatesAction = function(atoms, newCoords) {
-        this.atoms = atoms;
-        this.recs = [];
-        for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-            this.recs[i] = {
-                'xo' : this.atoms[i].x,
-                'yo' : this.atoms[i].y,
-                'xn' : newCoords[i].x,
-                'yn' : newCoords[i].y
-            };
-        }
-    };
-    let _ = actions.ChangeCoordinatesAction.prototype = new actions._Action();
-    _.innerForward = function() {
-        for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-            this.atoms[i].x = this.recs[i].xn;
-            this.atoms[i].y = this.recs[i].yn;
-        }
-    };
-    _.innerReverse = function() {
-        for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-            this.atoms[i].x = this.recs[i].xo;
-            this.atoms[i].y = this.recs[i].yo;
-        }
     };
 
 })(Chemio.uis.actions);
@@ -9869,95 +9753,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-(function(actions, undefined) {
-    'use strict';
-    actions.ChangeLonePairAction = function(a, delta) {
-        this.atom = a;
-        this.delta = delta;
-    };
-    let _ = actions.ChangeLonePairAction.prototype = new actions._Action();
-    _.innerForward = function() {
-        this.atom.numLonePair += this.delta;
-    };
-    _.innerReverse = function() {
-        this.atom.numLonePair -= this.delta;
-    };
-
-})(Chemio.uis.actions);
-(function(actions, undefined) {
-    'use strict';
-    actions.ChangeQueryAction = function(o, after) {
-        this.o = o;
-        this.before = o.query;
-        this.after = after;
-    };
-    let _ = actions.ChangeQueryAction.prototype = new actions._Action();
-    _.innerForward = function() {
-        this.o.query = this.after;
-    };
-    _.innerReverse = function() {
-        this.o.query = this.before;
-    };
-
-})(Chemio.uis.actions);
-(function(actions, undefined) {
-    'use strict';
-    actions.ChangeRadicalAction = function(a, delta) {
-        this.atom = a;
-        this.delta = delta;
-    };
-    let _ = actions.ChangeRadicalAction.prototype = new actions._Action();
-    _.innerForward = function() {
-        this.atom.numRadical += this.delta;
-    };
-    _.innerReverse = function() {
-        this.atom.numRadical -= this.delta;
-    };
-
-})(Chemio.uis.actions);
-// (function(actions, Bond, m, undefined) {
-//     'use strict';
-//     actions.ChangeVAPOrderAction = function(vap, orderAfter) {
-//         this.vap = vap;
-//         this.orderBefore = vap.bondType;
-//         this.orderAfter = orderAfter;
-//     };
-//     let _ = actions.ChangeVAPOrderAction.prototype = new actions._Action();
-//     _.innerForward = function() {
-//         this.vap.bondType = this.orderAfter;
-//     };
-//     _.innerReverse = function() {
-//         this.vap.bondType = this.orderBefore;
-//     };
-//
-// })(Chemio.uis.actions, Chemio.structures.Bond, Math);
-// (function(actions, Bond, m, undefined) {
-//     'use strict';
-//     actions.ChangeVAPSubstituentAction = function(vap, nsub) {
-//         this.vap = vap;
-//         this.nsub = nsub;
-//         this.orderBefore = vap.bondType;
-//         this.osub = vap.substituent;
-//     };
-//     let _ = actions.ChangeVAPSubstituentAction.prototype = new actions._Action();
-//     _.innerForward = function() {
-//         this.vap.bondType = 1;
-//         this.vap.substituent = this.nsub;
-//         this.vap.attachments.splice(this.vap.attachments.indexOf(this.nsub), 1);
-//         if(this.osub){
-//             this.vap.attachments.push(this.osub);
-//         }
-//     };
-//     _.innerReverse = function() {
-//         this.vap.bondType = this.orderBefore;
-//         this.vap.substituent = this.osub;
-//         if(this.osub){
-//             this.vap.attachments.pop();
-//         }
-//         this.vap.attachments.push(this.nsub);
-//     };
-//
-// })(Chemio.uis.actions, Chemio.structures.Bond, Math);
 (function(structures, actions, undefined) {
     'use strict';
     actions.ClearAction = function(sketcher) {
@@ -10003,7 +9798,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-
 (function(informatics, actions, undefined) {
     'use strict';
     actions.DeleteContentAction = function(sketcher, atoms, shapes) {
@@ -10075,30 +9869,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     _.innerReverse = actions.AddShapeAction.prototype.innerForward;
 
 })(Chemio.uis.actions);
-// (function(actions, undefined) {
-//     'use strict';
-//     actions.DeleteVAPConnectionAction = function(vap, connection) {
-//         this.vap = vap;
-//         this.connection = connection;
-//         this.substituent = vap.substituent===connection;
-//     };
-//     let _ = actions.DeleteVAPConnectionAction.prototype = new actions._Action();
-//     _.innerForward = function() {
-//         if(this.substituent){
-//             this.vap.substituent = undefined;
-//         }else{
-//             this.vap.attachments.splice(this.vap.attachments.indexOf(this.connection), 1);
-//         }
-//     };
-//     _.innerReverse = function() {
-//         if(this.substituent){
-//             this.vap.substituent = this.connection;
-//         }else{
-//             this.vap.attachments.push(this.connection);
-//         }
-//     };
-//
-// })(Chemio.uis.actions);
 (function(structures, actions, m, undefined) {
     'use strict';
     actions.FlipAction = function(ps, bonds, horizontal) {
@@ -10152,17 +9922,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-// (function(actions, undefined) {
-//     'use strict';
-//     actions.FlipDynamicBracketAction = function(b) {
-//         this.b = b;
-//     };
-//     let _ = actions.FlipDynamicBracketAction.prototype = new actions._Action();
-//     _.innerReverse = _.innerForward = function() {
-//         this.b.flip = !this.b.flip;
-//     };
-//
-// })(Chemio.uis.actions);
 (function(actions, undefined) {
     'use strict';
     actions.MoveAction = function(ps, dif) {
@@ -10182,7 +9941,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.uis.actions);
-
 (function(structures, actions, undefined) {
     'use strict';
     actions.NewMoleculeAction = function(sketcher, atoms, bonds) {
@@ -10232,44 +9990,298 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 
 })(Chemio.uis.actions, Math);
 
-(function(actions, undefined) {
-    'use strict';
-    actions.SwitchContentAction = function(sketcher, mols, shapes) {
-        this.sketcher = sketcher;
-        this.beforeMols = this.sketcher.molecules;
-        this.beforeShapes = this.sketcher.shapes;
-        this.molsA = mols;
-        this.shapesA = shapes;
-    };
-    let _ = actions.SwitchContentAction.prototype = new actions._Action();
-    _.innerForward = function() {
-        this.sketcher.loadContent(this.molsA, this.shapesA);
-    };
-    _.innerReverse = function() {
-        this.sketcher.molecules = this.beforeMols;
-        this.sketcher.shapes = this.beforeShapes;
-    };
 
-})(Chemio.uis.actions);
+//region Unused Actions
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.ChangeCoordinatesAction = function(atoms, newCoords) {
+//         this.atoms = atoms;
+//         this.recs = [];
+//         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+//             this.recs[i] = {
+//                 'xo' : this.atoms[i].x,
+//                 'yo' : this.atoms[i].y,
+//                 'xn' : newCoords[i].x,
+//                 'yn' : newCoords[i].y
+//             };
+//         }
+//     };
+//     let _ = actions.ChangeCoordinatesAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+//             this.atoms[i].x = this.recs[i].xn;
+//             this.atoms[i].y = this.recs[i].yn;
+//         }
+//     };
+//     _.innerReverse = function() {
+//         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+//             this.atoms[i].x = this.recs[i].xo;
+//             this.atoms[i].y = this.recs[i].yo;
+//         }
+//     };
+//
+// })(Chemio.uis.actions);
 
-(function(actions, undefined) {
-    'use strict';
-    actions.SwitchMoleculeAction = function(sketcher, mol) {
-        this.sketcher = sketcher;
-        this.beforeMols = this.sketcher.molecules;
-        this.beforeShapes = this.sketcher.shapes;
-        this.molA = mol;
-    };
-    let _ = actions.SwitchMoleculeAction.prototype = new actions._Action();
-    _.innerForward = function() {
-        this.sketcher.loadMolecule(this.molA);
-    };
-    _.innerReverse = function() {
-        this.sketcher.molecules = this.beforeMols;
-        this.sketcher.shapes = this.beforeShapes;
-    };
+// (function(actions, m, undefined) {
+//     'use strict';
+//     actions.ChangeDynamicBracketAttributeAction = function(s, type) {
+//         this.s = s;
+//         this.type = type;
+//     };
+//     let _ = actions.ChangeDynamicBracketAttributeAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         let c = this.type > 0 ? 1 : -1;
+//         switch (m.abs(this.type)) {
+//             case 1:
+//                 this.s.n1 += c;
+//                 break;
+//             case 2:
+//                 this.s.n2 += c;
+//                 break;
+//         }
+//     };
+//     _.innerReverse = function() {
+//         let c = this.type > 0 ? -1 : 1;
+//         switch (m.abs(this.type)) {
+//             case 1:
+//                 this.s.n1 += c;
+//                 break;
+//             case 2:
+//                 this.s.n2 += c;
+//                 break;
+//         }
+//     };
+//
+// })(Chemio.uis.actions, Math);
+// (function(actions, m, undefined) {
+//     'use strict';
+//     actions.ChangeBracketAttributeAction = function(s, type) {
+//         this.s = s;
+//         this.type = type;
+//     };
+//     let _ = actions.ChangeBracketAttributeAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         let c = this.type > 0 ? 1 : -1;
+//         switch (m.abs(this.type)) {
+//             case 1:
+//                 this.s.charge += c;
+//                 break;
+//             case 2:
+//                 this.s.repeat += c;
+//                 break;
+//             case 3:
+//                 this.s.mult += c;
+//                 break;
+//         }
+//     };
+//     _.innerReverse = function() {
+//         let c = this.type > 0 ? -1 : 1;
+//         switch (m.abs(this.type)) {
+//             case 1:
+//                 this.s.charge += c;
+//                 break;
+//             case 2:
+//                 this.s.repeat += c;
+//                 break;
+//             case 3:
+//                 this.s.mult += c;
+//                 break;
+//         }
+//     };
+//
+// })(Chemio.uis.actions, Math);
 
-})(Chemio.uis.actions);
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.ChangeLonePairAction = function(a, delta) {
+//         this.atom = a;
+//         this.delta = delta;
+//     };
+//     let _ = actions.ChangeLonePairAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.atom.numLonePair += this.delta;
+//     };
+//     _.innerReverse = function() {
+//         this.atom.numLonePair -= this.delta;
+//     };
+//
+// })(Chemio.uis.actions);
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.ChangeQueryAction = function(o, after) {
+//         this.o = o;
+//         this.before = o.query;
+//         this.after = after;
+//     };
+//     let _ = actions.ChangeQueryAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.o.query = this.after;
+//     };
+//     _.innerReverse = function() {
+//         this.o.query = this.before;
+//     };
+//
+// })(Chemio.uis.actions);
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.ChangeRadicalAction = function(a, delta) {
+//         this.atom = a;
+//         this.delta = delta;
+//     };
+//     let _ = actions.ChangeRadicalAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.atom.numRadical += this.delta;
+//     };
+//     _.innerReverse = function() {
+//         this.atom.numRadical -= this.delta;
+//     };
+//
+// })(Chemio.uis.actions);
+// (function(actions, Bond, m, undefined) {
+//     'use strict';
+//     actions.ChangeVAPOrderAction = function(vap, orderAfter) {
+//         this.vap = vap;
+//         this.orderBefore = vap.bondType;
+//         this.orderAfter = orderAfter;
+//     };
+//     let _ = actions.ChangeVAPOrderAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.vap.bondType = this.orderAfter;
+//     };
+//     _.innerReverse = function() {
+//         this.vap.bondType = this.orderBefore;
+//     };
+//
+// })(Chemio.uis.actions, Chemio.structures.Bond, Math);
+// (function(actions, Bond, m, undefined) {
+//     'use strict';
+//     actions.ChangeVAPSubstituentAction = function(vap, nsub) {
+//         this.vap = vap;
+//         this.nsub = nsub;
+//         this.orderBefore = vap.bondType;
+//         this.osub = vap.substituent;
+//     };
+//     let _ = actions.ChangeVAPSubstituentAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.vap.bondType = 1;
+//         this.vap.substituent = this.nsub;
+//         this.vap.attachments.splice(this.vap.attachments.indexOf(this.nsub), 1);
+//         if(this.osub){
+//             this.vap.attachments.push(this.osub);
+//         }
+//     };
+//     _.innerReverse = function() {
+//         this.vap.bondType = this.orderBefore;
+//         this.vap.substituent = this.osub;
+//         if(this.osub){
+//             this.vap.attachments.pop();
+//         }
+//         this.vap.attachments.push(this.nsub);
+//     };
+//
+// })(Chemio.uis.actions, Chemio.structures.Bond, Math);
+
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.DeleteVAPConnectionAction = function(vap, connection) {
+//         this.vap = vap;
+//         this.connection = connection;
+//         this.substituent = vap.substituent===connection;
+//     };
+//     let _ = actions.DeleteVAPConnectionAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         if(this.substituent){
+//             this.vap.substituent = undefined;
+//         }else{
+//             this.vap.attachments.splice(this.vap.attachments.indexOf(this.connection), 1);
+//         }
+//     };
+//     _.innerReverse = function() {
+//         if(this.substituent){
+//             this.vap.substituent = this.connection;
+//         }else{
+//             this.vap.attachments.push(this.connection);
+//         }
+//     };
+//
+// })(Chemio.uis.actions);
+
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.FlipDynamicBracketAction = function(b) {
+//         this.b = b;
+//     };
+//     let _ = actions.FlipDynamicBracketAction.prototype = new actions._Action();
+//     _.innerReverse = _.innerForward = function() {
+//         this.b.flip = !this.b.flip;
+//     };
+//
+// })(Chemio.uis.actions);
+
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.AddVAPAttachementAction = function(vap, a, substituent) {
+//         this.vap = vap;
+//         this.atom = a;
+//         this.substituent = substituent;
+//     };
+//     let _ = actions.AddVAPAttachementAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         if(this.substituent){
+//             this.vap.substituent = this.atom;
+//         }else{
+//             this.vap.attachments.push(this.atom);
+//         }
+//     };
+//     _.innerReverse = function() {
+//         if(this.substituent){
+//             this.vap.substituent = undefined;
+//         }else{
+//             this.vap.attachments.pop();
+//         }
+//     };
+//
+// })(Chemio.uis.actions);
+
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.SwitchContentAction = function(sketcher, mols, shapes) {
+//         this.sketcher = sketcher;
+//         this.beforeMols = this.sketcher.molecules;
+//         this.beforeShapes = this.sketcher.shapes;
+//         this.molsA = mols;
+//         this.shapesA = shapes;
+//     };
+//     let _ = actions.SwitchContentAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.sketcher.loadContent(this.molsA, this.shapesA);
+//     };
+//     _.innerReverse = function() {
+//         this.sketcher.molecules = this.beforeMols;
+//         this.sketcher.shapes = this.beforeShapes;
+//     };
+//
+// })(Chemio.uis.actions);
+
+// (function(actions, undefined) {
+//     'use strict';
+//     actions.SwitchMoleculeAction = function(sketcher, mol) {
+//         this.sketcher = sketcher;
+//         this.beforeMols = this.sketcher.molecules;
+//         this.beforeShapes = this.sketcher.shapes;
+//         this.molA = mol;
+//     };
+//     let _ = actions.SwitchMoleculeAction.prototype = new actions._Action();
+//     _.innerForward = function() {
+//         this.sketcher.loadMolecule(this.molA);
+//     };
+//     _.innerReverse = function() {
+//         this.sketcher.molecules = this.beforeMols;
+//         this.sketcher.shapes = this.beforeShapes;
+//     };
+//
+// })(Chemio.uis.actions);
+//endregion
 
 //************************ HISTORY MANAGER ***********************
 (function(actions, undefined) {
@@ -10863,217 +10875,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 
 })(Chemio.uis.actions, Chemio.uis.states);
 
-// (function(extensions, math, structures, d2, actions, states, m, undefined) {
-// 	'use strict';
-// 	let controlsize = 4;
-//
-// 	states.DynamicBracketState = function(sketcher) {
-// 		this.setup(sketcher);
-// 		this.dontTranslateOnDrag = true;
-// 	};
-// 	let _ = states.DynamicBracketState.prototype = new states._State();
-// 	_.superDoubleClick = _.dblclick;
-// 	_.dblclick = function(e) {
-// 		// override double click not to center when editing controls
-// 		if (!this.control) {
-// 			this.superDoubleClick(e);
-// 		}
-// 	};
-// 	_.innermousedown = function(e) {
-// 		if (this.control) {
-// 			// this part controls the limits
-// 			let cont = true;
-// 			let c = this.control.t > 0 ? 1 : -1;
-// 			switch (m.abs(this.control.t)) {
-// 			case 1:{
-// 					let nn = this.control.s.n1 + c;
-// 					if(nn<0 || nn>this.control.s.n2){
-// 						cont = false;
-// 					}
-// 					break;
-// 				}
-// 			case 2:{
-// 					let nn = this.control.s.n2 + c;
-// 					if(nn>20 || nn<this.control.s.n1){
-// 						cont = false;
-// 					}
-// 					break;
-// 				}
-// 			}
-// 			if(cont){
-// 				this.sketcher.historyManager.pushUndo(new actions.ChangeDynamicBracketAttributeAction(this.control.s, this.control.t));
-// 				this.sketcher.repaint();
-// 			}
-// 		} else if (this.sketcher.hovering && this.start!==this.sketcher.hovering && this.sketcher.hovering instanceof structures.Bond) {
-// 			if(!this.start){
-// 				this.start = this.sketcher.hovering;
-// 			}
-// 		}else{
-// 			this.start = undefined;
-// 			this.end = undefined;
-// 			this.sketcher.repaint();
-// 		}
-// 	};
-// 	_.innerdrag = function(e) {
-// 		this.control = undefined;
-// 		if (this.start) {
-// 			this.end = new structures.Point(e.p.x, e.p.y);
-// 			this.findHoveredObject(e.p, false, true);
-// 			this.sketcher.repaint();
-// 		}
-// 	};
-// 	_.innermouseup = function(e) {
-// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-// 			let dup;
-// 			let remove = false;
-// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-// 				let s = this.sketcher.shapes[i];
-// 				if (s instanceof d2.DynamicBracket) {
-// 					if (s.b1 === this.start && s.b2 === this.sketcher.hovering || s.b2 === this.start && s.b1 === this.sketcher.hovering) {
-// 						dup = s;
-// 						remove = true;
-// 					}
-// 				}
-// 			}
-// 			if (dup) {
-// 				if (remove) {
-// 					this.sketcher.historyManager.pushUndo(new actions.DeleteShapeAction(this.sketcher, dup));
-// 				}
-// 				this.start = undefined;
-// 				this.end = undefined;
-// 				this.sketcher.repaint();
-// 			} else {
-// 				let shape = new d2.DynamicBracket(this.start, this.sketcher.hovering);
-// 				this.start = undefined;
-// 				this.end = undefined;
-// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, shape));
-// 			}
-// 		} else if(this.sketcher.hovering instanceof d2.DynamicBracket){
-// 			this.sketcher.historyManager.pushUndo(new actions.FlipDynamicBracketAction(this.sketcher.hovering));
-// 		} else {
-// 			//this.start = undefined;
-// 			//this.end = undefined;
-// 			//this.sketcher.repaint();
-// 		}
-// 	};
-// 	_.innermousemove = function(e) {
-// 		this.control = undefined;
-// 		if(this.start){
-// 			this.end = new structures.Point(e.p.x, e.p.y);
-// 		}else{
-// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-// 				let s = this.sketcher.shapes[i];
-// 				if (s instanceof d2.DynamicBracket && !s.error) {
-// 					let hits = [];
-// 					hits.push({
-// 						x : s.textPos.x-1,
-// 						y : s.textPos.y+6,
-// 						v : 1
-// 					});
-// 					hits.push({
-// 						x : s.textPos.x+13,
-// 						y : s.textPos.y+6,
-// 						v : 2
-// 					});
-// 					for ( let j = 0, jj = hits.length; j < jj; j++) {
-// 						let h = hits[j];
-// 						if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y - controlsize, h.y+3)) {
-// 							this.control = {
-// 								s : s,
-// 								t : h.v
-// 							};
-// 							break;
-// 						} else if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y + controlsize-2, h.y + controlsize * 2+3)) {
-// 							this.control = {
-// 								s : s,
-// 								t : -1 * h.v
-// 							};
-// 							break;
-// 						}
-// 					}
-// 					if (this.control) {
-// 						break;
-// 					}
-// 				}
-// 			}
-// 		}
-// 		if(this.control){
-// 			this.clearHover();
-// 		}else{
-// 			this.findHoveredObject(e.p, false, true, true);
-// 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2._Shape && !(this.sketcher.hovering instanceof d2.DynamicBracket)){
-// 				this.clearHover();
-// 			}
-// 		}
-// 		this.sketcher.repaint();
-// 	};
-// 	function drawBracketControl(ctx, styles, x, y, control, type) {
-// 		if (control && m.abs(control.t) === type) {
-// 			ctx.fillStyle = styles.colorHover;
-// 			ctx.beginPath();
-// 			if (control.t > 0) {
-// 				ctx.moveTo(x, y);
-// 				ctx.lineTo(x + controlsize, y - controlsize);
-// 				ctx.lineTo(x + controlsize * 2, y);
-// 			} else {
-// 				ctx.moveTo(x, y + controlsize);
-// 				ctx.lineTo(x + controlsize, y + controlsize * 2);
-// 				ctx.lineTo(x + controlsize * 2, y + controlsize);
-// 			}
-// 			ctx.closePath();
-// 			ctx.fill();
-// 		}
-// 		ctx.strokeStyle = 'blue';
-// 		ctx.beginPath();
-// 		ctx.moveTo(x, y);
-// 		ctx.lineTo(x + controlsize, y - controlsize);
-// 		ctx.lineTo(x + controlsize * 2, y);
-// 		ctx.moveTo(x, y + controlsize);
-// 		ctx.lineTo(x + controlsize, y + controlsize * 2);
-// 		ctx.lineTo(x + controlsize * 2, y + controlsize);
-// 		ctx.stroke();
-// 	}
-// 	_.draw = function(ctx, styles) {
-// 		if (this.start && this.end) {
-// 			ctx.strokeStyle = styles.colorPreview;
-// 			ctx.fillStyle = styles.colorPreview;
-// 			ctx.lineWidth = 1;
-// 			let p1 = this.start.getCenter();
-// 			let p2 = this.end;
-// 			if (this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-// 				p2 = this.sketcher.hovering.getCenter();
-// 			}
-// 			ctx.beginPath();
-// 			ctx.moveTo(p1.x, p1.y);
-// 			ctx.lineTo(p2.x, p2.y);
-// 			ctx.setLineDash([2]);
-// 			ctx.stroke();
-// 			ctx.setLineDash([]);
-// 		}else {
-// 			// controls
-// 			ctx.lineWidth = 2;
-// 			ctx.lineJoin = 'miter';
-// 			ctx.lineCap = 'butt';
-// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-// 				let s = this.sketcher.shapes[i];
-// 				if (s instanceof d2.DynamicBracket && !s.error) {
-// 					let c = this.control && this.control.s === s ? this.control : undefined;
-// 					drawBracketControl(ctx, styles, s.textPos.x-1, s.textPos.y+6, c, 1);
-// 					drawBracketControl(ctx, styles, s.textPos.x+13, s.textPos.y+6, c, 2);
-// 				}
-// 			}
-// 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2.DynamicBracket && this.sketcher.hovering.contents.flippable){
-// 				let s = this.sketcher.hovering;
-// 				ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
-// 				ctx.fillStyle = styles.colorPreview;
-// 				ctx.textAlign = 'left';
-// 				ctx.textBaseline = 'bottom';
-// 				ctx.fillText('flip?', s.textPos.x+(s.error?0:20), s.textPos.y);
-// 			}
-// 		}
-// 	};
-//
-// })(Chemio.extensions, Chemio.math, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states, Math);
 
 (function(actions, states, structures, d2, undefined) {
     'use strict';
@@ -11554,26 +11355,6 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 
 })(Chemio.math, Chemio.monitor, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states, Chemio.uis.tools, Chemio.uis.gui.imageDepot, Math);
 
-// (function(actions, states, undefined) {
-// 	'use strict';
-// 	states.LonePairState = function(sketcher) {
-// 		this.setup(sketcher);
-// 	};
-// 	let _ = states.LonePairState.prototype = new states._State();
-// 	_.delta = 1;
-// 	_.innermouseup = function(e) {
-// 		if (this.delta < 0 && this.sketcher.hovering.numLonePair < 1) {
-// 			return;
-// 		}
-// 		if (this.sketcher.hovering) {
-// 			this.sketcher.historyManager.pushUndo(new actions.ChangeLonePairAction(this.sketcher.hovering, this.delta));
-// 		}
-// 	};
-// 	_.innermousemove = function(e) {
-// 		this.findHoveredObject(e.p, true, false);
-// 	};
-//
-// })(Chemio.uis.actions, Chemio.uis.states);
 (function(actions, states, structures, undefined) {
     'use strict';
     states.MoveState = function(sketcher) {
@@ -12300,6 +12081,241 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
     };
 
 })(Chemio.math, Chemio.monitor, Chemio.uis.actions, Chemio.uis.states, Chemio.structures, Math);
+
+//region Unused states
+// (function(extensions, math, structures, d2, actions, states, m, undefined) {
+// 	'use strict';
+// 	let controlsize = 4;
+//
+// 	states.DynamicBracketState = function(sketcher) {
+// 		this.setup(sketcher);
+// 		this.dontTranslateOnDrag = true;
+// 	};
+// 	let _ = states.DynamicBracketState.prototype = new states._State();
+// 	_.superDoubleClick = _.dblclick;
+// 	_.dblclick = function(e) {
+// 		// override double click not to center when editing controls
+// 		if (!this.control) {
+// 			this.superDoubleClick(e);
+// 		}
+// 	};
+// 	_.innermousedown = function(e) {
+// 		if (this.control) {
+// 			// this part controls the limits
+// 			let cont = true;
+// 			let c = this.control.t > 0 ? 1 : -1;
+// 			switch (m.abs(this.control.t)) {
+// 			case 1:{
+// 					let nn = this.control.s.n1 + c;
+// 					if(nn<0 || nn>this.control.s.n2){
+// 						cont = false;
+// 					}
+// 					break;
+// 				}
+// 			case 2:{
+// 					let nn = this.control.s.n2 + c;
+// 					if(nn>20 || nn<this.control.s.n1){
+// 						cont = false;
+// 					}
+// 					break;
+// 				}
+// 			}
+// 			if(cont){
+// 				this.sketcher.historyManager.pushUndo(new actions.ChangeDynamicBracketAttributeAction(this.control.s, this.control.t));
+// 				this.sketcher.repaint();
+// 			}
+// 		} else if (this.sketcher.hovering && this.start!==this.sketcher.hovering && this.sketcher.hovering instanceof structures.Bond) {
+// 			if(!this.start){
+// 				this.start = this.sketcher.hovering;
+// 			}
+// 		}else{
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innerdrag = function(e) {
+// 		this.control = undefined;
+// 		if (this.start) {
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, false, true);
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermouseup = function(e) {
+// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 			let dup;
+// 			let remove = false;
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.DynamicBracket) {
+// 					if (s.b1 === this.start && s.b2 === this.sketcher.hovering || s.b2 === this.start && s.b1 === this.sketcher.hovering) {
+// 						dup = s;
+// 						remove = true;
+// 					}
+// 				}
+// 			}
+// 			if (dup) {
+// 				if (remove) {
+// 					this.sketcher.historyManager.pushUndo(new actions.DeleteShapeAction(this.sketcher, dup));
+// 				}
+// 				this.start = undefined;
+// 				this.end = undefined;
+// 				this.sketcher.repaint();
+// 			} else {
+// 				let shape = new d2.DynamicBracket(this.start, this.sketcher.hovering);
+// 				this.start = undefined;
+// 				this.end = undefined;
+// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, shape));
+// 			}
+// 		} else if(this.sketcher.hovering instanceof d2.DynamicBracket){
+// 			this.sketcher.historyManager.pushUndo(new actions.FlipDynamicBracketAction(this.sketcher.hovering));
+// 		} else {
+// 			//this.start = undefined;
+// 			//this.end = undefined;
+// 			//this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		this.control = undefined;
+// 		if(this.start){
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 		}else{
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.DynamicBracket && !s.error) {
+// 					let hits = [];
+// 					hits.push({
+// 						x : s.textPos.x-1,
+// 						y : s.textPos.y+6,
+// 						v : 1
+// 					});
+// 					hits.push({
+// 						x : s.textPos.x+13,
+// 						y : s.textPos.y+6,
+// 						v : 2
+// 					});
+// 					for ( let j = 0, jj = hits.length; j < jj; j++) {
+// 						let h = hits[j];
+// 						if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y - controlsize, h.y+3)) {
+// 							this.control = {
+// 								s : s,
+// 								t : h.v
+// 							};
+// 							break;
+// 						} else if (math.isBetween(e.p.x, h.x, h.x + controlsize * 2) && math.isBetween(e.p.y, h.y + controlsize-2, h.y + controlsize * 2+3)) {
+// 							this.control = {
+// 								s : s,
+// 								t : -1 * h.v
+// 							};
+// 							break;
+// 						}
+// 					}
+// 					if (this.control) {
+// 						break;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if(this.control){
+// 			this.clearHover();
+// 		}else{
+// 			this.findHoveredObject(e.p, false, true, true);
+// 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2._Shape && !(this.sketcher.hovering instanceof d2.DynamicBracket)){
+// 				this.clearHover();
+// 			}
+// 		}
+// 		this.sketcher.repaint();
+// 	};
+// 	function drawBracketControl(ctx, styles, x, y, control, type) {
+// 		if (control && m.abs(control.t) === type) {
+// 			ctx.fillStyle = styles.colorHover;
+// 			ctx.beginPath();
+// 			if (control.t > 0) {
+// 				ctx.moveTo(x, y);
+// 				ctx.lineTo(x + controlsize, y - controlsize);
+// 				ctx.lineTo(x + controlsize * 2, y);
+// 			} else {
+// 				ctx.moveTo(x, y + controlsize);
+// 				ctx.lineTo(x + controlsize, y + controlsize * 2);
+// 				ctx.lineTo(x + controlsize * 2, y + controlsize);
+// 			}
+// 			ctx.closePath();
+// 			ctx.fill();
+// 		}
+// 		ctx.strokeStyle = 'blue';
+// 		ctx.beginPath();
+// 		ctx.moveTo(x, y);
+// 		ctx.lineTo(x + controlsize, y - controlsize);
+// 		ctx.lineTo(x + controlsize * 2, y);
+// 		ctx.moveTo(x, y + controlsize);
+// 		ctx.lineTo(x + controlsize, y + controlsize * 2);
+// 		ctx.lineTo(x + controlsize * 2, y + controlsize);
+// 		ctx.stroke();
+// 	}
+// 	_.draw = function(ctx, styles) {
+// 		if (this.start && this.end) {
+// 			ctx.strokeStyle = styles.colorPreview;
+// 			ctx.fillStyle = styles.colorPreview;
+// 			ctx.lineWidth = 1;
+// 			let p1 = this.start.getCenter();
+// 			let p2 = this.end;
+// 			if (this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 				p2 = this.sketcher.hovering.getCenter();
+// 			}
+// 			ctx.beginPath();
+// 			ctx.moveTo(p1.x, p1.y);
+// 			ctx.lineTo(p2.x, p2.y);
+// 			ctx.setLineDash([2]);
+// 			ctx.stroke();
+// 			ctx.setLineDash([]);
+// 		}else {
+// 			// controls
+// 			ctx.lineWidth = 2;
+// 			ctx.lineJoin = 'miter';
+// 			ctx.lineCap = 'butt';
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if (s instanceof d2.DynamicBracket && !s.error) {
+// 					let c = this.control && this.control.s === s ? this.control : undefined;
+// 					drawBracketControl(ctx, styles, s.textPos.x-1, s.textPos.y+6, c, 1);
+// 					drawBracketControl(ctx, styles, s.textPos.x+13, s.textPos.y+6, c, 2);
+// 				}
+// 			}
+// 			if(this.sketcher.hovering && this.sketcher.hovering instanceof d2.DynamicBracket && this.sketcher.hovering.contents.flippable){
+// 				let s = this.sketcher.hovering;
+// 				ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
+// 				ctx.fillStyle = styles.colorPreview;
+// 				ctx.textAlign = 'left';
+// 				ctx.textBaseline = 'bottom';
+// 				ctx.fillText('flip?', s.textPos.x+(s.error?0:20), s.textPos.y);
+// 			}
+// 		}
+// 	};
+//
+// })(Chemio.extensions, Chemio.math, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states, Math);
+
+// (function(actions, states, undefined) {
+// 	'use strict';
+// 	states.LonePairState = function(sketcher) {
+// 		this.setup(sketcher);
+// 	};
+// 	let _ = states.LonePairState.prototype = new states._State();
+// 	_.delta = 1;
+// 	_.innermouseup = function(e) {
+// 		if (this.delta < 0 && this.sketcher.hovering.numLonePair < 1) {
+// 			return;
+// 		}
+// 		if (this.sketcher.hovering) {
+// 			this.sketcher.historyManager.pushUndo(new actions.ChangeLonePairAction(this.sketcher.hovering, this.delta));
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		this.findHoveredObject(e.p, true, false);
+// 	};
+//
+// })(Chemio.uis.actions, Chemio.uis.states);
+
 // (function(math, monitor, actions, states, io, structures, m, undefined) {
 // 	'use strict';
 //
@@ -12627,6 +12643,186 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 //
 // })(Chemio.uis.actions, Chemio.uis.states);
 
+// (function(math, structures, d2, actions, states, undefined) {
+// 	'use strict';
+// 	states.VAPState = function(sketcher) {
+// 		this.setup(sketcher);
+// 		this.dontTranslateOnDrag = true;
+// 	};
+// 	let _ = states.VAPState.prototype = new states._State();
+// 	_.innermousedown = function(e) {
+// 		if(!this.sketcher.hovering && (!this.start || !(this.start instanceof d2.VAP))){
+// 			// out of convenience, since the user cannot drag from the VAP asterisk and may accidentally try to, don't allow placement of another vap within 30 pixels
+// 			let add = true;
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if(s instanceof d2.VAP && s.asterisk.distance(e.p)<30){
+// 					add = false;
+// 				}
+// 			}
+// 			if(add){
+// 				let vap = new d2.VAP(e.p.x, e.p.y);
+// 				if (!this.sketcher.isMobile) {
+// 					vap.isHover = true;
+// 					this.sketcher.hovering = vap;
+// 				}
+// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, vap));
+// 			}
+// 		}else if (this.sketcher.hovering && this.start!==this.sketcher.hovering) {
+// 			if(this.sketcher.hovering.hoverBond){
+// 				let vap = this.sketcher.hovering;
+// 				if(vap.hoverBond===vap.substituent){
+// 					let nbo = 1;
+// 					if(vap.bondType===1 || vap.bondType===2){
+// 						nbo = vap.bondType+1;
+// 					}else if(vap.bondType===3){
+// 						nbo = .5;
+// 					}
+// 					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPOrderAction(vap, nbo));
+// 				}else {
+// 					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPSubstituentAction(vap, this.sketcher.hovering.hoverBond));
+// 				}
+// 			}else if(!this.start){
+// 				this.start = this.sketcher.hovering;
+// 			}
+// 		}else{
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innerdrag = function(e) {
+// 		if (this.start) {
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
+// 			this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermouseup = function(e) {
+// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
+// 			let vap = this.sketcher.hovering;
+// 			let attach = this.start;
+// 			if(attach instanceof d2.VAP){
+// 				let tmp = vap;
+// 				vap = attach;
+// 				attach = tmp;
+// 			}
+// 			if(vap.substituent!==attach && vap.attachments.indexOf(attach)===-1){
+// 				this.sketcher.historyManager.pushUndo(new actions.AddVAPAttachementAction(vap, attach, vap.substituent===undefined));
+// 			}
+// 			this.start = undefined;
+// 			this.end = undefined;
+// 			this.sketcher.repaint();
+// 		} else {
+// 			//this.start = undefined;
+// 			//this.end = undefined;
+// 			//this.sketcher.repaint();
+// 		}
+// 	};
+// 	_.innermousemove = function(e) {
+// 		if(this.start){
+// 			this.end = new structures.Point(e.p.x, e.p.y);
+// 			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
+// 		}else{
+// 			this.findHoveredObject(e.p, true, true, true);
+// 		}
+// 		this.sketcher.repaint();
+// 	};
+// 	_.draw = function(ctx, styles) {
+// 		if (this.start && this.end) {
+// 			ctx.strokeStyle = styles.colorPreview;
+// 			ctx.fillStyle = styles.colorPreview;
+// 			ctx.lineWidth = 1;
+// 			let p1 = this.start;
+// 			let p2 = this.end;
+// 			if (this.sketcher.hovering) {
+// 				p2 = this.sketcher.hovering;
+// 			}
+// 			if(p1 instanceof d2.VAP){
+// 				p1 = p1.asterisk;
+// 			}
+// 			if(p2 instanceof d2.VAP){
+// 				p2 = p2.asterisk;
+// 			}
+// 			ctx.beginPath();
+// 			ctx.moveTo(p1.x, p1.y);
+// 			ctx.lineTo(p2.x, p2.y);
+// 			ctx.setLineDash([2]);
+// 			ctx.stroke();
+// 			ctx.setLineDash([]);
+// 		}
+// 	};
+// 	_.findHoveredObject = function(e, includeAtoms, includeVAPsBonds, includeVAPsAsterisks) {
+// 		this.clearHover();
+// 		let min = Infinity;
+// 		let hovering;
+// 		let hoverdist = 10;
+// 		if (!this.sketcher.isMobile) {
+// 			hoverdist /= this.sketcher.styles.scale;
+// 		}
+// 		if (includeAtoms) {
+// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+// 				let mol = this.sketcher.molecules[i];
+// 				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
+// 					let a = mol.atoms[j];
+// 					a.isHover = false;
+// 					let dist = e.p.distance(a);
+// 					if (dist < hoverdist && dist < min) {
+// 						min = dist;
+// 						hovering = a;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if (includeVAPsBonds) {
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if(s instanceof d2.VAP){
+// 					s.hoverBond = undefined;
+// 					if(s.substituent){
+// 						let att = s.substituent;
+// 						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
+// 						if (dist !== -1 && dist < hoverdist && dist < min) {
+// 							min = dist;
+// 							s.hoverBond = att;
+// 							hovering = s;
+// 						}
+// 					}
+// 					for ( let j = 0, jj = s.attachments.length; j < jj; j++) {
+// 						let att = s.attachments[j];
+// 						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
+// 						if (dist !== -1 && dist < hoverdist && dist < min) {
+// 							min = dist;
+// 							s.hoverBond = att;
+// 							hovering = s;
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if (includeVAPsAsterisks) {
+// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+// 				let s = this.sketcher.shapes[i];
+// 				if(s instanceof d2.VAP){
+// 					s.isHover = false;
+// 					let dist = e.p.distance(s.asterisk);
+// 					if (dist < hoverdist && dist < min) {
+// 						min = dist;
+// 						hovering = s;
+// 					}
+// 				}
+// 			}
+// 		}
+// 		if (hovering) {
+// 			hovering.isHover = true;
+// 			this.sketcher.hovering = hovering;
+// 		}
+// 	};
+//
+// })(Chemio.math, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states);
+
+//endregion
+
 (function(math, monitor, structures, d2, actions, states, m, undefined) {
     'use strict';
     states.ShapeState = function(sketcher) {
@@ -12634,7 +12830,7 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
         this.dontTranslateOnDrag = true;
     };
     let _ = states.ShapeState.prototype = new states._State();
-    _.shapeType = states.ShapeState.LINE;
+    _.shapeType = states.ShapeState.ARROW_SYNTHETIC;
     _.superDoubleClick = _.dblclick;
     _.dblclick = function(e) {
         // override double click not to center when editing shapes
@@ -12835,190 +13031,13 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 
     states.ShapeState.LINE = 1;
     states.ShapeState.ARROW_SYNTHETIC = 2;
-    states.ShapeState.ARROW_RETROSYNTHETIC = 3;
-    states.ShapeState.ARROW_RESONANCE = 4;
-    states.ShapeState.ARROW_EQUILIBRIUM = 5;
-    states.ShapeState.BRACKET = 10;
+    // states.ShapeState.ARROW_RETROSYNTHETIC = 3;
+    // states.ShapeState.ARROW_RESONANCE = 4;
+    // states.ShapeState.ARROW_EQUILIBRIUM = 5;
+    // states.ShapeState.BRACKET = 10;
 
 })(Chemio.math, Chemio.monitor, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states, Math);
 
-// (function(math, structures, d2, actions, states, undefined) {
-// 	'use strict';
-// 	states.VAPState = function(sketcher) {
-// 		this.setup(sketcher);
-// 		this.dontTranslateOnDrag = true;
-// 	};
-// 	let _ = states.VAPState.prototype = new states._State();
-// 	_.innermousedown = function(e) {
-// 		if(!this.sketcher.hovering && (!this.start || !(this.start instanceof d2.VAP))){
-// 			// out of convenience, since the user cannot drag from the VAP asterisk and may accidentally try to, don't allow placement of another vap within 30 pixels
-// 			let add = true;
-// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-// 				let s = this.sketcher.shapes[i];
-// 				if(s instanceof d2.VAP && s.asterisk.distance(e.p)<30){
-// 					add = false;
-// 				}
-// 			}
-// 			if(add){
-// 				let vap = new d2.VAP(e.p.x, e.p.y);
-// 				if (!this.sketcher.isMobile) {
-// 					vap.isHover = true;
-// 					this.sketcher.hovering = vap;
-// 				}
-// 				this.sketcher.historyManager.pushUndo(new actions.AddShapeAction(this.sketcher, vap));
-// 			}
-// 		}else if (this.sketcher.hovering && this.start!==this.sketcher.hovering) {
-// 			if(this.sketcher.hovering.hoverBond){
-// 				let vap = this.sketcher.hovering;
-// 				if(vap.hoverBond===vap.substituent){
-// 					let nbo = 1;
-// 					if(vap.bondType===1 || vap.bondType===2){
-// 						nbo = vap.bondType+1;
-// 					}else if(vap.bondType===3){
-// 						nbo = .5;
-// 					}
-// 					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPOrderAction(vap, nbo));
-// 				}else {
-// 					this.sketcher.historyManager.pushUndo(new actions.ChangeVAPSubstituentAction(vap, this.sketcher.hovering.hoverBond));
-// 				}
-// 			}else if(!this.start){
-// 				this.start = this.sketcher.hovering;
-// 			}
-// 		}else{
-// 			this.start = undefined;
-// 			this.end = undefined;
-// 			this.sketcher.repaint();
-// 		}
-// 	};
-// 	_.innerdrag = function(e) {
-// 		if (this.start) {
-// 			this.end = new structures.Point(e.p.x, e.p.y);
-// 			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
-// 			this.sketcher.repaint();
-// 		}
-// 	};
-// 	_.innermouseup = function(e) {
-// 		if (this.start && this.sketcher.hovering && this.sketcher.hovering !== this.start) {
-// 			let vap = this.sketcher.hovering;
-// 			let attach = this.start;
-// 			if(attach instanceof d2.VAP){
-// 				let tmp = vap;
-// 				vap = attach;
-// 				attach = tmp;
-// 			}
-// 			if(vap.substituent!==attach && vap.attachments.indexOf(attach)===-1){
-// 				this.sketcher.historyManager.pushUndo(new actions.AddVAPAttachementAction(vap, attach, vap.substituent===undefined));
-// 			}
-// 			this.start = undefined;
-// 			this.end = undefined;
-// 			this.sketcher.repaint();
-// 		} else {
-// 			//this.start = undefined;
-// 			//this.end = undefined;
-// 			//this.sketcher.repaint();
-// 		}
-// 	};
-// 	_.innermousemove = function(e) {
-// 		if(this.start){
-// 			this.end = new structures.Point(e.p.x, e.p.y);
-// 			this.findHoveredObject(e.p, this.start instanceof d2.VAP, false, this.start instanceof structures.Atom);
-// 		}else{
-// 			this.findHoveredObject(e.p, true, true, true);
-// 		}
-// 		this.sketcher.repaint();
-// 	};
-// 	_.draw = function(ctx, styles) {
-// 		if (this.start && this.end) {
-// 			ctx.strokeStyle = styles.colorPreview;
-// 			ctx.fillStyle = styles.colorPreview;
-// 			ctx.lineWidth = 1;
-// 			let p1 = this.start;
-// 			let p2 = this.end;
-// 			if (this.sketcher.hovering) {
-// 				p2 = this.sketcher.hovering;
-// 			}
-// 			if(p1 instanceof d2.VAP){
-// 				p1 = p1.asterisk;
-// 			}
-// 			if(p2 instanceof d2.VAP){
-// 				p2 = p2.asterisk;
-// 			}
-// 			ctx.beginPath();
-// 			ctx.moveTo(p1.x, p1.y);
-// 			ctx.lineTo(p2.x, p2.y);
-// 			ctx.setLineDash([2]);
-// 			ctx.stroke();
-// 			ctx.setLineDash([]);
-// 		}
-// 	};
-// 	_.findHoveredObject = function(e, includeAtoms, includeVAPsBonds, includeVAPsAsterisks) {
-// 		this.clearHover();
-// 		let min = Infinity;
-// 		let hovering;
-// 		let hoverdist = 10;
-// 		if (!this.sketcher.isMobile) {
-// 			hoverdist /= this.sketcher.styles.scale;
-// 		}
-// 		if (includeAtoms) {
-// 			for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-// 				let mol = this.sketcher.molecules[i];
-// 				for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-// 					let a = mol.atoms[j];
-// 					a.isHover = false;
-// 					let dist = e.p.distance(a);
-// 					if (dist < hoverdist && dist < min) {
-// 						min = dist;
-// 						hovering = a;
-// 					}
-// 				}
-// 			}
-// 		}
-// 		if (includeVAPsBonds) {
-// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-// 				let s = this.sketcher.shapes[i];
-// 				if(s instanceof d2.VAP){
-// 					s.hoverBond = undefined;
-// 					if(s.substituent){
-// 						let att = s.substituent;
-// 						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
-// 						if (dist !== -1 && dist < hoverdist && dist < min) {
-// 							min = dist;
-// 							s.hoverBond = att;
-// 							hovering = s;
-// 						}
-// 					}
-// 					for ( let j = 0, jj = s.attachments.length; j < jj; j++) {
-// 						let att = s.attachments[j];
-// 						let dist = math.distanceFromPointToLineInclusive(e.p, s.asterisk, att, hoverdist/2);
-// 						if (dist !== -1 && dist < hoverdist && dist < min) {
-// 							min = dist;
-// 							s.hoverBond = att;
-// 							hovering = s;
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 		if (includeVAPsAsterisks) {
-// 			for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-// 				let s = this.sketcher.shapes[i];
-// 				if(s instanceof d2.VAP){
-// 					s.isHover = false;
-// 					let dist = e.p.distance(s.asterisk);
-// 					if (dist < hoverdist && dist < min) {
-// 						min = dist;
-// 						hovering = s;
-// 					}
-// 				}
-// 			}
-// 		}
-// 		if (hovering) {
-// 			hovering.isHover = true;
-// 			this.sketcher.hovering = hovering;
-// 		}
-// 	};
-//
-// })(Chemio.math, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states);
 
 //************************ STATE MANAGER ***********************
 (function(states, imageDepot, undefined) {
@@ -13228,6 +13247,7 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 
 })(Chemio.uis.gui.desktop);
 
+//region Unused ui's
 // (function(desktop, q, undefined) {
 // 	'use strict';
 // 	desktop.CheckBox = function(id, tooltip, func, checked) {
@@ -14710,6 +14730,7 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 // 	};
 //
 // })(Chemio.uis.gui.desktop, Chemio.uis.gui.imageDepot, Chemio.lib.jQuery, document);
+//endregion
 
 //************************ TOOLBAR MANAGER ***********************
 (function(c, io, structures, actions, gui, imageDepot, desktop, tools, states, document, undefined) {
@@ -16034,7 +16055,7 @@ Chemio.uis.gui.imageDepot = (function (undefined) {
 
 })(Chemio.informatics, Chemio.io, Chemio.structures, Chemio.uis, Chemio.uis.actions);
 
-/** Sketcher canvas */
+// Sketcher canvas
 (function(c, extensions, featureDetection, sketcherPack, structures, d2, tools, q, m, window, undefined) {
     'use strict';
     c.SketcherCanvas = function(id, width, height, options) {

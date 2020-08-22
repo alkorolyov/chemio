@@ -2,6 +2,7 @@ const path = require("path")
 const webpack = require('webpack')
 const HtmlWebPackPlugin = require("html-webpack-plugin")
 const TerserPlugin = require('terser-webpack-plugin');
+const MergeIntoSingleFilePlugin = require('webpack-merge-and-include-globally');
 
 module.exports = {
     entry: {
@@ -35,22 +36,18 @@ module.exports = {
             }
         ]
     },
-    optimization: {
-        minimize: false,
-        minimizer: [new TerserPlugin({
-            terserOptions: {
-                output: {
-                    comments: false,
-                },
-            },
-            extractComments: false,
-        })]
-    },
     plugins: [
         new HtmlWebPackPlugin({
             inject: false,
             template: "./src/index.html",
             filename: "./index.html"
         }),
+        new MergeIntoSingleFilePlugin({
+            files: {
+                'main.js': [
+                    '.src/app.js'
+                ]
+            }
+        })
     ]
 }
