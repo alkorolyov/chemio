@@ -536,6 +536,7 @@
     'use strict';
     states.EraseState = function(sketcher) {
         this.setup(sketcher);
+        this.defaultCursor = 'POINTER_ERASE';
     };
     let _ = states.EraseState.prototype = new states._State();
     _.handleDelete = function() {
