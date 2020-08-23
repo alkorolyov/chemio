@@ -14,12 +14,16 @@ module.exports = (env, argv) => ({
     },
     devServer: {
         contentBase: './src', // searches in this folder for index.html automatically
-        watchContentBase: true
+        watchContentBase: true // recompile on changes of index.html
     },
     plugins: [
         new MergeIntoSingleFilePlugin({
             files: {
                 'bundle.js': [
+                    // instead of *.js
+                    // files included explicitly to maintain load order
+
+                    // core
                     'src/core/core.js',
                     'src/core/structures.js',
                     'src/core/shapes.js',
@@ -28,6 +32,7 @@ module.exports = (env, argv) => ({
                     'src/core/io.js',
                     'src/core/canvas.js',
 
+                    // ui
                     'src/ui/ui.js',
                     'src/ui/depot.js',
                     'src/ui/actions.js',
@@ -50,7 +55,8 @@ module.exports = (env, argv) => ({
         }),
         new WatchExternalFilesPlugin( argv.mode === 'development' ? {
             files: [
-                './src/**/*.js'
+                './src/**/*.js',
+                'styles.css'
             ],
             verbose: true
         } : {})

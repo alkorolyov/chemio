@@ -115,86 +115,88 @@
         if (this.p1.x !== this.p2.x || this.p1.y !== this.p2.y) {
             // only render if the points are different, otherwise this will
             // cause fill overflows
-            if (this.arrowType === d2.Line.ARROW_RETROSYNTHETIC) {
-                let r2 = m.sqrt(2) * 2;
-                let useDist = styles.shapes_arrowLength_2D / r2;
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D / r2;
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                let cx1 = this.p1.x - mcosp * useDist;
-                let cy1 = this.p1.y + msinp * useDist;
-                let cx2 = this.p1.x + mcosp * useDist;
-                let cy2 = this.p1.y - msinp * useDist;
-                let cx3 = this.p2.x + mcosp * useDist - mcosa * retract;
-                let cy3 = this.p2.y - msinp * useDist + msina * retract;
-                let cx4 = this.p2.x - mcosp * useDist - mcosa * retract;
-                let cy4 = this.p2.y + msinp * useDist + msina * retract;
-                let ax1 = this.p2.x + mcosp * useDist * 2 - mcosa * retract * 2;
-                let ay1 = this.p2.y - msinp * useDist * 2 + msina * retract * 2;
-                let ax2 = this.p2.x - mcosp * useDist * 2 - mcosa * retract * 2;
-                let ay2 = this.p2.y + msinp * useDist * 2 + msina * retract * 2;
-                ctx.beginPath();
-                ctx.moveTo(cx2, cy2);
-                ctx.lineTo(cx3, cy3);
-                ctx.moveTo(ax1, ay1);
-                ctx.lineTo(this.p2.x, this.p2.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.moveTo(cx4, cy4);
-                ctx.lineTo(cx1, cy1);
-                ctx.stroke();
-            } else if (this.arrowType === d2.Line.ARROW_EQUILIBRIUM) {
-                let r2 = m.sqrt(2) * 2;
-                let useDist = styles.shapes_arrowLength_2D / r2 / 2;
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                let cx1 = this.p1.x - mcosp * useDist;
-                let cy1 = this.p1.y + msinp * useDist;
-                let cx2 = this.p1.x + mcosp * useDist;
-                let cy2 = this.p1.y - msinp * useDist;
-                let cx3 = this.p2.x + mcosp * useDist;
-                let cy3 = this.p2.y - msinp * useDist;
-                let cx4 = this.p2.x - mcosp * useDist;
-                let cy4 = this.p2.y + msinp * useDist;
-                ctx.beginPath();
-                ctx.moveTo(cx2, cy2);
-                ctx.lineTo(cx3, cy3);
-                ctx.moveTo(cx4, cy4);
-                ctx.lineTo(cx1, cy1);
-                ctx.stroke();
-                // right arrow
-                let rx1 = cx3 - mcosa * retract * .8;
-                let ry1 = cy3 + msina * retract * .8;
-                let ax1 = cx3 + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay1 = cy3 - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(cx3, cy3);
-                ctx.lineTo(ax1, ay1);
-                ctx.lineTo(rx1, ry1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                // left arrow
-                rx1 = cx1 + mcosa * retract * .8;
-                ry1 = cy1 - msina * retract * .8;
-                ax1 = cx1 - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
-                ay1 = cy1 + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(cx1, cy1);
-                ctx.lineTo(ax1, ay1);
-                ctx.lineTo(rx1, ry1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            } else if (this.arrowType === d2.Line.ARROW_SYNTHETIC) {
+
+            // if (this.arrowType === d2.Line.ARROW_RETROSYNTHETIC) {
+            //     let r2 = m.sqrt(2) * 2;
+            //     let useDist = styles.shapes_arrowLength_2D / r2;
+            //     let angle = this.p1.angle(this.p2);
+            //     let perpendicular = angle + m.PI / 2;
+            //     let retract = styles.shapes_arrowLength_2D / r2;
+            //     let mcosa = m.cos(angle);
+            //     let msina = m.sin(angle);
+            //     let mcosp = m.cos(perpendicular);
+            //     let msinp = m.sin(perpendicular);
+            //     let cx1 = this.p1.x - mcosp * useDist;
+            //     let cy1 = this.p1.y + msinp * useDist;
+            //     let cx2 = this.p1.x + mcosp * useDist;
+            //     let cy2 = this.p1.y - msinp * useDist;
+            //     let cx3 = this.p2.x + mcosp * useDist - mcosa * retract;
+            //     let cy3 = this.p2.y - msinp * useDist + msina * retract;
+            //     let cx4 = this.p2.x - mcosp * useDist - mcosa * retract;
+            //     let cy4 = this.p2.y + msinp * useDist + msina * retract;
+            //     let ax1 = this.p2.x + mcosp * useDist * 2 - mcosa * retract * 2;
+            //     let ay1 = this.p2.y - msinp * useDist * 2 + msina * retract * 2;
+            //     let ax2 = this.p2.x - mcosp * useDist * 2 - mcosa * retract * 2;
+            //     let ay2 = this.p2.y + msinp * useDist * 2 + msina * retract * 2;
+            //     ctx.beginPath();
+            //     ctx.moveTo(cx2, cy2);
+            //     ctx.lineTo(cx3, cy3);
+            //     ctx.moveTo(ax1, ay1);
+            //     ctx.lineTo(this.p2.x, this.p2.y);
+            //     ctx.lineTo(ax2, ay2);
+            //     ctx.moveTo(cx4, cy4);
+            //     ctx.lineTo(cx1, cy1);
+            //     ctx.stroke();
+            // } else if (this.arrowType === d2.Line.ARROW_EQUILIBRIUM) {
+            //     let r2 = m.sqrt(2) * 2;
+            //     let useDist = styles.shapes_arrowLength_2D / r2 / 2;
+            //     let angle = this.p1.angle(this.p2);
+            //     let perpendicular = angle + m.PI / 2;
+            //     let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+            //     let mcosa = m.cos(angle);
+            //     let msina = m.sin(angle);
+            //     let mcosp = m.cos(perpendicular);
+            //     let msinp = m.sin(perpendicular);
+            //     let cx1 = this.p1.x - mcosp * useDist;
+            //     let cy1 = this.p1.y + msinp * useDist;
+            //     let cx2 = this.p1.x + mcosp * useDist;
+            //     let cy2 = this.p1.y - msinp * useDist;
+            //     let cx3 = this.p2.x + mcosp * useDist;
+            //     let cy3 = this.p2.y - msinp * useDist;
+            //     let cx4 = this.p2.x - mcosp * useDist;
+            //     let cy4 = this.p2.y + msinp * useDist;
+            //     ctx.beginPath();
+            //     ctx.moveTo(cx2, cy2);
+            //     ctx.lineTo(cx3, cy3);
+            //     ctx.moveTo(cx4, cy4);
+            //     ctx.lineTo(cx1, cy1);
+            //     ctx.stroke();
+            //     // right arrow
+            //     let rx1 = cx3 - mcosa * retract * .8;
+            //     let ry1 = cy3 + msina * retract * .8;
+            //     let ax1 = cx3 + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+            //     let ay1 = cy3 - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+            //     ctx.beginPath();
+            //     ctx.moveTo(cx3, cy3);
+            //     ctx.lineTo(ax1, ay1);
+            //     ctx.lineTo(rx1, ry1);
+            //     ctx.closePath();
+            //     ctx.fill();
+            //     ctx.stroke();
+            //     // left arrow
+            //     rx1 = cx1 + mcosa * retract * .8;
+            //     ry1 = cy1 - msina * retract * .8;
+            //     ax1 = cx1 - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
+            //     ay1 = cy1 + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
+            //     ctx.beginPath();
+            //     ctx.moveTo(cx1, cy1);
+            //     ctx.lineTo(ax1, ay1);
+            //     ctx.lineTo(rx1, ry1);
+            //     ctx.closePath();
+            //     ctx.fill();
+            //     ctx.stroke();
+            // } else
+            if (this.arrowType === d2.Line.ARROW_SYNTHETIC) {
                 let angle = this.p1.angle(this.p2);
                 let perpendicular = angle + m.PI / 2;
                 let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
@@ -220,49 +222,51 @@
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
-            } else if (this.arrowType === d2.Line.ARROW_RESONANCE) {
-                let angle = this.p1.angle(this.p2);
-                let perpendicular = angle + m.PI / 2;
-                let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
-                let mcosa = m.cos(angle);
-                let msina = m.sin(angle);
-                let mcosp = m.cos(perpendicular);
-                let msinp = m.sin(perpendicular);
-                ctx.beginPath();
-                ctx.moveTo(this.p1.x + mcosa * retract / 2, this.p1.y - msina * retract / 2);
-                ctx.lineTo(this.p2.x - mcosa * retract / 2, this.p2.y + msina * retract / 2);
-                ctx.stroke();
-                // right arrow
-                let rx1 = this.p2.x - mcosa * retract * .8;
-                let ry1 = this.p2.y + msina * retract * .8;
-                let ax1 = this.p2.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay1 = this.p2.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                let ax2 = this.p2.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
-                let ay2 = this.p2.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(this.p2.x, this.p2.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.lineTo(rx1, ry1);
-                ctx.lineTo(ax1, ay1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                // left arrow
-                rx1 = this.p1.x + mcosa * retract * .8;
-                ry1 = this.p1.y - msina * retract * .8;
-                ax1 = this.p1.x - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
-                ay1 = this.p1.y + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
-                ax2 = this.p1.x + mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
-                ay2 = this.p1.y - msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
-                ctx.beginPath();
-                ctx.moveTo(this.p1.x, this.p1.y);
-                ctx.lineTo(ax2, ay2);
-                ctx.lineTo(rx1, ry1);
-                ctx.lineTo(ax1, ay1);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            } else {
+            }
+            //     else if (this.arrowType === d2.Line.ARROW_RESONANCE) {
+            //     let angle = this.p1.angle(this.p2);
+            //     let perpendicular = angle + m.PI / 2;
+            //     let retract = styles.shapes_arrowLength_2D * 2 / m.sqrt(3);
+            //     let mcosa = m.cos(angle);
+            //     let msina = m.sin(angle);
+            //     let mcosp = m.cos(perpendicular);
+            //     let msinp = m.sin(perpendicular);
+            //     ctx.beginPath();
+            //     ctx.moveTo(this.p1.x + mcosa * retract / 2, this.p1.y - msina * retract / 2);
+            //     ctx.lineTo(this.p2.x - mcosa * retract / 2, this.p2.y + msina * retract / 2);
+            //     ctx.stroke();
+            //     // right arrow
+            //     let rx1 = this.p2.x - mcosa * retract * .8;
+            //     let ry1 = this.p2.y + msina * retract * .8;
+            //     let ax1 = this.p2.x + mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+            //     let ay1 = this.p2.y - msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+            //     let ax2 = this.p2.x - mcosp * styles.shapes_arrowLength_2D / 3 - mcosa * retract;
+            //     let ay2 = this.p2.y + msinp * styles.shapes_arrowLength_2D / 3 + msina * retract;
+            //     ctx.beginPath();
+            //     ctx.moveTo(this.p2.x, this.p2.y);
+            //     ctx.lineTo(ax2, ay2);
+            //     ctx.lineTo(rx1, ry1);
+            //     ctx.lineTo(ax1, ay1);
+            //     ctx.closePath();
+            //     ctx.fill();
+            //     ctx.stroke();
+            //     // left arrow
+            //     rx1 = this.p1.x + mcosa * retract * .8;
+            //     ry1 = this.p1.y - msina * retract * .8;
+            //     ax1 = this.p1.x - mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
+            //     ay1 = this.p1.y + msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
+            //     ax2 = this.p1.x + mcosp * styles.shapes_arrowLength_2D / 3 + mcosa * retract;
+            //     ay2 = this.p1.y - msinp * styles.shapes_arrowLength_2D / 3 - msina * retract;
+            //     ctx.beginPath();
+            //     ctx.moveTo(this.p1.x, this.p1.y);
+            //     ctx.lineTo(ax2, ay2);
+            //     ctx.lineTo(rx1, ry1);
+            //     ctx.lineTo(ax1, ay1);
+            //     ctx.closePath();
+            //     ctx.fill();
+            //     ctx.stroke();
+            // }
+                else {
                 ctx.beginPath();
                 ctx.moveTo(this.p1.x, this.p1.y);
                 ctx.lineTo(this.p2.x, this.p2.y);

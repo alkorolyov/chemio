@@ -6,7 +6,8 @@
     c.DEFAULT_STYLES = {
         // default canvas properties
 
-        //backgroundColor:'#FFFFFF',
+        // backgroundColor:'#FFFFFF',
+        backgroundColor:'transparent    ',
         scale:1.5,
         rotateAngle:0,
         lightDirection_3D:[-.1, -.1, -1],
@@ -35,8 +36,8 @@
         // hover, selection
         colorHover:'#0060B2',
         colorSelect:'rgba(0,96,178,0.3)',
-        hover_lineWidth: 0.7,
-        lasso_lineWidth: 1,
+        hover_lineWidth: 1.5,
+        lasso_lineWidth: 1.5,
         atoms_selectRadius:8,
 
         // 3D shaders
