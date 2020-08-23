@@ -226,9 +226,9 @@
 
     };
     _.draw = function(ctx, styles) {
-        ctx.strokeStyle = styles.colorSelect;
+        ctx.strokeStyle = styles.colorHover;
         ctx.lineWidth = styles.lasso_lineWidth / styles.scale;
-        ctx.setLineDash([2]);
+        ctx.setLineDash([3]);
         if (this.points.length > 0) {
             if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {
                 if (this.points.length === 2) {

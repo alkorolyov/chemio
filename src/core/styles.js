@@ -35,9 +35,9 @@
 
         // hover, selection
         colorHover:'#0060B2',
-        colorSelect:'rgba(0,96,178,0.3)',
+        colorSelect:'rgba(0,106,255,0.3)' ,
         hover_lineWidth: 1.5,
-        lasso_lineWidth: 1.5,
+        lasso_lineWidth: 1.2,
         atoms_selectRadius:8,
 
         // 3D shaders
