@@ -85,7 +85,7 @@
     _.topText = undefined;
     _.bottomText = undefined;
     _.draw = function(ctx, styles) {
-        if (this.isLassoed) {
+        if (this.isSelected) {
             let useDist = 2.5;
             let perpendicular = this.p1.angle(this.p2) + m.PI / 2;
             let mcosp = m.cos(perpendicular);
@@ -299,6 +299,7 @@
 })(Chemio.extensions, Chemio.math, Chemio.structures, Chemio.structures.d2, Math);
 
 //region Unused shapes
+
 // (function(extensions, math, structures, d2, m, undefined) {
 // 	'use strict';
 //
@@ -311,7 +312,7 @@
 // 	};
 // 	let _ = d2.AtomMapping.prototype = new d2._Shape();
 // 	_.drawDecorations = function(ctx, styles) {
-// 		if (this.isHover || this.isSelected) {
+// 		if (this.isHover || this.isSelected_old) {
 // 			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
 // 			ctx.lineWidth = 1;
 // 			ctx.beginPath();
@@ -332,13 +333,13 @@
 // 			ctx.font = extensions.getFontString(styles.text_font_size, styles.text_font_families, styles.text_font_bold, styles.text_font_italic);
 // 			let label = this.label;
 // 			let w = ctx.measureText(label).width;
-// 			if (this.isLassoed) {
+// 			if (this.isSelected) {
 // 				ctx.fillStyle = styles.colorHover;
 // 				ctx.fillRect(this.x1-w/2-3, this.y1-styles.text_font_size/2-3, w+6, styles.text_font_size+6);
 // 				ctx.fillRect(this.x2-w/2-3, this.y2-styles.text_font_size/2-3, w+6, styles.text_font_size+6);
 // 			}
 // 			let color = this.error?styles.colorError:styles.shapes_color;
-// 			if (this.isHover || this.isSelected) {
+// 			if (this.isHover || this.isSelected_old) {
 // 				color = this.isHover ? styles.colorHover : styles.colorSelect;
 // 			}
 // 			ctx.fillStyle = color;
@@ -389,7 +390,7 @@
 // 		ctx.lineTo(maxX, maxY);
 // 		ctx.lineTo(maxX, minY);
 // 		ctx.lineTo(maxX - lip, minY);
-// 		if (this.isLassoed) {
+// 		if (this.isSelected) {
 // 			let grd = ctx.createLinearGradient(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
 // 			grd.addColorStop(0, 'rgba(212, 99, 0, 0)');
 // 			grd.addColorStop(0.5, 'rgba(212, 99, 0, 0.8)');
@@ -508,7 +509,7 @@
 // 	_.draw = function(ctx, styles) {
 // 		if (this.b1 && this.b2) {
 // 			let color = this.error?styles.colorError:styles.shapes_color;
-// 			if (this.isHover || this.isSelected) {
+// 			if (this.isHover || this.isSelected_old) {
 // 				color = this.isHover ? styles.colorHover : styles.colorSelect;
 // 			}
 // 			ctx.strokeStyle = color;
@@ -845,7 +846,7 @@
 // 	};
 // 	let _ = d2.VAP.prototype = new d2._Shape();
 // 	_.drawDecorations = function(ctx, styles) {
-// 		if (this.isHover || this.isSelected) {
+// 		if (this.isHover || this.isSelected_old) {
 // 			ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
 // 			ctx.lineWidth = 1.2;
 // 			let radius = 7;
@@ -1014,4 +1015,5 @@
 // 	};
 //
 // })(Chemio.structures, Chemio.extensions, Math);
+
 //endregion

@@ -11,9 +11,10 @@
         this.defaultCursor = 'default';
     };
     /**
+     * Sets new cursor pointer
      *
-     * @param {string} cursor POINTER_* ex. POINTER_LASSO, for custom imageDepot pointer
-     * or predefined cursor, ex 'default'
+     * @param {string} cursor POINTER_* ex. POINTER_LASSO, for custom imageDepot cursor icon
+     * or predefined cursor icon, ex 'default'
      */
     _.setCursor = function(cursor) {
         this.cursor = cursor;
@@ -28,7 +29,7 @@
     _.clearHover = function() {
         if (this.sketcher.hovering) {
             this.sketcher.hovering.isHover = false;
-            this.sketcher.hovering.isSelected = false;
+            this.sketcher.hovering.isSelected_old = false;
             this.sketcher.hovering = undefined;
         }
     };
@@ -122,7 +123,7 @@
         if (hovering) {
             hovering.isHover = true;
             this.sketcher.hovering = hovering;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.getOptimumAngle = function(a, order) {
@@ -171,7 +172,7 @@
         if (this.sketcher.startAtom) {
             this.sketcher.startAtom.x = -10;
             this.sketcher.startAtom.y = -10;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.placeRequiredAtom = function(e){
@@ -210,15 +211,7 @@
     };
     _.mousedown = function(e) {
         this.sketcher.lastPoint = e.p;
-        // must also check for mobile hits here to the help button
-        if (this.sketcher.isHelp || this.sketcher.isMobile && e.op.distance(new structures.Point(this.sketcher.width - 20, 20)) < 10) {
-            this.sketcher.isHelp = false;
-            this.sketcher.lastPoint = undefined;
-            this.sketcher.repaint();
-            // window.open doesn't work once Event.preventDefault() has been called
-            location.href='https://web.chemdoodle.com/demos/2d-sketcher';
-            //window.open('https://web.chemdoodle.com/demos/2d-sketcher', '_blank');
-        } else if (this.innermousedown) {
+        if (this.innermousedown) {
             this.innermousedown(e);
         }
     };
@@ -235,9 +228,14 @@
             this.innermousemove(e);
         }
 
+        // console.log('selected: ' + this.sketcher.getAllAtoms()[0].isSelected);
+        // console.log('lassoed: ' + this.sketcher.getAllAtoms()[0].isLassoed);
+        // console.log('hover: ' + this.sketcher.getAllAtoms()[0].isHover);
+
+
         // call the repaint here to repaint the help button, also this is called
         // by other functions, so the repaint must be here
-        this.sketcher.repaint();
+        // this.sketcher.repaint();
     };
     _.mouseout = function(e) {
         this.sketcher.lastMousePos = undefined;
@@ -246,11 +244,11 @@
         }
         if (this.sketcher.isHelp) {
             this.sketcher.isHelp = false;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
         if (this.sketcher.hovering && monitor.CANVAS_DRAGGING != this.sketcher) {
             this.sketcher.hovering = undefined;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.mouseover = function(e) {
@@ -275,12 +273,19 @@
         }
         this.sketcher.styles.scale *= delta >= 0 ? 1.1 : (1 / 1.1);
         this.sketcher.checkScale();
-        this.sketcher.repaint();
+        console.log(this.sketcher.renderer);
+        this.sketcher.renderer.redraw();
     };
     _.drag = function(e) {
         if (this.innerdrag) {
             this.innerdrag(e);
         }
+
+        // console.log('selected: ' + this.sketcher.getAllAtoms()[0].isSelected);
+        // console.log('lassoed: ' + this.sketcher.getAllAtoms()[0].isLassoed);
+        // console.log('hover: ' + this.sketcher.getAllAtoms()[0].isHover);
+
+
         // if (!this.sketcher.hovering && !this.dontTranslateOnDrag) {
         // 	if (monitor.SHIFT) {
         // 		// rotate structure
@@ -567,7 +572,7 @@
             }
             this.sketcher.hovering.isHover = false;
             this.sketcher.hovering = undefined;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
         if(action){
             this.sketcher.historyManager.pushUndo(action);
@@ -650,7 +655,7 @@
             //     }
             // }
             this.sketcher.checksOnAction();
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.innermouseup = function(e) {
@@ -673,14 +678,14 @@
         this.newMolAllowed = true;
         if(this.sketcher.hovering){
             this.sketcher.hovering.isHover = false;
-            this.sketcher.hovering.isSelected = true;
-            this.sketcher.repaint();
+            this.sketcher.hovering.isSelected_old = true;
+            this.sketcher.renderer.redraw();
         }
     };
     _.innermouseup = function(e) {
         this.downPoint = undefined;
         if (this.sketcher.hovering) {
-            this.sketcher.hovering.isSelected = false;
+            this.sketcher.hovering.isSelected_old = false;
             if(this.sketcher.tempAtom){
                 let b = new structures.Bond(this.sketcher.hovering, this.sketcher.tempAtom);
                 this.sketcher.historyManager.pushUndo(new actions.AddAction(this.sketcher, b.a1, [b.a2], [b]));
@@ -728,7 +733,7 @@
                     this.sketcher.tempAtom = new structures.Atom(this.label, this.sketcher.hovering.x + length * m.cos(angle), this.sketcher.hovering.y - length * m.sin(angle), 0);
                 }
             }
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
 
@@ -737,9 +742,16 @@
     'use strict';
     let TRANSLATE = 1;
     let ROTATE = 2;
-    //let SCALE = 3;
     let transformType = undefined;
+    /**
+     * Buffer size in px for rotate area
+     * @type {number}
+     */
     let rotateBufferConst = 25;
+    /**
+     * Flag to repaint rotate area
+     * @type {boolean}
+     */
     let paintRotate = false;
 
     let rotateDif = 0;
@@ -753,16 +765,36 @@
         this.defaultCursor = 'POINTER_LASSO';
     };
     let _ = states.LassoState.prototype = new states._State();
+    /**
+     * Checks if point inside rotate area boundaries
+     *  of selected objects. Including inner space.
+     *
+     * @param {Point} point
+     * @return {boolean} result
+     */
     _.inRotateBoundaries = function(point, rotateBuffer) {
         if (!this.sketcher.lasso.isActive()) return false;
         return (math.isBetween(point.x, this.sketcher.lasso.bounds.minX - rotateBuffer, this.sketcher.lasso.bounds.maxX + rotateBuffer)
             && math.isBetween(point.y, this.sketcher.lasso.bounds.minY - rotateBuffer, this.sketcher.lasso.bounds.maxY + rotateBuffer))
     };
+    /**
+     * Checks if point inside drag area boundaries
+     *  of selected objects.
+     *
+     * @param {Point} point
+     * @return {boolean} result
+     */
     _.inDragBoundaries = function(point) {
         if (!this.sketcher.lasso.isActive()) return false;
         return (math.isBetween(point.x, this.sketcher.lasso.bounds.minX, this.sketcher.lasso.bounds.maxX)
             && math.isBetween(point.y, this.sketcher.lasso.bounds.minY, this.sketcher.lasso.bounds.maxY))
     };
+    /**
+     * Updates cursor when it doesn't correspond to area,
+     * repaints in rotation area
+     *
+     * @param {Point} point
+     */
     _.updateCursor = function(point) {
         let rotateBuffer = rotateBufferConst / this.sketcher.styles.scale;
         if (!point) {
@@ -780,7 +812,7 @@
                 this.setCursor('POINTER_ROTATE');
                 this.clearHover();
                 paintRotate = true;
-                this.sketcher.repaint();
+                this.sketcher.renderer.redraw();
             }
             else if (!this.inRotateBoundaries(point, rotateBuffer)) {
                 this.updateHoverCursor(point);
@@ -789,6 +821,12 @@
             this.updateHoverCursor(point);
         }
     };
+    /**
+     * Updates cursor for hovering objects,
+     * repaints in rotation boundaries
+     *
+     * @param {Point} point
+     */
     _.updateHoverCursor = function(point) {
         if (!point) {
             this.setCursor('POINTER_LASSO');
@@ -800,9 +838,10 @@
         } else if (!this.sketcher.hovering && this.cursor !== 'POINTER_LASSO') {
             this.setCursor('POINTER_LASSO');
             paintRotate = false;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
+
     _.innerenter = function() {
         this.updateCursor(this.sketcher.lastPoint);
     };
@@ -892,7 +931,7 @@
                 // center is the canvas center
                 return;
             }
-            // move structure
+            // move hovering part
             let dif = new structures.Point(e.p.x, e.p.y);
             dif.sub(this.sketcher.lastPoint);
             if (!this.parentAction) {
@@ -918,8 +957,8 @@
             // must check against undefined as lastGestureRotate can be 0, in
             // mobile mode it is set during gestures, don't use lasso
             this.sketcher.lasso.addPoint(e.p);
-
-            this.sketcher.repaint();
+            this.sketcher.lasso.lasso();
+            this.sketcher.renderer.redraw();
         }
     };
     _.innermousedown = function(e) {
@@ -935,7 +974,7 @@
         } else if (!this.sketcher.hovering) {
             this.sketcher.lastPoint = undefined;
             this.sketcher.lasso.addPoint(e.p);
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.innermouseup = function(e) {
@@ -950,11 +989,11 @@
             let shapes = [];
             if (this.sketcher.hovering instanceof structures.Atom) {
                 let a = this.sketcher.hovering;
-                a.isLassoed ? this.sketcher.lasso.deselect([a]) : atoms.push(a);
+                a.isSelected ? this.sketcher.lasso.deselect([a]) : atoms.push(a);
             } else if (this.sketcher.hovering instanceof structures.Bond) {
                 let a1 = this.sketcher.hovering.a1;
                 let a2 = this.sketcher.hovering.a2;
-                if (a1.isLassoed && a2.isLassoed) {
+                if (a1.isSelected && a2.isSelected) {
                     this.sketcher.lasso.deselect([a1]);
                     this.sketcher.lasso.deselect([a2]);
                 } else {
@@ -963,7 +1002,7 @@
                 }
             } else if (this.sketcher.hovering instanceof d2._Shape) {
                 let s = this.sketcher.hovering;
-                s.isLassoed ? this.sketcher.lasso.deselect([], [s]) : shapes.push(s);
+                s.isSelected ? this.sketcher.lasso.deselect([], [s]) : shapes.push(s);
             }
             this.sketcher.lasso.select(atoms, shapes);
         } else if (this.sketcher.lasso.isActive() && !this.inDrag && !monitor.SHIFT) {
@@ -1013,6 +1052,8 @@
 
 })(Chemio.math, Chemio.monitor, Chemio.structures, Chemio.structures.d2, Chemio.uis.actions, Chemio.uis.states, Chemio.uis.tools, Chemio.uis.gui.imageDepot, Math);
 
+
+
 (function(actions, states, structures, undefined) {
     'use strict';
     states.MoveState = function(sketcher) {
@@ -1045,7 +1086,7 @@
                 for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
                     this.sketcher.molecules[i].check();
                 }
-                this.sketcher.repaint();
+                this.sketcher.renderer.redraw();
             }
         }
     };
@@ -1173,7 +1214,7 @@
                     }
                 }
             }
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.innerclick = function(e) {
@@ -1189,7 +1230,7 @@
         this.newMolAllowed = true;
         if (this.sketcher.hovering instanceof structures.Atom) {
             this.sketcher.hovering.isHover = false;
-            this.sketcher.hovering.isSelected = true;
+            this.sketcher.hovering.isSelected_old = true;
             this.drag(e);
         } else if (this.sketcher.hovering instanceof structures.Bond) {
             this.sketcher.hovering.isHover = false;
@@ -1197,7 +1238,7 @@
             for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
                 this.sketcher.molecules[i].check();
             }
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }else if(!this.sketcher.hovering && !this.sketcher.requireStartingAtom){
             this.placeRequiredAtom(e);
         }
@@ -1332,7 +1373,7 @@
         if (this.sketcher.hovering) {
             // send in a copy of e.p as the getChain function does change the point if shift is held
             this.sketcher.tempChain = this.getChain(this.sketcher.hovering, new structures.Point(e.p.x, e.p.y));
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.innerclick = function(e) {
@@ -1348,7 +1389,7 @@
         this.newMolAllowed = true;
         if (this.sketcher.hovering) {
             this.sketcher.hovering.isHover = false;
-            this.sketcher.hovering.isSelected = true;
+            this.sketcher.hovering.isSelected_old = true;
             this.drag(e);
         }else if(!this.sketcher.requireStartingAtom){
             this.placeRequiredAtom(e);
@@ -1589,7 +1630,7 @@
                 }
             }
             this.sketcher.tempRing = this.getRing(this.sketcher.hovering, n, l, a, true);
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         } else if (this.sketcher.hovering instanceof structures.Bond) {
             let dist = math.distanceFromPointToLineInclusive(e.p, this.sketcher.hovering.a1, this.sketcher.hovering.a2);
             let ringUse;
@@ -1632,7 +1673,7 @@
                 }
             }
             this.sketcher.tempRing = ringUse;
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         }
     };
     _.innerclick = function(e) {
@@ -1648,7 +1689,7 @@
         this.newMolAllowed = true;
         if (this.sketcher.hovering) {
             this.sketcher.hovering.isHover = false;
-            this.sketcher.hovering.isSelected = true;
+            this.sketcher.hovering.isSelected_old = true;
             this.drag(e);
         }else if(!this.sketcher.requireStartingAtom){
             this.placeRequiredAtom(e);
@@ -1757,7 +1798,7 @@
     _.innerexit = function(e) {
         // set it back to line to remove graphical controls for other shapes
         this.shapeType = states.ShapeState.LINE;
-        this.sketcher.repaint();
+        this.sketcher.renderer.redraw();
     };
     _.innermousemove = function(e) {
         this.control = undefined;
@@ -1813,7 +1854,7 @@
     _.innermousedown = function(e) {
         if (this.control) {
             // this.sketcher.historyManager.pushUndo(new actions.ChangeBracketAttributeAction(this.control.s, this.control.t));
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
         } else {
             this.start = new structures.Point(e.p.x, e.p.y);
             this.end = this.start;
@@ -1849,7 +1890,7 @@
                 this.end.y = this.start.y - length * m.sin(angle);
             }
         }
-        this.sketcher.repaint();
+        this.sketcher.renderer.redraw();
     };
     _.innermouseup = function(e) {
         if (this.start && this.end) {
@@ -2331,7 +2372,7 @@
 // 		this.newMolAllowed = true;
 // 		if (this.sketcher.hovering) {
 // 			this.sketcher.hovering.isHover = false;
-// 			this.sketcher.hovering.isSelected = true;
+// 			this.sketcher.hovering.isSelected_old = true;
 // 			this.drag(e);
 // 		}else if(!this.sketcher.requireStartingAtom){
 // 			this.placeRequiredAtom(e);

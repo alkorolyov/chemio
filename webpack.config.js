@@ -30,6 +30,7 @@ module.exports = (env, argv) => ({
                     'src/core/styles.js',
                     'src/core/informatics.js',
                     'src/core/io.js',
+                    'src/core/renderer.js',
                     'src/core/canvas.js',
 
                     // ui

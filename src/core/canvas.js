@@ -1,6 +1,6 @@
 // ************************** Canvases ******************************
 
-(function(c, featureDetection, math, monitor, structures, m, document, window, userAgent, undefined) {
+(function(c, render, featureDetection, math, monitor, structures, m, document, window, userAgent, undefined) {
     'use strict';
     c._Canvas = function() {
     };
@@ -8,7 +8,11 @@
     _.molecules = undefined;
     _.shapes = undefined;
     _.emptyMessage = undefined;
-    _.image = undefined;
+    _.needRedraw = true;
+    /**
+     * @type {render.Renderer}
+     */
+    _.renderer = undefined;
     _.repaint = function() {
         if (this.test) {
             return;
@@ -21,56 +25,52 @@
                 canvas.height = this.height * this.pixelRatio;
                 ctx.scale(this.pixelRatio, this.pixelRatio);
             }
-            if (!this.image) {
-                // 'transparent' is a keyword for canvas background fills
-                // we can't actually use undefined, as the default css will be black, so use 'transparent'
-                let colorUse = this.styles.backgroundColor?this.styles.backgroundColor:'transparent';
-                // we always have to clearRect() as a rgba color or any color with alpha may be used
-                ctx.clearRect(0, 0, this.width, this.height);
-                if(this.bgCache !== colorUse) {
-                    canvas.style.backgroundColor = colorUse;
-                    this.bgCache = canvas.style.backgroundColor;
-                }
-                // it is probably more efficient not to paint over only if it is not undefined/'transparent'
-                // but we still need to always paint over to make sure there is a background in exported images
-                // set background to undefined/'transparent' if no background is desired in output images
-                if(colorUse!=='transparent'){
-                    ctx.fillStyle = colorUse;
-                    ctx.fillRect(0, 0, this.width, this.height);
-                }
-            } else {
-                ctx.drawImage(this.image, 0, 0);
+
+            // 'transparent' is a keyword for canvas background fills
+            // we can't actually use undefined, as the default css will be black, so use 'transparent'
+            let colorUse = this.styles.backgroundColor?this.styles.backgroundColor:'transparent';
+            // we always have to clearRect() as a rgba color or any color with alpha may be used
+            ctx.clearRect(0, 0, this.width, this.height);
+            if(this.bgCache !== colorUse) {
+                canvas.style.backgroundColor = colorUse;
+                this.bgCache = canvas.style.backgroundColor;
             }
-            if (this.innerRepaint) {
-                this.innerRepaint(ctx);
-            } else {
-                if (this.molecules.length !== 0 || this.shapes.length !== 0) {
-                    ctx.save();
-                    ctx.translate(this.width / 2, this.height / 2);
-                    ctx.rotate(this.styles.rotateAngle);
-                    ctx.scale(this.styles.scale, this.styles.scale);
-                    ctx.translate(-this.width / 2, -this.height / 2);
-                    for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-                        this.molecules[i].check(true);
-                        this.molecules[i].draw(ctx, this.styles);
-                    }
-                    if(this.checksOnAction){
-                        // checksOnAction() must be called after checking molecules, as it depends on molecules being correct
-                        // this function is only used by the uis
-                        this.checksOnAction(true);
-                    }
-                    for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
-                        this.shapes[i].draw(ctx, this.styles);
-                    }
-                    ctx.restore();
-                } else if (this.emptyMessage) {
-                    ctx.fillStyle = '#737683';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
-                    ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
-                }
+            // it is probably more efficient not to paint over only if it is not undefined/'transparent'
+            // but we still need to always paint over to make sure there is a background in exported images
+            // set background to undefined/'transparent' if no background is desired in output images
+            if(colorUse!=='transparent'){
+                ctx.fillStyle = colorUse;
+                ctx.fillRect(0, 0, this.width, this.height);
             }
+
+
+            if (this.molecules.length !== 0 || this.shapes.length !== 0) {
+                ctx.save();
+                ctx.translate(this.width / 2, this.height / 2);
+                ctx.rotate(this.styles.rotateAngle);
+                ctx.scale(this.styles.scale, this.styles.scale);
+                ctx.translate(-this.width / 2, -this.height / 2);
+                for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+                    this.molecules[i].check(true);
+                    this.molecules[i].draw(ctx, this.styles);
+                }
+                if(this.checksOnAction){
+                    // checksOnAction() must be called after checking molecules, as it depends on molecules being correct
+                    // this function is only used by the uis
+                    this.checksOnAction(true);
+                }
+                for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+                    this.shapes[i].draw(ctx, this.styles);
+                }
+                ctx.restore();
+            } else if (this.emptyMessage) {
+                ctx.fillStyle = '#737683';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
+                ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
+            }
+
             if (this.drawChildExtras) {
                 this.drawChildExtras(ctx, this.styles);
             }
@@ -103,7 +103,7 @@
                 this.molecules[i].check();
             }
         }
-        this.repaint();
+        this.renderer.redraw();
     };
     _.setBackgroundImage = function(path) {
         this.image = new Image(); // Create new Image object
@@ -125,7 +125,7 @@
             if (this.afterLoadContent) {
                 this.afterLoadContent();
             }
-            this.repaint();
+            this.renderer.redraw();
         }
     };
     _.loadContent = function(mols, shapes) {
@@ -142,7 +142,7 @@
             if (this.afterLoadContent) {
                 this.afterLoadContent();
             }
-            this.repaint();
+            this.renderer.redraw();
         }
     };
     _.addMolecule = function(molecule) {
@@ -150,13 +150,13 @@
         if (!(c._Canvas3D && this instanceof c._Canvas3D)) {
             molecule.check();
         }
-        this.repaint();
+        this.renderer.redraw();
     };
     _.removeMolecule = function(mol) {
         this.molecules = this.molecules.filter(function(value) {
             return value !== mol;
         });
-        this.repaint();
+        this.renderer.redraw();
     };
     _.getMolecule = function() {
         return this.molecules.length > 0 ? this.molecules[0] : undefined;
@@ -166,13 +166,13 @@
     };
     _.addShape = function(shape) {
         this.shapes.push(shape);
-        this.repaint();
+        this.renderer.redraw();
     };
     _.removeShape = function(shape) {
         this.shapes = this.shapes.filter(function(value) {
             return value !== shape;
         });
-        this.repaint();
+        this.renderer.redraw();
     };
     _.getShapes = function() {
         return this.shapes;
@@ -181,7 +181,7 @@
         this.molecules = [];
         this.shapes = [];
         this.styles.scale = 1;
-        this.repaint();
+        this.renderer.redraw();
     };
     _.center = function() {
         let bounds = this.getContentBounds();
@@ -309,392 +309,148 @@
             canvas.className = "ChemioWebComponent";
         }
 
-        let canvas = document.getElementById(id);
+        this.canvas = document.getElementById(this.id);
+        let canvas = this.canvas;
+        this.context = this.canvas.getContext("2d");
+
+
         canvas.style.width = width.toString()+'px';
         canvas.style.height = height.toString()+'px';
-        this.repaint();
+
+        this.renderer = new render.Renderer(this);
+        let renderer = this.renderer;
+        console.log(renderer);
+        console.log(this.renderer);
+        console.log(renderer == this.renderer);
+        renderer.startRenderLoop();
+        renderer.redraw();
 
         // setup input events
         // make sure prehandle events are only in if statements if handled, so
         // as not to block browser events
         let self = this;
-        if (featureDetection.supports_touch()) {
-            // for iPhone OS and Android devices (and other mobile browsers that
-            // support mobile events)
-            jqCapsule.bind('touchstart', function(e) {
-                let time = new Date().getTime();
-                if (!featureDetection.supports_gesture() && e.originalEvent.touches.length === 2) {
-                    // on some platforms, like Android, there is no gesture
-                    // support, so we have to implement it
-                    let ts = e.originalEvent.touches;
-                    let p1 = new structures.Point(ts[0].pageX, ts[0].pageY);
-                    let p2 = new structures.Point(ts[1].pageX, ts[1].pageY);
-                    self.implementedGestureDist = p1.distance(p2);
-                    self.implementedGestureAngle = p1.angle(p2);
-                    if (self.gesturestart) {
-                        self.prehandleEvent(e);
-                        self.gesturestart(e);
-                    }
-                }
-                if (self.lastTouch && e.originalEvent.touches.length === 1 && (time - self.lastTouch) < 500) {
-                    if (self.dbltap) {
-                        self.prehandleEvent(e);
-                        self.dbltap(e);
-                    } else if (self.dblclick) {
-                        self.prehandleEvent(e);
-                        self.dblclick(e);
-                    } else if (self.touchstart) {
-                        self.prehandleEvent(e);
-                        self.touchstart(e);
-                    } else if (self.mousedown) {
-                        self.prehandleEvent(e);
-                        self.mousedown(e);
-                    }
-                } else if (self.touchstart) {
-                    self.prehandleEvent(e);
-                    self.touchstart(e);
-                    if (this.hold) {
-                        clearTimeout(this.hold);
-                    }
-                    if (this.touchhold) {
-                        this.hold = setTimeout(function() {
-                            self.touchhold(e);
-                        }, 1000);
-                    }
-                } else if (self.mousedown) {
-                    self.prehandleEvent(e);
-                    self.mousedown(e);
-                }
-                self.lastTouch = time;
-            });
-            jqCapsule.bind('touchmove', function(e) {
-                if (this.hold) {
-                    clearTimeout(this.hold);
-                    this.hold = undefined;
-                }
-                if (!featureDetection.supports_gesture() && e.originalEvent.touches.length === 2) {
-                    // on some platforms, like Android, there is no gesture
-                    // support, so we have to implement it
-                    if (self.gesturechange) {
-                        let ts = e.originalEvent.touches;
-                        let p1 = new structures.Point(ts[0].pageX, ts[0].pageY);
-                        let p2 = new structures.Point(ts[1].pageX, ts[1].pageY);
-                        let newDist = p1.distance(p2);
-                        let newAngle = p1.angle(p2);
-                        e.originalEvent.scale = newDist / self.implementedGestureDist;
-                        e.originalEvent.rotation = 180 * (self.implementedGestureAngle - newAngle) / m.PI;
-                        self.prehandleEvent(e);
-                        self.gesturechange(e);
-                    }
-                }
-                if (e.originalEvent.touches.length > 1 && self.multitouchmove) {
-                    let numFingers = e.originalEvent.touches.length;
-                    self.prehandleEvent(e);
-                    let center = new structures.Point(-e.offset.left * numFingers, -e.offset.top * numFingers);
-                    for ( let i = 0; i < numFingers; i++) {
-                        center.x += e.originalEvent.changedTouches[i].pageX;
-                        center.y += e.originalEvent.changedTouches[i].pageY;
-                    }
-                    center.x /= numFingers;
-                    center.y /= numFingers;
-                    e.p = center;
-                    self.multitouchmove(e, numFingers);
-                } else if (self.touchmove) {
-                    self.prehandleEvent(e);
-                    self.touchmove(e);
-                } else if (self.drag) {
-                    self.prehandleEvent(e);
-                    self.drag(e);
-                }
-            });
-            jqCapsule.bind('touchend', function(e) {
-                if (this.hold) {
-                    clearTimeout(this.hold);
-                    this.hold = undefined;
-                }
-                if (!featureDetection.supports_gesture() && self.implementedGestureDist) {
-                    // on some platforms, like Android, there is no gesture
-                    // support, so we have to implement it
-                    self.implementedGestureDist = undefined;
-                    self.implementedGestureAngle = undefined;
-                    if (self.gestureend) {
-                        self.prehandleEvent(e);
-                        self.gestureend(e);
-                    }
-                }
-                if (self.touchend) {
-                    self.prehandleEvent(e);
-                    self.touchend(e);
-                } else if (self.mouseup) {
-                    self.prehandleEvent(e);
-                    self.mouseup(e);
-                }
-                if ((new Date().getTime() - self.lastTouch) < 250) {
-                    if (self.tap) {
-                        self.prehandleEvent(e);
-                        self.tap(e);
-                    } else if (self.click) {
+
+        // normal events
+        // some mobile browsers will simulate mouse events, so do not set
+        // these
+        // events if mobile, or it will interfere with the handling of touch
+        // events
+        canvas.addEventListener('click', function(e) {
+            switch (e.which) {
+                case 1:
+                    // left mouse button pressed
+                    if (self.click) {
                         self.prehandleEvent(e);
                         self.click(e);
                     }
-                }
-            });
-            jqCapsule.bind('gesturestart', function(e) {
-                if (self.gesturestart) {
-                    self.prehandleEvent(e);
-                    self.gesturestart(e);
-                }
-            });
-            jqCapsule.bind('gesturechange', function(e) {
-                if (self.gesturechange) {
-                    self.prehandleEvent(e);
-                    self.gesturechange(e);
-                }
-            });
-            jqCapsule.bind('gestureend', function(e) {
-                if (self.gestureend) {
-                    self.prehandleEvent(e);
-                    self.gestureend(e);
-                }
-            });
-        } else {
-            // normal events
-            // some mobile browsers will simulate mouse events, so do not set
-            // these
-            // events if mobile, or it will interfere with the handling of touch
-            // events
-            canvas.addEventListener('click', function(e) {
-                switch (e.which) {
-                    case 1:
-                        // left mouse button pressed
-                        if (self.click) {
-                            self.prehandleEvent(e);
-                            self.click(e);
-                        }
-                        break;
-                    case 2:
-                        // middle mouse button pressed
-                        if (self.middleclick) {
-                            self.prehandleEvent(e);
-                            self.middleclick(e);
-                        }
-                        break;
-                    case 3:
-                        // right mouse button pressed
-                        if (self.rightclick) {
-                            self.prehandleEvent(e);
-                            self.rightclick(e);
-                        }
-                        break;
-                }
-            });
+                    break;
+                case 2:
+                    // middle mouse button pressed
+                    if (self.middleclick) {
+                        self.prehandleEvent(e);
+                        self.middleclick(e);
+                    }
+                    break;
+                case 3:
+                    // right mouse button pressed
+                    if (self.rightclick) {
+                        self.prehandleEvent(e);
+                        self.rightclick(e);
+                    }
+                    break;
+            }
+        });
 
-            canvas.addEventListener('dblclick', function(e) {
-                if (self.dblclick) {
-                    self.prehandleEvent(e);
-                    self.dblclick(e);
-                }
-            });
+        canvas.addEventListener('dblclick', function(e) {
+            if (self.dblclick) {
+                self.prehandleEvent(e);
+                self.dblclick(e);
+            }
+        });
 
-            canvas.addEventListener('mousedown', function(e) {
-                switch (e.which) {
-                    case 1:
-                        // left mouse button pressed
-                        monitor.CANVAS_DRAGGING = self;
-                        if (self.mousedown) {
-                            self.prehandleEvent(e);
-                            self.mousedown(e);
-                        }
-                        break;
-                    case 2:
-                        // middle mouse button pressed
-                        if (self.middlemousedown) {
-                            self.prehandleEvent(e);
-                            self.middlemousedown(e);
-                        }
-                        break;
-                    case 3:
-                        // right mouse button pressed
-                        if (self.rightmousedown) {
-                            self.prehandleEvent(e);
-                            self.rightmousedown(e);
-                        }
-                        break;
-                }
-            });
+        canvas.addEventListener('mousedown', function(e) {
+            switch (e.which) {
+                case 1:
+                    // left mouse button pressed
+                    monitor.CANVAS_DRAGGING = self;
+                    if (self.mousedown) {
+                        self.prehandleEvent(e);
+                        self.mousedown(e);
+                    }
+                    break;
+                case 2:
+                    // middle mouse button pressed
+                    if (self.middlemousedown) {
+                        self.prehandleEvent(e);
+                        self.middlemousedown(e);
+                    }
+                    break;
+                case 3:
+                    // right mouse button pressed
+                    if (self.rightmousedown) {
+                        self.prehandleEvent(e);
+                        self.rightmousedown(e);
+                    }
+                    break;
+            }
+        });
 
-            canvas.addEventListener('mousemove', function(e) {
-                if (!monitor.CANVAS_DRAGGING && self.mousemove) {
-                    self.prehandleEvent(e);
-                    self.mousemove(e);
-                }
-            });
+        canvas.addEventListener('mousemove', function(e) {
+            if (!monitor.CANVAS_DRAGGING && self.mousemove) {
+                self.prehandleEvent(e);
+                self.mousemove(e);
+            }
+        });
 
-            canvas.addEventListener('mouseout', function(e) {
-                monitor.CANVAS_OVER = undefined;
-                if (self.mouseout) {
-                    self.prehandleEvent(e);
-                    self.mouseout(e);
-                }
-            });
+        canvas.addEventListener('mouseout', function(e) {
+            monitor.CANVAS_OVER = undefined;
+            if (self.mouseout) {
+                self.prehandleEvent(e);
+                self.mouseout(e);
+            }
+        });
 
-            canvas.addEventListener('mouseover', function(e) {
-                monitor.CANVAS_OVER = self;
-                if (self.mouseover) {
-                    self.prehandleEvent(e);
-                    self.mouseover(e);
-                }
-            });
+        canvas.addEventListener('mouseover', function(e) {
+            monitor.CANVAS_OVER = self;
+            if (self.mouseover) {
+                self.prehandleEvent(e);
+                self.mouseover(e);
+            }
+        });
 
-            canvas.addEventListener('mouseup', function(e) {
-                switch (e.which) {
-                    case 1:
-                        // left mouse button pressed
-                        if (self.mouseup) {
-                            self.prehandleEvent(e);
-                            self.mouseup(e);
-                        }
-                        break;
-                    case 2:
-                        // middle mouse button pressed
-                        if (self.middlemouseup) {
-                            self.prehandleEvent(e);
-                            self.middlemouseup(e);
-                        }
-                        break;
-                    case 3:
-                        // right mouse button pressed
-                        if (self.rightmouseup) {
-                            self.prehandleEvent(e);
-                            self.rightmouseup(e);
-                        }
-                        break;
-                }
-            });
+        canvas.addEventListener('mouseup', function(e) {
+            switch (e.which) {
+                case 1:
+                    // left mouse button pressed
+                    if (self.mouseup) {
+                        self.prehandleEvent(e);
+                        self.mouseup(e);
+                    }
+                    break;
+                case 2:
+                    // middle mouse button pressed
+                    if (self.middlemouseup) {
+                        self.prehandleEvent(e);
+                        self.middlemouseup(e);
+                    }
+                    break;
+                case 3:
+                    // right mouse button pressed
+                    if (self.rightmouseup) {
+                        self.prehandleEvent(e);
+                        self.rightmouseup(e);
+                    }
+                    break;
+            }
+        });
 
-            canvas.addEventListener('wheel', function(e) {
-                if (self.mousewheel) {
-                    self.prehandleEvent(e);
-                    self.mousewheel(e, -e.deltaY);
-                }
-            });
+        canvas.addEventListener('wheel', function(e) {
+            if (self.mousewheel) {
+                self.prehandleEvent(e);
+                self.mousewheel(e, -e.deltaY);
+            }
+        });
 
-            // jqCapsule.click(function(e) {
-            // 	switch (e.which) {
-            // 	case 1:
-            // 		// left mouse button pressed
-            // 		if (self.click) {
-            // 			self.prehandleEvent(e);
-            // 			self.click(e);
-            // 		}
-            // 		break;
-            // 	case 2:
-            // 		// middle mouse button pressed
-            // 		if (self.middleclick) {
-            // 			self.prehandleEvent(e);
-            // 			self.middleclick(e);
-            // 		}
-            // 		break;
-            // 	case 3:
-            // 		// right mouse button pressed
-            // 		if (self.rightclick) {
-            // 			self.prehandleEvent(e);
-            // 			self.rightclick(e);
-            // 		}
-            // 		break;
-            // 	}
-            // });
-
-            // jqCapsule.dblclick(function(e) {
-            // 	if (self.dblclick) {
-            // 		self.prehandleEvent(e);
-            // 		self.dblclick(e);
-            // 	}
-            // });
-
-            // jqCapsule.mousedown(function(e) {
-            // 	switch (e.which) {
-            // 	case 1:
-            // 		// left mouse button pressed
-            // 		monitor.CANVAS_DRAGGING = self;
-            // 		if (self.mousedown) {
-            // 			self.prehandleEvent(e);
-            // 			self.mousedown(e);
-            // 		}
-            // 		break;
-            // 	case 2:
-            // 		// middle mouse button pressed
-            // 		if (self.middlemousedown) {
-            // 			self.prehandleEvent(e);
-            // 			self.middlemousedown(e);
-            // 		}
-            // 		break;
-            // 	case 3:
-            // 		// right mouse button pressed
-            // 		if (self.rightmousedown) {
-            // 			self.prehandleEvent(e);
-            // 			self.rightmousedown(e);
-            // 		}
-            // 		break;
-            // 	}
-            // });
-
-            // jqCapsule.mousemove(function(e) {
-            // 	if (!monitor.CANVAS_DRAGGING && self.mousemove) {
-            // 		self.prehandleEvent(e);
-            // 		self.mousemove(e);
-            // 	}
-            // });
-
-            // jqCapsule.mouseout(function(e) {
-            // 	monitor.CANVAS_OVER = undefined;
-            // 	if (self.mouseout) {
-            // 		self.prehandleEvent(e);
-            // 		self.mouseout(e);
-            // 	}
-            // });
-
-            // jqCapsule.mouseover(function(e) {
-            // 	monitor.CANVAS_OVER = self;
-            // 	if (self.mouseover) {
-            // 		self.prehandleEvent(e);
-            // 		self.mouseover(e);
-            // 	}
-            // });
-
-            // jqCapsule.mouseup(function(e) {
-            // 	switch (e.which) {
-            // 	case 1:
-            // 		// left mouse button pressed
-            // 		if (self.mouseup) {
-            // 			self.prehandleEvent(e);
-            // 			self.mouseup(e);
-            // 		}
-            // 		break;
-            // 	case 2:
-            // 		// middle mouse button pressed
-            // 		if (self.middlemouseup) {
-            // 			self.prehandleEvent(e);
-            // 			self.middlemouseup(e);
-            // 		}
-            // 		break;
-            // 	case 3:
-            // 		// right mouse button pressed
-            // 		if (self.rightmouseup) {
-            // 			self.prehandleEvent(e);
-            // 			self.rightmouseup(e);
-            // 		}
-            // 		break;
-            // 	}
-            // });
-
-            // jqCapsule.mousewheel(function(e, delta) {
-            // 	if (self.mousewheel) {
-            // 		self.prehandleEvent(e);
-            // 		self.mousewheel(e, delta);
-            // 	}
-            // });
-        }
         if (this.subCreate) {
             this.subCreate();
         }
@@ -704,7 +460,7 @@
             e.preventDefault();
             e.returnValue = false;
         }
-        let rect = document.getElementById(this.id).getBoundingClientRect();
+        let rect = this.canvas.getBoundingClientRect();
         e.offset = {
             top: rect.top + window.scrollY,
             left: rect.left + window.scrollX,
@@ -712,7 +468,7 @@
         e.p = new structures.Point((e.pageX - e.offset.left), (e.pageY - e.offset.top));
     };
 
-})(Chemio, Chemio.featureDetection, Chemio.math, Chemio.monitor, Chemio.structures, Math, document, window, navigator.userAgent);
+})(Chemio, Chemio.render, Chemio.featureDetection, Chemio.math, Chemio.monitor, Chemio.structures, Math, document, window, navigator.userAgent);
 
 (function(c, undefined) {
     'use strict';
@@ -726,6 +482,7 @@
 })(Chemio);
 
 //region Unused canvases
+
 // Spectrum canvas
 // (function(c, document, undefined) {
 // 	'use strict';
@@ -1588,4 +1345,5 @@
 // 	};
 //
 // })(Chemio, Chemio.extensions, Chemio.math, document);
+
 //endregion

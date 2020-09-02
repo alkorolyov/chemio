@@ -19,23 +19,23 @@
         this.toolbarManager = new sketcherPack.gui.ToolbarManager(this);
         if (this.includeToolbar) {
             this.toolbarManager.write();
-            // If pre-created, wait until the last button image loads before
-            // calling setup.
             let self = this;
             document.addEventListener("DOMContentLoaded", function() {
                 self.toolbarManager.setup();
             });
             this.dialogManager = {}; //new sketcherPack.gui.DialogManager(this);
         }
-        if(sketcherPack.gui.desktop.TextInput){
-            this.textInput = new sketcherPack.gui.desktop.TextInput(this, this.id+'_textInput');
-        }
+        // if(sketcherPack.gui.desktop.TextInput){
+        //     this.textInput = new sketcherPack.gui.desktop.TextInput(this, this.id+'_textInput');
+        // }
         this.stateManager = new sketcherPack.states.StateManager(this);
         this.historyManager = new sketcherPack.actions.HistoryManager(this);
         this.copyPasteManager = new sketcherPack.CopyPasteManager(this);
+
         if (id) {
             this.create(id, width, height);
         }
+
         // styles is now created and available
         this.styles.atoms_circleDiameter_2D = 7;
         this.styles.atoms_circleBorderWidth_2D = 0;
@@ -63,6 +63,7 @@
         ctx.rotate(styles.rotateAngle);
         ctx.scale(styles.scale, styles.scale);
         ctx.translate(-this.width / 2, -this.height / 2);
+        // draw hovering
         if (this.hovering) {
             this.hovering.drawDecorations(ctx, styles);
         }
@@ -240,109 +241,111 @@
         // until a render occurs
         // you can force a check by sending true to this function after
         // calling check with a false
-        if (force && this.doChecks) {
-            // setup data for atom mappings
-            let arrow;
-            let mappings = [];
-            let brackets = [];
-            let vaps = [];
-            for(let i = 0, ii = this.shapes.length; i<ii; i++){
-                let s = this.shapes[i];
-                if(s instanceof d2.Line && !arrow) {
-                    // make sure arrow isn't defined, just to make sure we use the first arrow
-                    arrow = s;
-                }
-                // else if(s instanceof d2.AtomMapping){
-                //     s.error = false;
-                //     mappings.push(s);
-                // }else if(s instanceof d2.Line && !arrow){
-                //     // make sure arrow isn't defined, just to make sure we use the first arrow
-                //     arrow = s;
-                // }else if(s instanceof d2.DynamicBracket){
-                //     s.error = false;
-                //     brackets.push(s);
-                // }else if(s instanceof d2.VAP){
-                //     s.error = false;
-                //     vaps.push(s);
-                // }
-            }
-            for(let i = 0, ii = mappings.length; i<ii; i++){
-                let si = mappings[i];
-                si.label = (i+1).toString();
-                for(let j = i+1, jj = mappings.length; j<jj; j++){
-                    let sj = mappings[j];
-                    if(si.o1===sj.o1 || si.o2===sj.o1 || si.o1===sj.o2 || si.o2===sj.o2){
-                        si.error = true;
-                        sj.error = true;
-                    }
-                }
-                // different labels
-                if(!si.error && si.o1.label !== si.o2.label){
-                    si.error = true;
-                }
-                // same structure
-                if(!si.error && this.getMoleculeByAtom(si.o1) === this.getMoleculeByAtom(si.o2)){
-                    si.error = true;
-                }
-            }
-            if(brackets.length!==0){
-                let allAs = this.getAllAtoms();
-                for(let i = 0, ii = allAs.length; i<ii; i++){
-                    allAs[i].inBracket = false;
-                }
-                for(let i = 0, ii = brackets.length; i<ii; i++){
-                    let si = brackets[i];
-                    si.setContents(this);
-                    if(si.contents.length===0){
-                        // user error
-                        si.error = true;
-                    }else{
-                        for(let j = 0, jj = si.contents.length; j<jj; j++){
-                            if(si.contents[j].inBracket){
-                                si.error = true;
-                                break;
-                            }
-                        }
-                    }
-                    for(let j = 0, jj = si.contents.length; j<jj; j++){
-                        si.contents[j].inBracket = true;
-                    }
-                }
-            }
-            for(let i = 0, ii = vaps.length; i<ii; i++){
-                let vap = vaps[i];
-                if(!vap.substituent){
-                    // no substituent
-                    vap.error = true;
-                }else if(vap.attachments.length===0){
-                    // no attachments
-                    vap.error = true;
-                }
-                if(!vap.error){
-                    // check that all attachments are part of the same molecule
-                    let m = this.getMoleculeByAtom(vap.attachments[0]);
-                    vap.substituent.present = undefined;
-                    for(let j = 0, jj = m.atoms.length; j<jj; j++){
-                        m.atoms[j].present = true;
-                    }
-                    // also make sure the substituent is NOT part of the same molecule
-                    if(vap.substituent.present){
-                        vap.error = true;
-                    }
-                    if(!vap.error){
-                        for(let j = 0, jj = vap.attachments.length; j<jj; j++){
-                            if(!vap.attachments[j].present){
-                                vap.error = true;
-                                break;
-                            }
-                        }
-                    }
-                    for(let j = 0, jj = m.atoms.length; j<jj; j++){
-                        m.atoms[j].present = undefined;
-                    }
-                }
-            }
-        }
+        // if (force && this.doChecks) {
+        //     // setup data for atom mappings
+        //     let arrow;
+        //     let mappings = [];
+        //     let brackets = [];
+        //     let vaps = [];
+        //     for(let i = 0, ii = this.shapes.length; i<ii; i++){
+        //         let s = this.shapes[i];
+        //         if(s instanceof d2.Line && !arrow) {
+        //             // make sure arrow isn't defined, just to make sure we use the first arrow
+        //             arrow = s;
+        //         }
+        //         else if(s instanceof d2.AtomMapping){
+        //             s.error = false;
+        //             mappings.push(s);
+        //         }else if(s instanceof d2.Line && !arrow){
+        //             // make sure arrow isn't defined, just to make sure we use the first arrow
+        //             arrow = s;
+        //         }else if(s instanceof d2.DynamicBracket){
+        //             s.error = false;
+        //             brackets.push(s);
+        //         }else if(s instanceof d2.VAP){
+        //             s.error = false;
+        //             vaps.push(s);
+        //         }
+        //     }
+        //     for(let i = 0, ii = mappings.length; i<ii; i++){
+        //         let si = mappings[i];
+        //         si.label = (i+1).toString();
+        //         for(let j = i+1, jj = mappings.length; j<jj; j++){
+        //             let sj = mappings[j];
+        //             if(si.o1===sj.o1 || si.o2===sj.o1 || si.o1===sj.o2 || si.o2===sj.o2){
+        //                 si.error = true;
+        //                 sj.error = true;
+        //             }
+        //         }
+        //         // different labels
+        //         if(!si.error && si.o1.label !== si.o2.label){
+        //             si.error = true;
+        //         }
+        //         // same structure
+        //         if(!si.error && this.getMoleculeByAtom(si.o1) === this.getMoleculeByAtom(si.o2)){
+        //             si.error = true;
+        //         }
+        //     }
+        //
+        //     if(brackets.length!==0){
+        //         let allAs = this.getAllAtoms();
+        //         for(let i = 0, ii = allAs.length; i<ii; i++){
+        //             allAs[i].inBracket = false;
+        //         }
+        //         for(let i = 0, ii = brackets.length; i<ii; i++){
+        //             let si = brackets[i];
+        //             si.setContents(this);
+        //             if(si.contents.length===0){
+        //                 // user error
+        //                 si.error = true;
+        //             }else{
+        //                 for(let j = 0, jj = si.contents.length; j<jj; j++){
+        //                     if(si.contents[j].inBracket){
+        //                         si.error = true;
+        //                         break;
+        //                     }
+        //                 }
+        //             }
+        //             for(let j = 0, jj = si.contents.length; j<jj; j++){
+        //                 si.contents[j].inBracket = true;
+        //             }
+        //         }
+        //     }
+        //
+        //     for(let i = 0, ii = vaps.length; i<ii; i++){
+        //         let vap = vaps[i];
+        //         if(!vap.substituent){
+        //             // no substituent
+        //             vap.error = true;
+        //         }else if(vap.attachments.length===0){
+        //             // no attachments
+        //             vap.error = true;
+        //         }
+        //         if(!vap.error){
+        //             // check that all attachments are part of the same molecule
+        //             let m = this.getMoleculeByAtom(vap.attachments[0]);
+        //             vap.substituent.present = undefined;
+        //             for(let j = 0, jj = m.atoms.length; j<jj; j++){
+        //                 m.atoms[j].present = true;
+        //             }
+        //             // also make sure the substituent is NOT part of the same molecule
+        //             if(vap.substituent.present){
+        //                 vap.error = true;
+        //             }
+        //             if(!vap.error){
+        //                 for(let j = 0, jj = vap.attachments.length; j<jj; j++){
+        //                     if(!vap.attachments[j].present){
+        //                         vap.error = true;
+        //                         break;
+        //                     }
+        //                 }
+        //             }
+        //             for(let j = 0, jj = m.atoms.length; j<jj; j++){
+        //                 m.atoms[j].present = undefined;
+        //             }
+        //         }
+        //     }
+        // }
         this.doChecks = !force;
     };
     _.drawChildExtras = function(ctx, styles) {

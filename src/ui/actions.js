@@ -8,10 +8,12 @@
     _.forward = function(sketcher) {
         this.innerForward();
         this.checks(sketcher);
+        sketcher.renderer.redraw();
     };
     _.reverse = function(sketcher) {
         this.innerReverse();
         this.checks(sketcher);
+        sketcher.renderer.redraw();
     };
     _.checks = function(sketcher) {
         for ( let i = 0, ii = sketcher.molecules.length; i < ii; i++) {
@@ -21,7 +23,6 @@
             sketcher.lasso.setBounds();
         }
         sketcher.checksOnAction();
-        sketcher.repaint();
     };
 
 })(Chemio.uis.actions);
@@ -268,7 +269,7 @@
             let mol = this.sketcher.molecules[i];
             for ( let j = 0, jj = mol.bonds.length; j < jj; j++) {
                 let b = mol.bonds[j];
-                if (b.a1.isLassoed || b.a2.isLassoed) {
+                if (b.a1.isSelected || b.a2.isSelected) {
                     this.bonds.push(b);
                 }
             }

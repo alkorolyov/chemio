@@ -15,6 +15,102 @@
     //tools.Lasso.MODE_RECTANGLE_MARQUEE = 'rectangle';
     let _ = tools.Lasso.prototype;
 
+    _.findLassoed = function() {
+        // add atoms, shapes from lasso polygon
+        let asAdd = [];
+        for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
+            let mol = this.sketcher.molecules[i];
+            for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
+                let a = mol.atoms[j];
+                if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {
+                    if (this.points.length === 2) {
+                        if (math.isBetween(a.x, this.points[0].x, this.points[1].x) && math.isBetween(a.y, this.points[0].y, this.points[1].y)) {
+                            asAdd.push(a);
+                        }
+                    }
+                } else {
+                    if (this.points.length > 1) {
+                        if (math.isPointInPoly(this.points, a)) {
+                            asAdd.push(a);
+                        }
+                    }
+                }
+            }
+        }
+        if (this.atoms.length === 0) {
+            this.atoms = asAdd;
+        } else {
+            let asFinal = [];
+            for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+                let a = this.atoms[i];
+                if (asAdd.indexOf(a) === -1) {
+                    asFinal.push(a);
+                } else {
+                    a.isSelected = false;
+                }
+            }
+            for ( let i = 0, ii = asAdd.length; i < ii; i++) {
+                if (this.atoms.indexOf(asAdd[i]) === -1) {
+                    asFinal.push(asAdd[i]);
+                }
+            }
+            this.atoms = asFinal;
+        }
+
+        let ssAdd = [];
+        for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
+            let s = this.sketcher.shapes[i];
+            let sps = s.getPoints();
+            let contained = sps.length>0;
+            for ( let j = 0, jj = sps.length; j < jj; j++) {
+                let p = sps[j];
+                if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {
+                    if (this.points.length === 2) {
+                        if (!math.isBetween(p.x, this.points[0].x, this.points[1].x) || !math.isBetween(p.y, this.points[0].y, this.points[1].y)) {
+                            contained = false;
+                            break;
+                        }
+                    } else {
+                        contained = false;
+                        break;
+                    }
+                } else {
+                    if (this.points.length > 1) {
+                        if (!math.isPointInPoly(this.points, p)) {
+                            contained = false;
+                            break;
+                        }
+                    } else {
+                        contained = false;
+                        break;
+                    }
+                }
+            }
+            if (contained) {
+                ssAdd.push(s);
+            }
+        }
+        if (this.shapes.length === 0) {
+            this.shapes = ssAdd;
+        } else {
+            let ssFinal = [];
+            for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+                let s = this.shapes[i];
+                if (ssAdd.indexOf(s) === -1) {
+                    ssFinal.push(s);
+                } else {
+                    s.isSelected = false;
+                }
+            }
+            for ( let i = 0, ii = ssAdd.length; i < ii; i++) {
+                if (this.shapes.indexOf(ssAdd[i]) === -1) {
+                    ssFinal.push(ssAdd[i]);
+                }
+            }
+            this.shapes = ssFinal;
+        }
+
+    }
     _.select = function(atoms, shapes) {
         if (this.block) {
             return;
@@ -22,7 +118,7 @@
         if (!monitor.SHIFT) {
             this.empty();
         }
-        if (atoms) {
+        if (atoms || shapes) {
             // add atoms, shapes as arguments
             for (let i = 0, ii = atoms.length; i < ii; i++) {
                 if (this.atoms.indexOf(atoms[i]) === -1) {
@@ -37,107 +133,18 @@
                 }
             }
         } else {
-            // add atoms, shapes from lasso polygon
-            if (this.mode !== tools.Lasso.MODE_LASSO_SHAPES) {
-                let asAdd = [];
-                for ( let i = 0, ii = this.sketcher.molecules.length; i < ii; i++) {
-                    let mol = this.sketcher.molecules[i];
-                    for ( let j = 0, jj = mol.atoms.length; j < jj; j++) {
-                        let a = mol.atoms[j];
-                        if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {
-                            if (this.points.length === 2) {
-                                if (math.isBetween(a.x, this.points[0].x, this.points[1].x) && math.isBetween(a.y, this.points[0].y, this.points[1].y)) {
-                                    asAdd.push(a);
-                                }
-                            }
-                        } else {
-                            if (this.points.length > 1) {
-                                if (math.isPointInPoly(this.points, a)) {
-                                    asAdd.push(a);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (this.atoms.length === 0) {
-                    this.atoms = asAdd;
-                } else {
-                    let asFinal = [];
-                    for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                        let a = this.atoms[i];
-                        if (asAdd.indexOf(a) === -1) {
-                            asFinal.push(a);
-                        } else {
-                            a.isLassoed = false;
-                        }
-                    }
-                    for ( let i = 0, ii = asAdd.length; i < ii; i++) {
-                        if (this.atoms.indexOf(asAdd[i]) === -1) {
-                            asFinal.push(asAdd[i]);
-                        }
-                    }
-                    this.atoms = asFinal;
-                }
-            }
-            let ssAdd = [];
-            for ( let i = 0, ii = this.sketcher.shapes.length; i < ii; i++) {
-                let s = this.sketcher.shapes[i];
-                let sps = s.getPoints();
-                let contained = sps.length>0;
-                for ( let j = 0, jj = sps.length; j < jj; j++) {
-                    let p = sps[j];
-                    if (this.mode === tools.Lasso.MODE_RECTANGLE_MARQUEE) {
-                        if (this.points.length === 2) {
-                            if (!math.isBetween(p.x, this.points[0].x, this.points[1].x) || !math.isBetween(p.y, this.points[0].y, this.points[1].y)) {
-                                contained = false;
-                                break;
-                            }
-                        } else {
-                            contained = false;
-                            break;
-                        }
-                    } else {
-                        if (this.points.length > 1) {
-                            if (!math.isPointInPoly(this.points, p)) {
-                                contained = false;
-                                break;
-                            }
-                        } else {
-                            contained = false;
-                            break;
-                        }
-                    }
-                }
-                if (contained) {
-                    ssAdd.push(s);
-                }
-            }
-            if (this.shapes.length === 0) {
-                this.shapes = ssAdd;
-            } else {
-                let ssFinal = [];
-                for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
-                    let s = this.shapes[i];
-                    if (ssAdd.indexOf(s) === -1) {
-                        ssFinal.push(s);
-                    } else {
-                        s.isLassoed = false;
-                    }
-                }
-                for ( let i = 0, ii = ssAdd.length; i < ii; i++) {
-                    if (this.shapes.indexOf(ssAdd[i]) === -1) {
-                        ssFinal.push(ssAdd[i]);
-                    }
-                }
-                this.shapes = ssFinal;
-            }
+            this.findLassoed();
         }
+
         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-            this.atoms[i].isLassoed = true;
+            this.atoms[i].isLassoed = false;
+            this.atoms[i].isSelected = true;
         }
         for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
-            this.shapes[i].isLassoed = true;
+            this.shapes[i].isLassoed = false;
+            this.shapes[i].isSelected = true;
         }
+
         this.setBounds();
         if (this.bounds && this.bounds.minX === Infinity) {
             this.empty();
@@ -146,7 +153,7 @@
         this.sketcher.stateManager.STATE_LASSO.clearHover();
         this.sketcher.stateManager.STATE_LASSO.updateCursor(this.sketcher.lastMousePos);
         this.enableButtons();
-        this.sketcher.repaint();
+        this.sketcher.renderer.redraw();
     };
     _.deselect = function(atoms, shapes) {
         let asKeep = [];
@@ -154,7 +161,7 @@
             if (atoms.indexOf(this.atoms[i]) === -1) {
                 asKeep.push(this.atoms[i]);
             } else {
-                this.atoms[i].isLassoed = false;
+                this.atoms[i].isSelected = false;
             }
         }
         this.atoms = asKeep;
@@ -164,15 +171,36 @@
             if (shapes.indexOf(this.shapes[i]) === -1) {
                 ssKeep.push(this.shapes[i]);
             } else {
-                this.shapes[i].isLassoed = false;
+                this.shapes[i].isSelected = false;
             }
         }
         this.shapes = ssKeep;
 
         this.setBounds();
         this.enableButtons();
-        this.sketcher.repaint();
+        this.sketcher.renderer.redraw();
     };
+    _.lasso = function() {
+        if (this.block) {
+            return;
+        }
+
+        if (!monitor.SHIFT) {
+            this.empty();
+        }
+
+        this.findLassoed();
+
+        for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+            this.atoms[i].isLassoed = true;
+        }
+        for ( let i = 0, ii = this.shapes.length; i < ii; i++) {
+            this.shapes[i].isLassoed = true;
+        }
+
+
+    }
+
     _.enableButtons = function() {
         if (this.sketcher.useServices) {
             if (this.atoms.length > 0) {
@@ -199,7 +227,7 @@
     };
     _.setBounds = function() {
         if (this.isActive()) {
-            this.sketcher.repaint();
+            this.sketcher.renderer.redraw();
             this.bounds = new math.Bounds();
             for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
                 let a = this.atoms[i];
@@ -273,7 +301,7 @@
                 let m = this.sketcher.molecules[i];
                 for ( let j = 0, jj = m.bonds.length; j < jj; j++) {
                     let b = m.bonds[j];
-                    if(b.a1.isLassoed && b.a2.isLassoed){
+                    if(b.a1.isSelected && b.a2.isSelected){
                         bonds.push(b);
                     }
                 }

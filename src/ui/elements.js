@@ -1111,9 +1111,9 @@
 // 				if(cont){
 // 					for(let i = 0, ii = this.molecules[0].atoms.length; i<ii; i++){
 // 						let a = this.molecules[0].atoms[i];
-// 						a.isSelected = false;
+// 						a.isSelected_old = false;
 // 						if(a.isHover){
-// 							a.isSelected = true;
+// 							a.isSelected_old = true;
 // 							a.isHover = false;
 // 							self.sketcher.stateManager.STATE_NEW_TEMPLATE.attachPos = i;
 // 							self.sketcher.toolbarManager.buttonTemplate.select();
@@ -1235,7 +1235,7 @@
 // 			if (first === -1) {
 // 				first = 0;
 // 			}
-// 			loading.atoms[first].isSelected = true;
+// 			loading.atoms[first].isSelected_old = true;
 // 			this.canvas.loadMolecule(loading);
 // 			this.sketcher.stateManager.STATE_NEW_TEMPLATE.template = template.data;
 // 			this.sketcher.stateManager.STATE_NEW_TEMPLATE.attachPos = first;

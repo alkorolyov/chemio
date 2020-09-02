@@ -9,6 +9,7 @@ let Chemio = (function() {
 	let c = {};
 
 	c.informatics = {};
+	c.render = {};
 	c.io = {};
 	c.lib = {};
 	c.notations = {};

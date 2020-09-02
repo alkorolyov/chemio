@@ -1,4 +1,6 @@
 //************************ COPY PASTE MANAGER ***********************
+
+
 (function(informatics, io, structures, uis, actions, undefined) {
     'use strict';
 
@@ -47,7 +49,7 @@
                 let b2 = this.sketcher.lasso.bounds;
                 c.sub(new structures.Point((b2.minX+b2.maxX)/2+10, (b2.minY+b2.maxY)/2+10));
                 new actions.MoveAction(this.sketcher.lasso.getAllPoints(), c).forward(this.sketcher);
-                this.sketcher.repaint();
+                this.sketcher.renderer.redraw();
             }
         }
     };

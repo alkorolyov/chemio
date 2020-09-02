@@ -5492,7 +5492,7 @@
 
     _.reset = function(){
         for(let i = 0, ii = this.selectedAtoms.length; i<ii; i++){
-            this.selectedAtoms[i].isSelected = false;
+            this.selectedAtoms[i].isSelected_old = false;
         }
         this.selectedAtoms = [];
         this.editor.repaint();
@@ -5522,7 +5522,7 @@
         }
         if (this.hoveredAtom) {
             this.hoveredAtom.isHover = false;
-            if (this.hoveredAtom.isSelected) {
+            if (this.hoveredAtom.isSelected_old) {
                 let a = this.hoveredAtom;
                 this.selectedAtoms = q.grep(this.selectedAtoms, function(value) {
                     return value !== a;
@@ -5530,7 +5530,7 @@
             } else {
                 this.selectedAtoms.push(this.hoveredAtom);
             }
-            this.hoveredAtom.isSelected = !this.hoveredAtom.isSelected;
+            this.hoveredAtom.isSelected_old = !this.hoveredAtom.isSelected_old;
             this.hoveredAtom = undefined;
             this.editor.repaint();
         }

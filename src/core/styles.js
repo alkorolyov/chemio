@@ -7,7 +7,7 @@
         // default canvas properties
 
         // backgroundColor:'#FFFFFF',
-        backgroundColor:'transparent    ',
+        backgroundColor:'transparent',
         scale:1.5,
         rotateAngle:0,
         lightDirection_3D:[-.1, -.1, -1],
@@ -34,8 +34,9 @@
         colorPreview:'#cbcbcb',
 
         // hover, selection
-        colorHover:'#0060B2',
-        colorSelect:'rgba(0,106,255,0.3)' ,
+        colorDelete: '#fd1e1e',
+        colorHover:'#4192d9',
+        colorSelect:'#A3C9FF' ,
         hover_lineWidth: 1.5,
         lasso_lineWidth: 1.2,
         atoms_selectRadius:8,

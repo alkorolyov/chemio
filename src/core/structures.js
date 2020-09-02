@@ -171,7 +171,6 @@
 
 })(Chemio.structures, Math);
 
-
 (function (ELEMENT, extensions, math, structures, m, m4, undefined) {
     'use strict';
     let whitespaceRegex = /\s+/g;
@@ -195,7 +194,7 @@
     _.altLabel = undefined;
     _.isLone = false;
     _.isHover = false;
-    _.isSelected = false;
+    _.isSelected_old = false;
     _.add3D = function (p) {
         this.x += p.x;
         this.y += p.y;
@@ -217,7 +216,7 @@
             // this is used when the atom shouldn't be visible, such as when the text input field is open over this atom
             return;
         }
-        if (this.isLassoed) {
+        if (this.isSelected) {
             ctx.fillStyle = styles.colorSelect //grd;
             ctx.beginPath();
             ctx.arc(this.x, this.y, styles.atoms_selectRadius, 0, m.PI * 2, false);
@@ -458,41 +457,43 @@
                 }
             }
         }
-        if (this.numLonePair > 0 || this.numRadical > 0) {
-            ctx.fillStyle = 'black';
-            let as = this.angles.slice(0);
-            let ali = this.angleOfLeastInterference;
-            let la = this.largestAngle;
-            if (hAngle !== undefined) {
-                // have to check for undefined here as this number can be 0
-                as.push(hAngle);
-                as.sort(function (a, b) {
-                    return a - b;
-                });
-                let angleData = math.angleBetweenLargest(as);
-                ali = angleData.angle % (m.PI * 2);
-                la = angleData.largest;
-            }
-            let things = [];
-            for (let i = 0; i < this.numLonePair; i++) {
-                things.push({
-                    t: 2
-                });
-            }
-            for (let i = 0; i < this.numRadical; i++) {
-                things.push({
-                    t: 1
-                });
-            }
-            if (hAngle === undefined && m.abs(la - 2 * m.PI / as.length) < m.PI / 60) {
-                let mid = m.ceil(things.length / as.length);
-                for (let i = 0, ii = things.length; i < ii; i += mid, ali += la) {
-                    this.drawElectrons(ctx, styles, things.slice(i, m.min(things.length, i + mid)), ali, la, hAngle);
-                }
-            } else {
-                this.drawElectrons(ctx, styles, things, ali, la, hAngle);
-            }
-        }
+
+        // if (this.numLonePair > 0 || this.numRadical > 0) {
+        //     ctx.fillStyle = 'black';
+        //     let as = this.angles.slice(0);
+        //     let ali = this.angleOfLeastInterference;
+        //     let la = this.largestAngle;
+        //     if (hAngle !== undefined) {
+        //         // have to check for undefined here as this number can be 0
+        //         as.push(hAngle);
+        //         as.sort(function (a, b) {
+        //             return a - b;
+        //         });
+        //         let angleData = math.angleBetweenLargest(as);
+        //         ali = angleData.angle % (m.PI * 2);
+        //         la = angleData.largest;
+        //     }
+        //     let things = [];
+        //     for (let i = 0; i < this.numLonePair; i++) {
+        //         things.push({
+        //             t: 2
+        //         });
+        //     }
+        //     for (let i = 0; i < this.numRadical; i++) {
+        //         things.push({
+        //             t: 1
+        //         });
+        //     }
+        //     if (hAngle === undefined && m.abs(la - 2 * m.PI / as.length) < m.PI / 60) {
+        //         let mid = m.ceil(things.length / as.length);
+        //         for (let i = 0, ii = things.length; i < ii; i += mid, ali += la) {
+        //             this.drawElectrons(ctx, styles, things.slice(i, m.min(things.length, i + mid)), ali, la, hAngle);
+        //         }
+        //     } else {
+        //         this.drawElectrons(ctx, styles, things, ali, la, hAngle);
+        //     }
+        // }
+
         // for debugging atom label dimensions
         // ctx.strokeStyle = 'red'; for(let i = 0, ii = this.textBounds.length;i<ii; i++){ let r = this.textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
 
@@ -523,11 +524,12 @@
         }
     };
     _.drawDecorations = function (ctx, styles) {
-        if (this.isHover || this.isSelected) {
-            ctx.strokeStyle = this.isHover ? styles.colorHover : styles.colorSelect;
+        // console.log('lassoed: ' + this.isLassoed);
+        if (this.isHover || this.isLassoed) {
+            ctx.strokeStyle = styles.colorHover;
             ctx.lineWidth = styles.hover_lineWidth;
             ctx.beginPath();
-            let radius = this.isHover ? styles.atoms_selectRadius : 15;
+            let radius = styles.atoms_selectRadius;
             ctx.arc(this.x, this.y, radius, 0, m.PI * 2, false);
             ctx.stroke();
         }
@@ -539,52 +541,52 @@
             ctx.stroke();
         }
     };
-    _.render = function (gl, styles, noColor) {
-        if (this.styles) {
-            styles = this.styles;
-        }
-        let transform = m4.translate(m4.identity(), [this.x, this.y, this.z]);
-        let radius = styles.atoms_useVDWDiameters_3D ? ELEMENT[this.label].vdWRadius * styles.atoms_vdwMultiplier_3D : styles.atoms_sphereDiameter_3D / 2;
-        if (radius === 0) {
-            radius = 1;
-        }
-        m4.scale(transform, [radius, radius, radius]);
-
-        // colors
-        if (!noColor) {
-            let color = styles.atoms_color;
-            if (styles.atoms_useJMOLColors) {
-                color = ELEMENT[this.label].jmolColor;
-            } else if (styles.atoms_usePYMOLColors) {
-                color = ELEMENT[this.label].pymolColor;
-            }
-            gl.material.setDiffuseColor(gl, color);
-        }
-
-        // render
-        gl.shader.setMatrixUniforms(gl, transform);
-        let buffer = this.renderAsStar ? gl.starBuffer : gl.sphereBuffer;
-        gl.drawElements(gl.TRIANGLES, buffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-    };
-    _.renderHighlight = function (gl, styles) {
-        if (this.isSelected || this.isHover) {
-            if (this.styles) {
-                styles = this.styles;
-            }
-            let transform = m4.translate(m4.identity(), [this.x, this.y, this.z]);
-            let radius = styles.atoms_useVDWDiameters_3D ? ELEMENT[this.label].vdWRadius * styles.atoms_vdwMultiplier_3D : styles.atoms_sphereDiameter_3D / 2;
-            if (radius === 0) {
-                radius = 1;
-            }
-            radius *= 1.3;
-            m4.scale(transform, [radius, radius, radius]);
-
-            gl.shader.setMatrixUniforms(gl, transform);
-            gl.material.setDiffuseColor(gl, this.isHover ? styles.colorHover : styles.colorSelect);
-            let buffer = this.renderAsStar ? gl.starBuffer : gl.sphereBuffer;
-            gl.drawElements(gl.TRIANGLES, buffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-        }
-    };
+    // _.render = function (gl, styles, noColor) {
+    //     if (this.styles) {
+    //         styles = this.styles;
+    //     }
+    //     let transform = m4.translate(m4.identity(), [this.x, this.y, this.z]);
+    //     let radius = styles.atoms_useVDWDiameters_3D ? ELEMENT[this.label].vdWRadius * styles.atoms_vdwMultiplier_3D : styles.atoms_sphereDiameter_3D / 2;
+    //     if (radius === 0) {
+    //         radius = 1;
+    //     }
+    //     m4.scale(transform, [radius, radius, radius]);
+    //
+    //     // colors
+    //     if (!noColor) {
+    //         let color = styles.atoms_color;
+    //         if (styles.atoms_useJMOLColors) {
+    //             color = ELEMENT[this.label].jmolColor;
+    //         } else if (styles.atoms_usePYMOLColors) {
+    //             color = ELEMENT[this.label].pymolColor;
+    //         }
+    //         gl.material.setDiffuseColor(gl, color);
+    //     }
+    //
+    //     // render
+    //     gl.shader.setMatrixUniforms(gl, transform);
+    //     let buffer = this.renderAsStar ? gl.starBuffer : gl.sphereBuffer;
+    //     gl.drawElements(gl.TRIANGLES, buffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    // };
+    // _.renderHighlight = function (gl, styles) {
+    //     if (this.isSelected_old || this.isHover) {
+    //         if (this.styles) {
+    //             styles = this.styles;
+    //         }
+    //         let transform = m4.translate(m4.identity(), [this.x, this.y, this.z]);
+    //         let radius = styles.atoms_useVDWDiameters_3D ? ELEMENT[this.label].vdWRadius * styles.atoms_vdwMultiplier_3D : styles.atoms_sphereDiameter_3D / 2;
+    //         if (radius === 0) {
+    //             radius = 1;
+    //         }
+    //         radius *= 1.3;
+    //         m4.scale(transform, [radius, radius, radius]);
+    //
+    //         gl.shader.setMatrixUniforms(gl, transform);
+    //         gl.material.setDiffuseColor(gl, this.isHover ? styles.colorHover : styles.colorSelect);
+    //         let buffer = this.renderAsStar ? gl.starBuffer : gl.sphereBuffer;
+    //         gl.drawElements(gl.TRIANGLES, buffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //     }
+    // };
     _.isLabelVisible = function (styles) {
         if (styles.atoms_displayAllCarbonLabels_2D) {
             // show all carbons
@@ -654,22 +656,18 @@
         }
         return bounds;
     };
-    _.getBounds3D = function () {
-        let bounds = new math.Bounds();
-        bounds.expand3D(this.x, this.y, this.z);
-        return bounds;
-    };
+    // _.getBounds3D = function () {
+    //     let bounds = new math.Bounds();
+    //     bounds.expand3D(this.x, this.y, this.z);
+    //     return bounds;
+    // };
     /**
      * Get Color by atom element.
      *
-     * @param {boolean}
-     *            useJMOLColors
-     * @param {boolean}
-     *            usePYMOLColors
-     * @param {string}
-     *            color The default color
-     * @param {number}
-     *            dim The render dimension
+     * @param {boolean} useJMOLColors
+     * @param {boolean} usePYMOLColors
+     * @param {string} color The default color
+     * @param {number} dim The render dimension
      * @return {string} The atom element color
      */
     _.getElementColor = function (useJMOLColors, usePYMOLColors, color) {
@@ -708,9 +706,9 @@
     _.getLength = function() {
         return this.a1.distance(this.a2);
     };
-    _.getLength3D = function() {
-        return this.a1.distance3D(this.a2);
-    };
+    // _.getLength3D = function() {
+    //     return this.a1.distance3D(this.a2);
+    // };
     _.contains = function(a) {
         return a === this.a1 || a === this.a2;
     };
@@ -739,7 +737,7 @@
         let angle = this.a1.angle(this.a2);
         let difX = x2 - x1;
         let difY = y2 - y1;
-        if (this.a1.isLassoed && this.a2.isLassoed) {
+        if (this.a1.isSelected && this.a2.isSelected) {
             let radius = styles.atoms_selectRadius;
             let useDist = radius * 0.5;
             let perpendicular = angle + m.PI / 2;
@@ -1073,7 +1071,7 @@
     };
 
     _.drawDecorations = function(ctx, styles) {
-        if (this.isHover || this.isSelected) {
+        if (this.isHover || this.isSelected_old) {
             let x1 = this.a1.x;
             let x2 = this.a2.x;
             let y1 = this.a1.y;
@@ -1134,639 +1132,635 @@
             y += yi;
         }
     };
-    /**
-     *
-     * @param {WegGLRenderingContext}
-     *            gl
-     * @param {structures.Styles}
-     *            styles
-     * @param {boolean}
-     *            asSegments Using cylinder/solid line or segmented pills/dashed
-     *            line
-     * @return {void}
-     */
-    _.render = function(gl, styles, asSegments) {
-        if (this.styles) {
-            styles = this.styles;
-        }
-        // this is the elongation vector for the cylinder
-        let height = this.a1.distance3D(this.a2);
-        if (height === 0) {
-            // if there is no height, then no point in rendering this bond,
-            // just return
-            return;
-        }
-
-        // scale factor for cylinder/pill radius.
-        // when scale pill, the cap will affected too.
-        let radiusScale = styles.bonds_cylinderDiameter_3D / 2;
-
-        // atom1 color and atom2 color
-        let a1Color = styles.bonds_color;
-        let a2Color;
-
-        // transform to the atom as well as the opposite atom (for Jmol and
-        // PyMOL
-        // color splits)
-        let transform = m4.translate(m4.identity(), [ this.a1.x, this.a1.y, this.a1.z ]);
-        let transformOpposite;
-
-        // vector from atom1 to atom2
-        let a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
-
-        // calculate the rotation
-        let y = [ 0, 1, 0 ];
-        let ang = 0;
-        let axis;
-        if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
-            axis = [ 0, 0, 1 ];
-            if (this.a2.y < this.a1.y) {
-                ang = m.PI;
-            }
-        } else {
-            ang = extensions.vec3AngleFrom(y, a2b);
-            axis = v3.cross(y, a2b, []);
-        }
-
-        // the styles will split color are
-        // - Line
-        // - Stick
-        // - Wireframe
-        if (styles.bonds_splitColor) {
-            let styles1 = this.a1.styles?this.a1.styles:styles;
-            let styles2 = this.a2.styles?this.a2.styles:styles;
-            a1Color = this.a1.getElementColor(styles1.atoms_useJMOLColors, styles1.atoms_usePYMOLColors, styles1.atoms_color);
-            a2Color = this.a2.getElementColor(styles2.atoms_useJMOLColors, styles2.atoms_usePYMOLColors, styles2.atoms_color);
-
-            // the transformOpposite will use for split color.
-            // just make it splited if the color different.
-            if (a1Color != a2Color) {
-                transformOpposite = m4.translate(m4.identity(), [ this.a2.x, this.a2.y, this.a2.z ]);
-            }
-        }
-
-        // calculate the translations for unsaturated bonds.
-        // represenattio use saturatedCross are
-        // - Line
-        // - Wireframe
-        // - Ball and Stick
-        // just Stick will set bonds_showBondOrders_3D to false
-        let others = [ 0 ];
-        let saturatedCross;
-
-        if (asSegments) { // block for draw bond as segmented line/pill
-
-            if (styles.bonds_showBondOrders_3D && this.bondOrder > 1) {
-
-                // The "0.5" part set here,
-                // the other part (1) will render as cylinder
-                others = [/*-styles.bonds_cylinderDiameter_3D, */styles.bonds_cylinderDiameter_3D ];
-
-                let z = [ 0, 0, 1 ];
-                let inverse = m4.inverse(gl.rotationMatrix, []);
-                m4.multiplyVec3(inverse, z);
-                saturatedCross = v3.cross(a2b, z, []);
-                v3.normalize(saturatedCross);
-            }
-
-            let segmentScale = 1;
-
-            let spaceBetweenPill = styles.bonds_pillSpacing_3D;
-
-            let pillHeight = styles.bonds_pillHeight_3D;
-
-            if (this.bondOrder == 0) {
-
-                if (styles.bonds_renderAsLines_3D) {
-                    pillHeight = spaceBetweenPill;
-                } else {
-                    pillHeight = styles.bonds_pillDiameter_3D;
-
-                    // Detect Ball and Stick representation
-                    if (pillHeight < styles.bonds_cylinderDiameter_3D) {
-                        pillHeight /= 2;
-                    }
-
-                    segmentScale = pillHeight / 2;
-                    height /= segmentScale;
-                    spaceBetweenPill /= segmentScale / 2;
-                }
-
-            }
-
-            // total space need for one pill, iclude the space.
-            let totalSpaceForPill = pillHeight + spaceBetweenPill;
-
-            // segmented pills for one bond.
-            let totalPillsPerBond = height / totalSpaceForPill;
-
-            // segmented one unit pill for one bond
-            let pillsPerBond = m.floor(totalPillsPerBond);
-
-            let extraSegmentedSpace = height - totalSpaceForPill * pillsPerBond;
-
-            let paddingSpace = (spaceBetweenPill + styles.bonds_pillDiameter_3D + extraSegmentedSpace) / 2;
-
-            // pillSegmentsLength will change if both atom1 and atom2 color used
-            // for rendering
-            let pillSegmentsLength = pillsPerBond;
-
-            if (transformOpposite) {
-                // floor will effected for odd pills, because one pill at the
-                // center
-                // will replace with splited pills
-                pillSegmentsLength = m.floor(pillsPerBond / 2);
-            }
-
-            // render bonds
-            for ( let i = 0, ii = others.length; i < ii; i++) {
-                let transformUse = m4.set(transform, []);
-
-                if (others[i] !== 0) {
-                    m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
-                }
-                if (ang !== 0) {
-                    m4.rotate(transformUse, ang, axis);
-                }
-
-                if (segmentScale != 1) {
-                    m4.scale(transformUse, [ segmentScale, segmentScale, segmentScale ]);
-                }
-
-                // colors
-                if (a1Color)
-                    gl.material.setDiffuseColor(gl, a1Color);
-
-                m4.translate(transformUse, [ 0, paddingSpace, 0 ]);
-
-                for ( let j = 0; j < pillSegmentsLength; j++) {
-
-                    if (styles.bonds_renderAsLines_3D) {
-                        if (this.bondOrder == 0) {
-                            gl.shader.setMatrixUniforms(gl, transformUse);
-                            gl.drawArrays(gl.POINTS, 0, 1);
-                        } else {
-                            m4.scale(transformUse, [ 1, pillHeight, 1 ]);
-
-                            gl.shader.setMatrixUniforms(gl, transformUse);
-                            gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-
-                            m4.scale(transformUse, [ 1, 1 / pillHeight, 1 ]);
-                        }
-                    } else {
-                        gl.shader.setMatrixUniforms(gl, transformUse);
-                        if (this.bondOrder == 0) {
-                            gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                        } else {
-                            gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                        }
-                    }
-
-                    m4.translate(transformUse, [ 0, totalSpaceForPill, 0 ]);
-                }
-
-                // if rendering segmented pill use atom1 and atom2 color
-                if (transformOpposite) {
-                    // parameter for calculate splited pills
-                    let scaleY, halfOneMinScaleY;
-
-                    if (styles.bonds_renderAsLines_3D) {
-                        scaleY = pillHeight;
-                        // if(this.bondOrder != 0) {
-                        // scaleY -= spaceBetweenPill;
-                        // }
-                        scaleY /= 2;
-                        halfOneMinScaleY = 0;
-                    } else {
-                        scaleY = 2 / 3;
-                        halfOneMinScaleY = (1 - scaleY) / 2;
-                    }
-
-                    // if count of pills per bound is odd,
-                    // then draw the splited pills of atom1
-                    if (pillsPerBond % 2 != 0) {
-
-                        m4.scale(transformUse, [ 1, scaleY, 1 ]);
-
-                        gl.shader.setMatrixUniforms(gl, transformUse);
-
-                        if (styles.bonds_renderAsLines_3D) {
-
-                            if (this.bondOrder == 0) {
-                                gl.drawArrays(gl.POINTS, 0, 1);
-                            } else {
-                                gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-                            }
-
-                        } else {
-
-                            if (this.bondOrder == 0) {
-                                gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                            } else {
-                                gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                            }
-
-                        }
-
-                        m4.translate(transformUse, [ 0, totalSpaceForPill * (1 + halfOneMinScaleY), 0 ]);
-
-                        m4.scale(transformUse, [ 1, 1 / scaleY, 1 ]);
-                    }
-
-                    // prepare to render the atom2
-
-                    m4.set(transformOpposite, transformUse);
-                    if (others[i] !== 0) {
-                        m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
-                    }
-                    // don't check for 0 here as that means it should be rotated
-                    // by PI, but PI will be negated
-                    m4.rotate(transformUse, ang + m.PI, axis);
-
-                    if (segmentScale != 1) {
-                        m4.scale(transformUse, [ segmentScale, segmentScale, segmentScale ]);
-                    }
-
-                    // colors
-                    if (a2Color){
-                        gl.material.setDiffuseColor(gl, a2Color);
-                    }
-
-                    m4.translate(transformUse, [ 0, paddingSpace, 0 ]);
-
-                    // draw the remain pills which use the atom2 color
-                    for ( let j = 0; j < pillSegmentsLength; j++) {
-
-                        if (styles.bonds_renderAsLines_3D) {
-                            if (this.bondOrder == 0) {
-                                gl.shader.setMatrixUniforms(gl, transformUse);
-                                gl.drawArrays(gl.POINTS, 0, 1);
-                            } else {
-                                m4.scale(transformUse, [ 1, pillHeight, 1 ]);
-
-                                gl.shader.setMatrixUniforms(gl, transformUse);
-                                gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-
-                                m4.scale(transformUse, [ 1, 1 / pillHeight, 1 ]);
-                            }
-                        } else {
-                            gl.shader.setMatrixUniforms(gl, transformUse);
-                            if (this.bondOrder == 0) {
-                                gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                            } else {
-                                gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                            }
-                        }
-
-                        m4.translate(transformUse, [ 0, totalSpaceForPill, 0 ]);
-                    }
-
-                    // draw the splited center pills of atom2
-                    if (pillsPerBond % 2 != 0) {
-
-                        m4.scale(transformUse, [ 1, scaleY, 1 ]);
-
-                        gl.shader.setMatrixUniforms(gl, transformUse);
-
-                        if (styles.bonds_renderAsLines_3D) {
-
-                            if (this.bondOrder == 0) {
-                                gl.drawArrays(gl.POINTS, 0, 1);
-                            } else {
-                                gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-                            }
-
-                        } else {
-
-                            if (this.bondOrder == 0) {
-                                gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                            } else {
-                                gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                            }
-
-                        }
-
-                        m4.translate(transformUse, [ 0, totalSpaceForPill * (1 + halfOneMinScaleY), 0 ]);
-
-                        m4.scale(transformUse, [ 1, 1 / scaleY, 1 ]);
-                    }
-                }
-            }
-        } else {
-            // calculate the translations for unsaturated bonds.
-            // represenation that use saturatedCross are
-            // - Line
-            // - Wireframe
-            // - Ball and Stick
-            // just Stick will set bonds_showBondOrders_3D to false
-            if (styles.bonds_showBondOrders_3D) {
-
-                switch (this.bondOrder) {
-                    // the 0 and 0.5 bond order will draw as segmented pill.
-                    // so we not set that here.
-                    // case 0:
-                    // case 0.5: break;
-
-                    case 1.5:
-                        // The "1" part set here,
-                        // the other part (0.5) will render as segmented pill
-                        others = [ -styles.bonds_cylinderDiameter_3D /*
-																 * ,
-																 * styles.bonds_cylinderDiameter_3D
-																 */];
-                        break;
-                    case 2:
-                        others = [ -styles.bonds_cylinderDiameter_3D, styles.bonds_cylinderDiameter_3D ];
-                        break;
-                    case 3:
-                        others = [ -1.2 * styles.bonds_cylinderDiameter_3D, 0, 1.2 * styles.bonds_cylinderDiameter_3D ];
-                        break;
-                }
-
-                // saturatedCross just need for need for bondorder greather than
-                // 1
-                if (this.bondOrder > 1) {
-                    let z = [ 0, 0, 1 ];
-                    let inverse = m4.inverse(gl.rotationMatrix, []);
-                    m4.multiplyVec3(inverse, z);
-                    saturatedCross = v3.cross(a2b, z, []);
-                    v3.normalize(saturatedCross);
-                }
-            }
-            // for Stick representation, we just change the cylinder radius
-            else {
-
-                switch (this.bondOrder) {
-                    case 0:
-                        radiusScale *= 0.25;
-                        break;
-                    case 0.5:
-                    case 1.5:
-                        radiusScale *= 0.5;
-                        break;
-                }
-            }
-
-            // if transformOpposite is set, the it mean the color must be
-            // splited.
-            // so the heigh of cylinder will be half.
-            // one half for atom1 color the other for atom2 color
-            if (transformOpposite) {
-                height /= 2;
-            }
-
-            // Radius of cylinder already defined when initialize cylinder mesh,
-            // so at this rate, the scale just needed for Y to strech
-            // cylinder to bond length (height) and X and Z for radius.
-            let scaleVector = [ radiusScale, height, radiusScale ];
-
-            // render bonds
-            for ( let i = 0, ii = others.length; i < ii; i++) {
-                let transformUse = m4.set(transform, []);
-                if (others[i] !== 0) {
-                    m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
-                }
-                if (ang !== 0) {
-                    m4.rotate(transformUse, ang, axis);
-                }
-                m4.scale(transformUse, scaleVector);
-
-                // colors
-                if (a1Color)
-                    gl.material.setDiffuseColor(gl, a1Color);
-
-                // render
-                gl.shader.setMatrixUniforms(gl, transformUse);
-                if (styles.bonds_renderAsLines_3D) {
-                    gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-                } else {
-                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
-                }
-
-                // if transformOpposite is set, then a2Color also shoudl be
-                // seted as well.
-                if (transformOpposite) {
-                    m4.set(transformOpposite, transformUse);
-                    if (others[i] !== 0) {
-                        m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
-                    }
-                    // don't check for 0 here as that means it should be rotated
-                    // by PI, but PI will be negated
-                    m4.rotate(transformUse, ang + m.PI, axis);
-                    m4.scale(transformUse, scaleVector);
-
-                    // colors
-                    if (a2Color)
-                        gl.material.setDiffuseColor(gl, a2Color);
-
-                    // render
-                    gl.shader.setMatrixUniforms(gl, transformUse);
-                    if (styles.bonds_renderAsLines_3D) {
-                        gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-                    } else {
-                        gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
-                    }
-                }
-            }
-        }
-    };
-    _.renderHighlight = function(gl, styles) {
-        if (this.isSelected || this.isHover) {
-            if (this.styles) {
-                styles = this.styles;
-            }
-            if (this.styles) {
-                styles = this.styles;
-            }
-            // this is the elongation vector for the cylinder
-            let height = this.a1.distance3D(this.a2);
-            if (height === 0) {
-                // if there is no height, then no point in rendering this bond,
-                // just return
-                return;
-            }
-
-            // scale factor for cylinder/pill radius.
-            // when scale pill, the cap will affected too.
-            let radiusScale = styles.bonds_cylinderDiameter_3D / 1.2;
-            let transform = m4.translate(m4.identity(), [ this.a1.x, this.a1.y, this.a1.z ]);
-
-            // vector from atom1 to atom2
-            let a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
-
-            // calculate the rotation
-            let y = [ 0, 1, 0 ];
-            let ang = 0;
-            let axis;
-            if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
-                axis = [ 0, 0, 1 ];
-                if (this.a2.y < this.a1.y) {
-                    ang = m.PI;
-                }
-            } else {
-                ang = extensions.vec3AngleFrom(y, a2b);
-                axis = v3.cross(y, a2b, []);
-            }
-            let scaleVector = [ radiusScale, height, radiusScale ];
-
-            if (ang !== 0) {
-                m4.rotate(transform, ang, axis);
-            }
-            m4.scale(transform, scaleVector);
-            gl.shader.setMatrixUniforms(gl, transform);
-            gl.material.setDiffuseColor(gl, this.isHover ? styles.colorHover : styles.colorSelect);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
-        }
-    };
-    /**
-     *
-     * @param {WegGLRenderingContext}
-     *            gl
-     * @param {structures.Styles}
-     *            styles
-     * @return {void}
-     */
-    _.renderPicker = function(gl, styles) {
-
-        // gl.cylinderBuffer.bindBuffers(gl);
-        // gl.material.setDiffuseColor(
-        // this.bondOrder == 0 ? '#FF0000' : // merah
-        // this.bondOrder == 0.5 ? '#FFFF00' : // kuning
-        // this.bondOrder == 1 ? '#FF00FF' : // ungu
-        // this.bondOrder == 1.5 ? '#00FF00' : // hijau
-        // this.bondOrder == 2 ? '#00FFFF' : // cyan
-        // this.bondOrder == 3 ? '#0000FF' : // biru
-        // '#FFFFFF');
-        // gl.material.setAlpha(1);
-
-        if (this.styles) {
-            styles = this.styles;
-        }
-        // this is the elongation vector for the cylinder
-        let height = this.a1.distance3D(this.a2);
-        if (height === 0) {
-            // if there is no height, then no point in rendering this bond,
-            // just return
-            return;
-        }
-
-        // scale factor for cylinder/pill radius.
-        // when scale pill, the cap will affected too.
-        let radiusScale = styles.bonds_cylinderDiameter_3D / 2;
-
-        // transform to the atom as well as the opposite atom (for Jmol and
-        // PyMOL
-        // color splits)
-        let transform = m4.translate(m4.identity(), [ this.a1.x, this.a1.y, this.a1.z ]);
-
-        // vector from atom1 to atom2
-        let a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
-
-        // calculate the rotation
-        let y = [ 0, 1, 0 ];
-        let ang = 0;
-        let axis;
-        if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
-            axis = [ 0, 0, 1 ];
-            if (this.a2.y < this.a1.y) {
-                ang = m.PI;
-            }
-        } else {
-            ang = extensions.vec3AngleFrom(y, a2b);
-            axis = v3.cross(y, a2b, []);
-        }
-
-        // calculate the translations for unsaturated bonds.
-        // represenattio use saturatedCross are
-        // - Line
-        // - WIreframe
-        // - Ball and Stick
-        // just Stick will set bonds_showBondOrders_3D to false
-        let others = [ 0 ];
-        let saturatedCross;
-
-        if (styles.bonds_showBondOrders_3D) {
-
-            if (styles.bonds_renderAsLines_3D) {
-
-                switch (this.bondOrder) {
-
-                    case 1.5:
-                    case 2:
-                        others = [ -styles.bonds_cylinderDiameter_3D, styles.bonds_cylinderDiameter_3D ];
-                        break;
-                    case 3:
-                        others = [ -1.2 * styles.bonds_cylinderDiameter_3D, 0, 1.2 * styles.bonds_cylinderDiameter_3D ];
-                        break;
-                }
-
-                // saturatedCross just need for need for bondorder greather than
-                // 1
-                if (this.bondOrder > 1) {
-                    let z = [ 0, 0, 1 ];
-                    let inverse = m4.inverse(gl.rotationMatrix, []);
-                    m4.multiplyVec3(inverse, z);
-                    saturatedCross = v3.cross(a2b, z, []);
-                    v3.normalize(saturatedCross);
-                }
-
-            } else {
-
-                switch (this.bondOrder) {
-                    case 1.5:
-                    case 2:
-                        radiusScale *= 3;
-                        break;
-                    case 3:
-                        radiusScale *= 3.4;
-                        break;
-                }
-
-            }
-
-        } else {
-            // this is for Stick repersentation because Stick not have
-            // bonds_showBondOrders_3D
-
-            switch (this.bondOrder) {
-
-                case 0:
-                    radiusScale *= 0.25;
-                    break;
-                case 0.5:
-                case 1.5:
-                    radiusScale *= 0.5;
-                    break;
-            }
-
-        }
-
-        // Radius of cylinder already defined when initialize cylinder mesh,
-        // so at this rate, the scale just needed for Y to strech
-        // cylinder to bond length (height) and X and Z for radius.
-        let scaleVector = [ radiusScale, height, radiusScale ];
-
-        // render bonds
-        for ( let i = 0, ii = others.length; i < ii; i++) {
-            let transformUse = m4.set(transform, []);
-            if (others[i] !== 0) {
-                m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
-            }
-            if (ang !== 0) {
-                m4.rotate(transformUse, ang, axis);
-            }
-            m4.scale(transformUse, scaleVector);
-
-            // render
-            gl.shader.setMatrixUniforms(gl, transformUse);
-            if (styles.bonds_renderAsLines_3D) {
-                gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-            } else {
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
-            }
-
-        }
-    };
+    // /**
+    //  *
+    //  * @param {WegGLRenderingContext} gl
+    //  * @param {structures.Styles} styles
+    //  * @param {boolean} asSegments Using cylinder/solid line or segmented pills/dashed line
+    //  * @return {void}
+    //  */
+    // _.render = function(gl, styles, asSegments) {
+    //     if (this.styles) {
+    //         styles = this.styles;
+    //     }
+    //     // this is the elongation vector for the cylinder
+    //     let height = this.a1.distance3D(this.a2);
+    //     if (height === 0) {
+    //         // if there is no height, then no point in rendering this bond,
+    //         // just return
+    //         return;
+    //     }
+    //
+    //     // scale factor for cylinder/pill radius.
+    //     // when scale pill, the cap will affected too.
+    //     let radiusScale = styles.bonds_cylinderDiameter_3D / 2;
+    //
+    //     // atom1 color and atom2 color
+    //     let a1Color = styles.bonds_color;
+    //     let a2Color;
+    //
+    //     // transform to the atom as well as the opposite atom (for Jmol and
+    //     // PyMOL
+    //     // color splits)
+    //     let transform = m4.translate(m4.identity(), [ this.a1.x, this.a1.y, this.a1.z ]);
+    //     let transformOpposite;
+    //
+    //     // vector from atom1 to atom2
+    //     let a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
+    //
+    //     // calculate the rotation
+    //     let y = [ 0, 1, 0 ];
+    //     let ang = 0;
+    //     let axis;
+    //     if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
+    //         axis = [ 0, 0, 1 ];
+    //         if (this.a2.y < this.a1.y) {
+    //             ang = m.PI;
+    //         }
+    //     } else {
+    //         ang = extensions.vec3AngleFrom(y, a2b);
+    //         axis = v3.cross(y, a2b, []);
+    //     }
+    //
+    //     // the styles will split color are
+    //     // - Line
+    //     // - Stick
+    //     // - Wireframe
+    //     if (styles.bonds_splitColor) {
+    //         let styles1 = this.a1.styles?this.a1.styles:styles;
+    //         let styles2 = this.a2.styles?this.a2.styles:styles;
+    //         a1Color = this.a1.getElementColor(styles1.atoms_useJMOLColors, styles1.atoms_usePYMOLColors, styles1.atoms_color);
+    //         a2Color = this.a2.getElementColor(styles2.atoms_useJMOLColors, styles2.atoms_usePYMOLColors, styles2.atoms_color);
+    //
+    //         // the transformOpposite will use for split color.
+    //         // just make it splited if the color different.
+    //         if (a1Color != a2Color) {
+    //             transformOpposite = m4.translate(m4.identity(), [ this.a2.x, this.a2.y, this.a2.z ]);
+    //         }
+    //     }
+    //
+    //     // calculate the translations for unsaturated bonds.
+    //     // represenattio use saturatedCross are
+    //     // - Line
+    //     // - Wireframe
+    //     // - Ball and Stick
+    //     // just Stick will set bonds_showBondOrders_3D to false
+    //     let others = [ 0 ];
+    //     let saturatedCross;
+    //
+    //     if (asSegments) { // block for draw bond as segmented line/pill
+    //
+    //         if (styles.bonds_showBondOrders_3D && this.bondOrder > 1) {
+    //
+    //             // The "0.5" part set here,
+    //             // the other part (1) will render as cylinder
+    //             others = [/*-styles.bonds_cylinderDiameter_3D, */styles.bonds_cylinderDiameter_3D ];
+    //
+    //             let z = [ 0, 0, 1 ];
+    //             let inverse = m4.inverse(gl.rotationMatrix, []);
+    //             m4.multiplyVec3(inverse, z);
+    //             saturatedCross = v3.cross(a2b, z, []);
+    //             v3.normalize(saturatedCross);
+    //         }
+    //
+    //         let segmentScale = 1;
+    //
+    //         let spaceBetweenPill = styles.bonds_pillSpacing_3D;
+    //
+    //         let pillHeight = styles.bonds_pillHeight_3D;
+    //
+    //         if (this.bondOrder == 0) {
+    //
+    //             if (styles.bonds_renderAsLines_3D) {
+    //                 pillHeight = spaceBetweenPill;
+    //             } else {
+    //                 pillHeight = styles.bonds_pillDiameter_3D;
+    //
+    //                 // Detect Ball and Stick representation
+    //                 if (pillHeight < styles.bonds_cylinderDiameter_3D) {
+    //                     pillHeight /= 2;
+    //                 }
+    //
+    //                 segmentScale = pillHeight / 2;
+    //                 height /= segmentScale;
+    //                 spaceBetweenPill /= segmentScale / 2;
+    //             }
+    //
+    //         }
+    //
+    //         // total space need for one pill, iclude the space.
+    //         let totalSpaceForPill = pillHeight + spaceBetweenPill;
+    //
+    //         // segmented pills for one bond.
+    //         let totalPillsPerBond = height / totalSpaceForPill;
+    //
+    //         // segmented one unit pill for one bond
+    //         let pillsPerBond = m.floor(totalPillsPerBond);
+    //
+    //         let extraSegmentedSpace = height - totalSpaceForPill * pillsPerBond;
+    //
+    //         let paddingSpace = (spaceBetweenPill + styles.bonds_pillDiameter_3D + extraSegmentedSpace) / 2;
+    //
+    //         // pillSegmentsLength will change if both atom1 and atom2 color used
+    //         // for rendering
+    //         let pillSegmentsLength = pillsPerBond;
+    //
+    //         if (transformOpposite) {
+    //             // floor will effected for odd pills, because one pill at the
+    //             // center
+    //             // will replace with splited pills
+    //             pillSegmentsLength = m.floor(pillsPerBond / 2);
+    //         }
+    //
+    //         // render bonds
+    //         for ( let i = 0, ii = others.length; i < ii; i++) {
+    //             let transformUse = m4.set(transform, []);
+    //
+    //             if (others[i] !== 0) {
+    //                 m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+    //             }
+    //             if (ang !== 0) {
+    //                 m4.rotate(transformUse, ang, axis);
+    //             }
+    //
+    //             if (segmentScale != 1) {
+    //                 m4.scale(transformUse, [ segmentScale, segmentScale, segmentScale ]);
+    //             }
+    //
+    //             // colors
+    //             if (a1Color)
+    //                 gl.material.setDiffuseColor(gl, a1Color);
+    //
+    //             m4.translate(transformUse, [ 0, paddingSpace, 0 ]);
+    //
+    //             for ( let j = 0; j < pillSegmentsLength; j++) {
+    //
+    //                 if (styles.bonds_renderAsLines_3D) {
+    //                     if (this.bondOrder == 0) {
+    //                         gl.shader.setMatrixUniforms(gl, transformUse);
+    //                         gl.drawArrays(gl.POINTS, 0, 1);
+    //                     } else {
+    //                         m4.scale(transformUse, [ 1, pillHeight, 1 ]);
+    //
+    //                         gl.shader.setMatrixUniforms(gl, transformUse);
+    //                         gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //
+    //                         m4.scale(transformUse, [ 1, 1 / pillHeight, 1 ]);
+    //                     }
+    //                 } else {
+    //                     gl.shader.setMatrixUniforms(gl, transformUse);
+    //                     if (this.bondOrder == 0) {
+    //                         gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                     } else {
+    //                         gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                     }
+    //                 }
+    //
+    //                 m4.translate(transformUse, [ 0, totalSpaceForPill, 0 ]);
+    //             }
+    //
+    //             // if rendering segmented pill use atom1 and atom2 color
+    //             if (transformOpposite) {
+    //                 // parameter for calculate splited pills
+    //                 let scaleY, halfOneMinScaleY;
+    //
+    //                 if (styles.bonds_renderAsLines_3D) {
+    //                     scaleY = pillHeight;
+    //                     // if(this.bondOrder != 0) {
+    //                     // scaleY -= spaceBetweenPill;
+    //                     // }
+    //                     scaleY /= 2;
+    //                     halfOneMinScaleY = 0;
+    //                 } else {
+    //                     scaleY = 2 / 3;
+    //                     halfOneMinScaleY = (1 - scaleY) / 2;
+    //                 }
+    //
+    //                 // if count of pills per bound is odd,
+    //                 // then draw the splited pills of atom1
+    //                 if (pillsPerBond % 2 != 0) {
+    //
+    //                     m4.scale(transformUse, [ 1, scaleY, 1 ]);
+    //
+    //                     gl.shader.setMatrixUniforms(gl, transformUse);
+    //
+    //                     if (styles.bonds_renderAsLines_3D) {
+    //
+    //                         if (this.bondOrder == 0) {
+    //                             gl.drawArrays(gl.POINTS, 0, 1);
+    //                         } else {
+    //                             gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //                         }
+    //
+    //                     } else {
+    //
+    //                         if (this.bondOrder == 0) {
+    //                             gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                         } else {
+    //                             gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                         }
+    //
+    //                     }
+    //
+    //                     m4.translate(transformUse, [ 0, totalSpaceForPill * (1 + halfOneMinScaleY), 0 ]);
+    //
+    //                     m4.scale(transformUse, [ 1, 1 / scaleY, 1 ]);
+    //                 }
+    //
+    //                 // prepare to render the atom2
+    //
+    //                 m4.set(transformOpposite, transformUse);
+    //                 if (others[i] !== 0) {
+    //                     m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+    //                 }
+    //                 // don't check for 0 here as that means it should be rotated
+    //                 // by PI, but PI will be negated
+    //                 m4.rotate(transformUse, ang + m.PI, axis);
+    //
+    //                 if (segmentScale != 1) {
+    //                     m4.scale(transformUse, [ segmentScale, segmentScale, segmentScale ]);
+    //                 }
+    //
+    //                 // colors
+    //                 if (a2Color){
+    //                     gl.material.setDiffuseColor(gl, a2Color);
+    //                 }
+    //
+    //                 m4.translate(transformUse, [ 0, paddingSpace, 0 ]);
+    //
+    //                 // draw the remain pills which use the atom2 color
+    //                 for ( let j = 0; j < pillSegmentsLength; j++) {
+    //
+    //                     if (styles.bonds_renderAsLines_3D) {
+    //                         if (this.bondOrder == 0) {
+    //                             gl.shader.setMatrixUniforms(gl, transformUse);
+    //                             gl.drawArrays(gl.POINTS, 0, 1);
+    //                         } else {
+    //                             m4.scale(transformUse, [ 1, pillHeight, 1 ]);
+    //
+    //                             gl.shader.setMatrixUniforms(gl, transformUse);
+    //                             gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //
+    //                             m4.scale(transformUse, [ 1, 1 / pillHeight, 1 ]);
+    //                         }
+    //                     } else {
+    //                         gl.shader.setMatrixUniforms(gl, transformUse);
+    //                         if (this.bondOrder == 0) {
+    //                             gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                         } else {
+    //                             gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                         }
+    //                     }
+    //
+    //                     m4.translate(transformUse, [ 0, totalSpaceForPill, 0 ]);
+    //                 }
+    //
+    //                 // draw the splited center pills of atom2
+    //                 if (pillsPerBond % 2 != 0) {
+    //
+    //                     m4.scale(transformUse, [ 1, scaleY, 1 ]);
+    //
+    //                     gl.shader.setMatrixUniforms(gl, transformUse);
+    //
+    //                     if (styles.bonds_renderAsLines_3D) {
+    //
+    //                         if (this.bondOrder == 0) {
+    //                             gl.drawArrays(gl.POINTS, 0, 1);
+    //                         } else {
+    //                             gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //                         }
+    //
+    //                     } else {
+    //
+    //                         if (this.bondOrder == 0) {
+    //                             gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                         } else {
+    //                             gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                         }
+    //
+    //                     }
+    //
+    //                     m4.translate(transformUse, [ 0, totalSpaceForPill * (1 + halfOneMinScaleY), 0 ]);
+    //
+    //                     m4.scale(transformUse, [ 1, 1 / scaleY, 1 ]);
+    //                 }
+    //             }
+    //         }
+    //     } else {
+    //         // calculate the translations for unsaturated bonds.
+    //         // represenation that use saturatedCross are
+    //         // - Line
+    //         // - Wireframe
+    //         // - Ball and Stick
+    //         // just Stick will set bonds_showBondOrders_3D to false
+    //         if (styles.bonds_showBondOrders_3D) {
+    //
+    //             switch (this.bondOrder) {
+    //                 // the 0 and 0.5 bond order will draw as segmented pill.
+    //                 // so we not set that here.
+    //                 // case 0:
+    //                 // case 0.5: break;
+    //
+    //                 case 1.5:
+    //                     // The "1" part set here,
+    //                     // the other part (0.5) will render as segmented pill
+    //                     others = [ -styles.bonds_cylinderDiameter_3D /*
+	// 															 * ,
+	// 															 * styles.bonds_cylinderDiameter_3D
+	// 															 */];
+    //                     break;
+    //                 case 2:
+    //                     others = [ -styles.bonds_cylinderDiameter_3D, styles.bonds_cylinderDiameter_3D ];
+    //                     break;
+    //                 case 3:
+    //                     others = [ -1.2 * styles.bonds_cylinderDiameter_3D, 0, 1.2 * styles.bonds_cylinderDiameter_3D ];
+    //                     break;
+    //             }
+    //
+    //             // saturatedCross just need for need for bondorder greather than
+    //             // 1
+    //             if (this.bondOrder > 1) {
+    //                 let z = [ 0, 0, 1 ];
+    //                 let inverse = m4.inverse(gl.rotationMatrix, []);
+    //                 m4.multiplyVec3(inverse, z);
+    //                 saturatedCross = v3.cross(a2b, z, []);
+    //                 v3.normalize(saturatedCross);
+    //             }
+    //         }
+    //         // for Stick representation, we just change the cylinder radius
+    //         else {
+    //
+    //             switch (this.bondOrder) {
+    //                 case 0:
+    //                     radiusScale *= 0.25;
+    //                     break;
+    //                 case 0.5:
+    //                 case 1.5:
+    //                     radiusScale *= 0.5;
+    //                     break;
+    //             }
+    //         }
+    //
+    //         // if transformOpposite is set, the it mean the color must be
+    //         // splited.
+    //         // so the heigh of cylinder will be half.
+    //         // one half for atom1 color the other for atom2 color
+    //         if (transformOpposite) {
+    //             height /= 2;
+    //         }
+    //
+    //         // Radius of cylinder already defined when initialize cylinder mesh,
+    //         // so at this rate, the scale just needed for Y to strech
+    //         // cylinder to bond length (height) and X and Z for radius.
+    //         let scaleVector = [ radiusScale, height, radiusScale ];
+    //
+    //         // render bonds
+    //         for ( let i = 0, ii = others.length; i < ii; i++) {
+    //             let transformUse = m4.set(transform, []);
+    //             if (others[i] !== 0) {
+    //                 m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+    //             }
+    //             if (ang !== 0) {
+    //                 m4.rotate(transformUse, ang, axis);
+    //             }
+    //             m4.scale(transformUse, scaleVector);
+    //
+    //             // colors
+    //             if (a1Color)
+    //                 gl.material.setDiffuseColor(gl, a1Color);
+    //
+    //             // render
+    //             gl.shader.setMatrixUniforms(gl, transformUse);
+    //             if (styles.bonds_renderAsLines_3D) {
+    //                 gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //             } else {
+    //                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
+    //             }
+    //
+    //             // if transformOpposite is set, then a2Color also shoudl be
+    //             // seted as well.
+    //             if (transformOpposite) {
+    //                 m4.set(transformOpposite, transformUse);
+    //                 if (others[i] !== 0) {
+    //                     m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+    //                 }
+    //                 // don't check for 0 here as that means it should be rotated
+    //                 // by PI, but PI will be negated
+    //                 m4.rotate(transformUse, ang + m.PI, axis);
+    //                 m4.scale(transformUse, scaleVector);
+    //
+    //                 // colors
+    //                 if (a2Color)
+    //                     gl.material.setDiffuseColor(gl, a2Color);
+    //
+    //                 // render
+    //                 gl.shader.setMatrixUniforms(gl, transformUse);
+    //                 if (styles.bonds_renderAsLines_3D) {
+    //                     gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //                 } else {
+    //                     gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // };
+    // _.renderHighlight = function(gl, styles) {
+    //     if (this.isSelected_old || this.isHover) {
+    //         if (this.styles) {
+    //             styles = this.styles;
+    //         }
+    //         if (this.styles) {
+    //             styles = this.styles;
+    //         }
+    //         // this is the elongation vector for the cylinder
+    //         let height = this.a1.distance3D(this.a2);
+    //         if (height === 0) {
+    //             // if there is no height, then no point in rendering this bond,
+    //             // just return
+    //             return;
+    //         }
+    //
+    //         // scale factor for cylinder/pill radius.
+    //         // when scale pill, the cap will affected too.
+    //         let radiusScale = styles.bonds_cylinderDiameter_3D / 1.2;
+    //         let transform = m4.translate(m4.identity(), [ this.a1.x, this.a1.y, this.a1.z ]);
+    //
+    //         // vector from atom1 to atom2
+    //         let a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
+    //
+    //         // calculate the rotation
+    //         let y = [ 0, 1, 0 ];
+    //         let ang = 0;
+    //         let axis;
+    //         if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
+    //             axis = [ 0, 0, 1 ];
+    //             if (this.a2.y < this.a1.y) {
+    //                 ang = m.PI;
+    //             }
+    //         } else {
+    //             ang = extensions.vec3AngleFrom(y, a2b);
+    //             axis = v3.cross(y, a2b, []);
+    //         }
+    //         let scaleVector = [ radiusScale, height, radiusScale ];
+    //
+    //         if (ang !== 0) {
+    //             m4.rotate(transform, ang, axis);
+    //         }
+    //         m4.scale(transform, scaleVector);
+    //         gl.shader.setMatrixUniforms(gl, transform);
+    //         gl.material.setDiffuseColor(gl, this.isHover ? styles.colorHover : styles.colorSelect);
+    //         gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
+    //     }
+    // };
+    // /**
+    //  *
+    //  * @param {WegGLRenderingContext}
+    //  *            gl
+    //  * @param {structures.Styles}
+    //  *            styles
+    //  * @return {void}
+    //  */
+    // _.renderPicker = function(gl, styles) {
+    //
+    //     // gl.cylinderBuffer.bindBuffers(gl);
+    //     // gl.material.setDiffuseColor(
+    //     // this.bondOrder == 0 ? '#FF0000' : // merah
+    //     // this.bondOrder == 0.5 ? '#FFFF00' : // kuning
+    //     // this.bondOrder == 1 ? '#FF00FF' : // ungu
+    //     // this.bondOrder == 1.5 ? '#00FF00' : // hijau
+    //     // this.bondOrder == 2 ? '#00FFFF' : // cyan
+    //     // this.bondOrder == 3 ? '#0000FF' : // biru
+    //     // '#FFFFFF');
+    //     // gl.material.setAlpha(1);
+    //
+    //     if (this.styles) {
+    //         styles = this.styles;
+    //     }
+    //     // this is the elongation vector for the cylinder
+    //     let height = this.a1.distance3D(this.a2);
+    //     if (height === 0) {
+    //         // if there is no height, then no point in rendering this bond,
+    //         // just return
+    //         return;
+    //     }
+    //
+    //     // scale factor for cylinder/pill radius.
+    //     // when scale pill, the cap will affected too.
+    //     let radiusScale = styles.bonds_cylinderDiameter_3D / 2;
+    //
+    //     // transform to the atom as well as the opposite atom (for Jmol and
+    //     // PyMOL
+    //     // color splits)
+    //     let transform = m4.translate(m4.identity(), [ this.a1.x, this.a1.y, this.a1.z ]);
+    //
+    //     // vector from atom1 to atom2
+    //     let a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
+    //
+    //     // calculate the rotation
+    //     let y = [ 0, 1, 0 ];
+    //     let ang = 0;
+    //     let axis;
+    //     if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
+    //         axis = [ 0, 0, 1 ];
+    //         if (this.a2.y < this.a1.y) {
+    //             ang = m.PI;
+    //         }
+    //     } else {
+    //         ang = extensions.vec3AngleFrom(y, a2b);
+    //         axis = v3.cross(y, a2b, []);
+    //     }
+    //
+    //     // calculate the translations for unsaturated bonds.
+    //     // represenattio use saturatedCross are
+    //     // - Line
+    //     // - WIreframe
+    //     // - Ball and Stick
+    //     // just Stick will set bonds_showBondOrders_3D to false
+    //     let others = [ 0 ];
+    //     let saturatedCross;
+    //
+    //     if (styles.bonds_showBondOrders_3D) {
+    //
+    //         if (styles.bonds_renderAsLines_3D) {
+    //
+    //             switch (this.bondOrder) {
+    //
+    //                 case 1.5:
+    //                 case 2:
+    //                     others = [ -styles.bonds_cylinderDiameter_3D, styles.bonds_cylinderDiameter_3D ];
+    //                     break;
+    //                 case 3:
+    //                     others = [ -1.2 * styles.bonds_cylinderDiameter_3D, 0, 1.2 * styles.bonds_cylinderDiameter_3D ];
+    //                     break;
+    //             }
+    //
+    //             // saturatedCross just need for need for bondorder greather than
+    //             // 1
+    //             if (this.bondOrder > 1) {
+    //                 let z = [ 0, 0, 1 ];
+    //                 let inverse = m4.inverse(gl.rotationMatrix, []);
+    //                 m4.multiplyVec3(inverse, z);
+    //                 saturatedCross = v3.cross(a2b, z, []);
+    //                 v3.normalize(saturatedCross);
+    //             }
+    //
+    //         } else {
+    //
+    //             switch (this.bondOrder) {
+    //                 case 1.5:
+    //                 case 2:
+    //                     radiusScale *= 3;
+    //                     break;
+    //                 case 3:
+    //                     radiusScale *= 3.4;
+    //                     break;
+    //             }
+    //
+    //         }
+    //
+    //     } else {
+    //         // this is for Stick repersentation because Stick not have
+    //         // bonds_showBondOrders_3D
+    //
+    //         switch (this.bondOrder) {
+    //
+    //             case 0:
+    //                 radiusScale *= 0.25;
+    //                 break;
+    //             case 0.5:
+    //             case 1.5:
+    //                 radiusScale *= 0.5;
+    //                 break;
+    //         }
+    //
+    //     }
+    //
+    //     // Radius of cylinder already defined when initialize cylinder mesh,
+    //     // so at this rate, the scale just needed for Y to strech
+    //     // cylinder to bond length (height) and X and Z for radius.
+    //     let scaleVector = [ radiusScale, height, radiusScale ];
+    //
+    //     // render bonds
+    //     for ( let i = 0, ii = others.length; i < ii; i++) {
+    //         let transformUse = m4.set(transform, []);
+    //         if (others[i] !== 0) {
+    //             m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+    //         }
+    //         if (ang !== 0) {
+    //             m4.rotate(transformUse, ang, axis);
+    //         }
+    //         m4.scale(transformUse, scaleVector);
+    //
+    //         // render
+    //         gl.shader.setMatrixUniforms(gl, transformUse);
+    //         if (styles.bonds_renderAsLines_3D) {
+    //             gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+    //         } else {
+    //             gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
+    //         }
+    //
+    //     }
+    // };
 
 })(Chemio.ELEMENT, Chemio.extensions, Chemio.structures, Chemio.math, Math, Chemio.lib.mat4, Chemio.lib.vec3);
 
@@ -1837,433 +1831,433 @@
             }
         }
     };
-    _.render = function(gl, styles) {
-        // uncomment this to render the picking frame
-        // return this.renderPickFrame(gl, styles, []);
-        if (this.styles) {
-            styles = this.styles;
-        }
-        // check explicitly if it is undefined here, since hetatm is a
-        // boolean that can be true or false, as long as it is set, it is
-        // macro
-        let isMacro = this.atoms.length > 0 && this.atoms[0].hetatm !== undefined;
-        if (isMacro) {
-            if (styles.macro_displayBonds) {
-                if (this.bonds.length > 0) {
-                    if (styles.bonds_renderAsLines_3D && !this.residueSpecs || this.residueSpecs && this.residueSpecs.bonds_renderAsLines_3D) {
-                        gl.lineWidth(this.residueSpecs ? this.residueSpecs.bonds_width_2D : styles.bonds_width_2D);
-                        gl.lineBuffer.bindBuffers(gl);
-                    } else {
-                        gl.cylinderBuffer.bindBuffers(gl);
-                    }
-                    // colors
-                    gl.material.setTempColors(gl, styles.bonds_materialAmbientColor_3D, undefined, styles.bonds_materialSpecularColor_3D, styles.bonds_materialShininess_3D);
-                }
-                for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                    let b = this.bonds[i];
-                    // closestDistance may be 0, so check if undefined
-                    if (!b.a1.hetatm && (styles.macro_atomToLigandDistance === -1 || (b.a1.closestDistance !== undefined && styles.macro_atomToLigandDistance >= b.a1.closestDistance && styles.macro_atomToLigandDistance >= b.a2.closestDistance))) {
-                        b.render(gl, this.residueSpecs ? this.residueSpecs : styles);
-                    }
-                }
-            }
-            if (styles.macro_displayAtoms) {
-                if (this.atoms.length > 0) {
-                    gl.sphereBuffer.bindBuffers(gl);
-                    // colors
-                    gl.material.setTempColors(gl, styles.atoms_materialAmbientColor_3D, undefined, styles.atoms_materialSpecularColor_3D, styles.atoms_materialShininess_3D);
-                }
-                for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                    let a = this.atoms[i];
-                    // closestDistance may be 0, so check if undefined
-                    if (!a.hetatm && (styles.macro_atomToLigandDistance === -1 || (a.closestDistance !== undefined && styles.macro_atomToLigandDistance >= a.closestDistance))) {
-                        a.render(gl, this.residueSpecs ? this.residueSpecs : styles);
-                    }
-                }
-            }
-        }
-        if (styles.bonds_display) {
-            // Array for Half Bonds. It is needed because Half Bonds use the
-            // pill buffer.
-            let asPills = [];
-            // Array for 0 bond order.
-            let asSpheres = [];
-            if (this.bonds.length > 0) {
-                if (styles.bonds_renderAsLines_3D) {
-                    gl.lineWidth(styles.bonds_width_2D);
-                    gl.lineBuffer.bindBuffers(gl);
-                } else {
-                    gl.cylinderBuffer.bindBuffers(gl);
-                }
-                // colors
-                gl.material.setTempColors(gl, styles.bonds_materialAmbientColor_3D, undefined, styles.bonds_materialSpecularColor_3D, styles.bonds_materialShininess_3D);
-            }
-            for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                let b = this.bonds[i];
-                if (!isMacro || b.a1.hetatm) {
-                    // Check if render as segmented pill will used.
-                    if (styles.bonds_showBondOrders_3D) {
-                        if (b.bondOrder == 0) {
-                            // 0 bond order
-                            asSpheres.push(b);
-                        } else if (b.bondOrder == 0.5) {
-                            // 0.5 bond order
-                            asPills.push(b);
-                        } else {
-                            if (b.bondOrder == 1.5) {
-                                // For 1.5 bond order, the "1" part will render
-                                // as cylinder, and the "0.5" part will render
-                                // as segmented pills
-                                asPills.push(b);
-                            }
-                            b.render(gl, styles);
-                        }
-                    } else {
-                        // this will render the Stick representation
-                        b.render(gl, styles);
-                    }
-
-                }
-            }
-            // Render the Half Bond
-            if (asPills.length > 0) {
-                // if bonds_renderAsLines_3D is true, then lineBuffer will
-                // binded.
-                // so in here we just need to check if we need to change
-                // the binding buffer to pillBuffer or not.
-                if (!styles.bonds_renderAsLines_3D) {
-                    gl.pillBuffer.bindBuffers(gl);
-                }
-                for ( let i = 0, ii = asPills.length; i < ii; i++) {
-                    asPills[i].render(gl, styles, true);
-                }
-            }
-            // Render zero bond order
-            if (asSpheres.length > 0) {
-                // if bonds_renderAsLines_3D is true, then lineBuffer will
-                // binded.
-                // so in here we just need to check if we need to change
-                // the binding buffer to pillBuffer or not.
-                if (!styles.bonds_renderAsLines_3D) {
-                    gl.sphereBuffer.bindBuffers(gl);
-                }
-                for ( let i = 0, ii = asSpheres.length; i < ii; i++) {
-                    asSpheres[i].render(gl, styles, true);
-                }
-            }
-        }
-        if (styles.atoms_display) {
-            for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                let a = this.atoms[i];
-                a.bondNumber = 0;
-                a.renderAsStar = false;
-            }
-            for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                let b = this.bonds[i];
-                b.a1.bondNumber++;
-                b.a2.bondNumber++;
-            }
-            if (this.atoms.length > 0) {
-                gl.sphereBuffer.bindBuffers(gl);
-                // colors
-                gl.material.setTempColors(gl, styles.atoms_materialAmbientColor_3D, undefined, styles.atoms_materialSpecularColor_3D, styles.atoms_materialShininess_3D);
-            }
-            let asStars = [];
-            for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                let a = this.atoms[i];
-                if (!isMacro || (a.hetatm && (styles.macro_showWater || !a.isWater))) {
-                    if (styles.atoms_nonBondedAsStars_3D && a.bondNumber === 0) {
-                        a.renderAsStar = true;
-                        asStars.push(a);
-                    } else {
-                        a.render(gl, styles);
-                    }
-                }
-            }
-            if (asStars.length > 0) {
-                gl.starBuffer.bindBuffers(gl);
-                for ( let i = 0, ii = asStars.length; i < ii; i++) {
-                    asStars[i].render(gl, styles);
-                }
-            }
-        }
-        if (this.chains) {
-            // set up the model view matrix, since it won't be modified
-            // for macromolecules
-            gl.shader.setMatrixUniforms(gl);
-            // render chains
-            if (styles.proteins_displayRibbon) {
-                // proteins
-                // colors
-                gl.material.setTempColors(gl, styles.proteins_materialAmbientColor_3D, undefined, styles.proteins_materialSpecularColor_3D, styles.proteins_materialShininess_3D);
-                let uses = styles.proteins_ribbonCartoonize ? this.cartoons : this.ribbons;
-                for ( let j = 0, jj = uses.length; j < jj; j++) {
-                    let use = uses[j];
-                    if (styles.proteins_residueColor !== 'none') {
-                        use.front.bindBuffers(gl);
-                        let rainbow = (styles.proteins_residueColor === 'rainbow');
-                        for ( let i = 0, ii = use.front.segments.length; i < ii; i++) {
-                            if (rainbow) {
-                                gl.material.setDiffuseColor(gl, math.rainbowAt(i, ii, styles.macro_rainbowColors));
-                            }
-                            use.front.segments[i].render(gl, styles);
-                        }
-                        use.back.bindBuffers(gl);
-                        for ( let i = 0, ii = use.back.segments.length; i < ii; i++) {
-                            if (rainbow) {
-                                gl.material.setDiffuseColor(gl, math.rainbowAt(i, ii, styles.macro_rainbowColors));
-                            }
-                            use.back.segments[i].render(gl, styles);
-                        }
-                    } else {
-                        use.front.render(gl, styles);
-                        use.back.render(gl, styles);
-                    }
-                }
-            }
-
-            if(styles.proteins_displayPipePlank) {
-                for ( let j = 0, jj = this.pipePlanks.length; j < jj; j++) {
-                    this.pipePlanks[j].render(gl, styles);
-                }
-            }
-
-            if (styles.proteins_displayBackbone) {
-                if (!this.alphaCarbonTrace) {
-                    // cache the alpha carbon trace
-                    this.alphaCarbonTrace = {
-                        nodes : [],
-                        edges : []
-                    };
-                    for ( let j = 0, jj = this.chains.length; j < jj; j++) {
-                        let rs = this.chains[j];
-                        let isNucleotide = rs.length > 2 && RESIDUE[rs[2].name] && RESIDUE[rs[2].name].aminoColor === '#BEA06E';
-                        if (!isNucleotide && rs.length > 0) {
-                            for ( let i = 0, ii = rs.length - 2; i < ii; i++) {
-                                let n = rs[i].cp1;
-                                n.chainColor = rs.chainColor;
-                                this.alphaCarbonTrace.nodes.push(n);
-                                let b = new structures.Bond(rs[i].cp1, rs[i + 1].cp1);
-                                b.residueName = rs[i].name;
-                                b.chainColor = rs.chainColor;
-                                this.alphaCarbonTrace.edges.push(b);
-                                if (i === rs.length - 3) {
-                                    n = rs[i + 1].cp1;
-                                    n.chainColor = rs.chainColor;
-                                    this.alphaCarbonTrace.nodes.push(n);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (this.alphaCarbonTrace.nodes.length > 0) {
-                    let traceSpecs = new structures.Styles();
-                    traceSpecs.atoms_display = true;
-                    traceSpecs.bonds_display = true;
-                    traceSpecs.atoms_sphereDiameter_3D = styles.proteins_backboneThickness;
-                    traceSpecs.bonds_cylinderDiameter_3D = styles.proteins_backboneThickness;
-                    traceSpecs.bonds_splitColor = false;
-                    traceSpecs.atoms_color = styles.proteins_backboneColor;
-                    traceSpecs.bonds_color = styles.proteins_backboneColor;
-                    traceSpecs.atoms_useVDWDiameters_3D = false;
-                    // colors
-                    gl.material.setTempColors(gl, styles.proteins_materialAmbientColor_3D, undefined, styles.proteins_materialSpecularColor_3D, styles.proteins_materialShininess_3D);
-                    gl.material.setDiffuseColor(gl, styles.proteins_backboneColor);
-                    for ( let i = 0, ii = this.alphaCarbonTrace.nodes.length; i < ii; i++) {
-                        let n = this.alphaCarbonTrace.nodes[i];
-                        if (styles.macro_colorByChain) {
-                            traceSpecs.atoms_color = n.chainColor;
-                        }
-                        gl.sphereBuffer.bindBuffers(gl);
-                        n.render(gl, traceSpecs);
-                    }
-                    for ( let i = 0, ii = this.alphaCarbonTrace.edges.length; i < ii; i++) {
-                        let e = this.alphaCarbonTrace.edges[i];
-                        let color;
-                        let r = RESIDUE[e.residueName] ? RESIDUE[e.residueName] : RESIDUE['*'];
-                        if (styles.macro_colorByChain) {
-                            color = e.chainColor;
-                        } else if (styles.proteins_residueColor === 'shapely') {
-                            color = r.shapelyColor;
-                        } else if (styles.proteins_residueColor === 'amino') {
-                            color = r.aminoColor;
-                        } else if (styles.proteins_residueColor === 'polarity') {
-                            if (r.polar) {
-                                color = '#C10000';
-                            } else {
-                                color = '#FFFFFF';
-                            }
-                        } else if (styles.proteins_residueColor === 'acidity') {
-                            if(r.acidity === 1){
-                                color = '#0000FF';
-                            }else if(r.acidity === -1){
-                                color = '#FF0000';
-                            }else if (r.polar) {
-                                color = '#FFFFFF';
-                            } else {
-                                color = '#773300';
-                            }
-                        } else if (styles.proteins_residueColor === 'rainbow') {
-                            color = math.rainbowAt(i, ii, styles.macro_rainbowColors);
-                        }
-                        if (color) {
-                            traceSpecs.bonds_color = color;
-                        }
-                        gl.cylinderBuffer.bindBuffers(gl);
-                        e.render(gl, traceSpecs);
-                    }
-                }
-            }
-            if (styles.nucleics_display) {
-                // nucleic acids
-                // colors
-                gl.material.setTempColors(gl, styles.nucleics_materialAmbientColor_3D, undefined, styles.nucleics_materialSpecularColor_3D, styles.nucleics_materialShininess_3D);
-                for ( let j = 0, jj = this.tubes.length; j < jj; j++) {
-                    gl.shader.setMatrixUniforms(gl);
-                    let use = this.tubes[j];
-                    use.render(gl, styles);
-                }
-            }
-        }
-        if (styles.atoms_display) {
-            let highlight = false;
-            for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                let a = this.atoms[i];
-                if(a.isHover || a.isSelected){
-                    highlight = true;
-                    break;
-                }
-            }
-            if(!highlight){
-                for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                    let b = this.bonds[i];
-                    if(b.isHover || b.isSelected){
-                        highlight = true;
-                        break;
-                    }
-                }
-            }
-            if(highlight){
-                gl.sphereBuffer.bindBuffers(gl);
-                // colors
-                gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-                gl.material.setTempColors(gl, styles.atoms_materialAmbientColor_3D, undefined, '#000000', 0);
-                gl.enable(gl.BLEND);
-                gl.depthMask(false);
-                gl.material.setAlpha(gl, .4);
-                gl.sphereBuffer.bindBuffers(gl);
-                for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                    let a = this.atoms[i];
-                    if(a.isHover || a.isSelected){
-                        a.renderHighlight(gl, styles);
-                    }
-                }
-                gl.cylinderBuffer.bindBuffers(gl);
-                for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                    let b = this.bonds[i];
-                    if(b.isHover || b.isSelected){
-                        b.renderHighlight(gl, styles);
-                    }
-                }
-                gl.depthMask(true);
-                gl.disable(gl.BLEND);
-                gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-            }
-        }
-    };
-    _.renderPickFrame = function(gl, styles, objects, includeAtoms, includeBonds) {
-        if (this.styles) {
-            styles = this.styles;
-        }
-        let isMacro = this.atoms.length > 0 && this.atoms[0].hetatm !== undefined;
-        if (includeBonds && styles.bonds_display) {
-            if (this.bonds.length > 0) {
-                if (styles.bonds_renderAsLines_3D) {
-                    gl.lineWidth(styles.bonds_width_2D);
-                    gl.lineBuffer.bindBuffers(gl);
-                } else {
-                    gl.cylinderBuffer.bindBuffers(gl);
-                }
-            }
-            for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                let b = this.bonds[i];
-                if (!isMacro || b.a1.hetatm) {
-                    gl.material.setDiffuseColor(gl, math.idx2color(objects.length));
-                    b.renderPicker(gl, styles);
-                    objects.push(b);
-                }
-            }
-        }
-        if (includeAtoms && styles.atoms_display) {
-            for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                let a = this.atoms[i];
-                a.bondNumber = 0;
-                a.renderAsStar = false;
-            }
-            for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
-                let b = this.bonds[i];
-                b.a1.bondNumber++;
-                b.a2.bondNumber++;
-            }
-            if (this.atoms.length > 0) {
-                gl.sphereBuffer.bindBuffers(gl);
-            }
-            let asStars = [];
-            for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-                let a = this.atoms[i];
-                if (!isMacro || (a.hetatm && (styles.macro_showWater || !a.isWater))) {
-                    if (styles.atoms_nonBondedAsStars_3D && a.bondNumber === 0) {
-                        a.renderAsStar = true;
-                        asStars.push(a);
-                    } else {
-                        gl.material.setDiffuseColor(gl, math.idx2color(objects.length));
-                        a.render(gl, styles, true);
-                        objects.push(a);
-                    }
-                }
-            }
-            if (asStars.length > 0) {
-                gl.starBuffer.bindBuffers(gl);
-                for ( let i = 0, ii = asStars.length; i < ii; i++) {
-                    let a = asStars[i];
-                    gl.material.setDiffuseColor(gl, math.idx2color(objects.length));
-                    a.render(gl, styles, true);
-                    objects.push(a);
-                }
-            }
-        }
-    };
-    _.getCenter3D = function() {
-        if (this.atoms.length === 1) {
-            return new structures.Atom('C', this.atoms[0].x, this.atoms[0].y, this.atoms[0].z);
-        }
-        let minX = Infinity, minY = Infinity, minZ = Infinity;
-        let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
-        if (this.chains) {
-            // residues
-            for ( let i = 0, ii = this.chains.length; i < ii; i++) {
-                let chain = this.chains[i];
-                for ( let j = 0, jj = chain.length; j < jj; j++) {
-                    let residue = chain[j];
-                    minX = m.min(residue.cp1.x, residue.cp2.x, minX);
-                    minY = m.min(residue.cp1.y, residue.cp2.y, minY);
-                    minZ = m.min(residue.cp1.z, residue.cp2.z, minZ);
-                    maxX = m.max(residue.cp1.x, residue.cp2.x, maxX);
-                    maxY = m.max(residue.cp1.y, residue.cp2.y, maxY);
-                    maxZ = m.max(residue.cp1.z, residue.cp2.z, maxZ);
-                }
-            }
-        }
-        for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-            minX = m.min(this.atoms[i].x, minX);
-            minY = m.min(this.atoms[i].y, minY);
-            minZ = m.min(this.atoms[i].z, minZ);
-            maxX = m.max(this.atoms[i].x, maxX);
-            maxY = m.max(this.atoms[i].y, maxY);
-            maxZ = m.max(this.atoms[i].z, maxZ);
-        }
-        return new structures.Atom('C', (maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
-    };
+    // _.render = function(gl, styles) {
+    //     // uncomment this to render the picking frame
+    //     // return this.renderPickFrame(gl, styles, []);
+    //     if (this.styles) {
+    //         styles = this.styles;
+    //     }
+    //     // check explicitly if it is undefined here, since hetatm is a
+    //     // boolean that can be true or false, as long as it is set, it is
+    //     // macro
+    //     let isMacro = this.atoms.length > 0 && this.atoms[0].hetatm !== undefined;
+    //     if (isMacro) {
+    //         if (styles.macro_displayBonds) {
+    //             if (this.bonds.length > 0) {
+    //                 if (styles.bonds_renderAsLines_3D && !this.residueSpecs || this.residueSpecs && this.residueSpecs.bonds_renderAsLines_3D) {
+    //                     gl.lineWidth(this.residueSpecs ? this.residueSpecs.bonds_width_2D : styles.bonds_width_2D);
+    //                     gl.lineBuffer.bindBuffers(gl);
+    //                 } else {
+    //                     gl.cylinderBuffer.bindBuffers(gl);
+    //                 }
+    //                 // colors
+    //                 gl.material.setTempColors(gl, styles.bonds_materialAmbientColor_3D, undefined, styles.bonds_materialSpecularColor_3D, styles.bonds_materialShininess_3D);
+    //             }
+    //             for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //                 let b = this.bonds[i];
+    //                 // closestDistance may be 0, so check if undefined
+    //                 if (!b.a1.hetatm && (styles.macro_atomToLigandDistance === -1 || (b.a1.closestDistance !== undefined && styles.macro_atomToLigandDistance >= b.a1.closestDistance && styles.macro_atomToLigandDistance >= b.a2.closestDistance))) {
+    //                     b.render(gl, this.residueSpecs ? this.residueSpecs : styles);
+    //                 }
+    //             }
+    //         }
+    //         if (styles.macro_displayAtoms) {
+    //             if (this.atoms.length > 0) {
+    //                 gl.sphereBuffer.bindBuffers(gl);
+    //                 // colors
+    //                 gl.material.setTempColors(gl, styles.atoms_materialAmbientColor_3D, undefined, styles.atoms_materialSpecularColor_3D, styles.atoms_materialShininess_3D);
+    //             }
+    //             for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //                 let a = this.atoms[i];
+    //                 // closestDistance may be 0, so check if undefined
+    //                 if (!a.hetatm && (styles.macro_atomToLigandDistance === -1 || (a.closestDistance !== undefined && styles.macro_atomToLigandDistance >= a.closestDistance))) {
+    //                     a.render(gl, this.residueSpecs ? this.residueSpecs : styles);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     if (styles.bonds_display) {
+    //         // Array for Half Bonds. It is needed because Half Bonds use the
+    //         // pill buffer.
+    //         let asPills = [];
+    //         // Array for 0 bond order.
+    //         let asSpheres = [];
+    //         if (this.bonds.length > 0) {
+    //             if (styles.bonds_renderAsLines_3D) {
+    //                 gl.lineWidth(styles.bonds_width_2D);
+    //                 gl.lineBuffer.bindBuffers(gl);
+    //             } else {
+    //                 gl.cylinderBuffer.bindBuffers(gl);
+    //             }
+    //             // colors
+    //             gl.material.setTempColors(gl, styles.bonds_materialAmbientColor_3D, undefined, styles.bonds_materialSpecularColor_3D, styles.bonds_materialShininess_3D);
+    //         }
+    //         for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //             let b = this.bonds[i];
+    //             if (!isMacro || b.a1.hetatm) {
+    //                 // Check if render as segmented pill will used.
+    //                 if (styles.bonds_showBondOrders_3D) {
+    //                     if (b.bondOrder == 0) {
+    //                         // 0 bond order
+    //                         asSpheres.push(b);
+    //                     } else if (b.bondOrder == 0.5) {
+    //                         // 0.5 bond order
+    //                         asPills.push(b);
+    //                     } else {
+    //                         if (b.bondOrder == 1.5) {
+    //                             // For 1.5 bond order, the "1" part will render
+    //                             // as cylinder, and the "0.5" part will render
+    //                             // as segmented pills
+    //                             asPills.push(b);
+    //                         }
+    //                         b.render(gl, styles);
+    //                     }
+    //                 } else {
+    //                     // this will render the Stick representation
+    //                     b.render(gl, styles);
+    //                 }
+    //
+    //             }
+    //         }
+    //         // Render the Half Bond
+    //         if (asPills.length > 0) {
+    //             // if bonds_renderAsLines_3D is true, then lineBuffer will
+    //             // binded.
+    //             // so in here we just need to check if we need to change
+    //             // the binding buffer to pillBuffer or not.
+    //             if (!styles.bonds_renderAsLines_3D) {
+    //                 gl.pillBuffer.bindBuffers(gl);
+    //             }
+    //             for ( let i = 0, ii = asPills.length; i < ii; i++) {
+    //                 asPills[i].render(gl, styles, true);
+    //             }
+    //         }
+    //         // Render zero bond order
+    //         if (asSpheres.length > 0) {
+    //             // if bonds_renderAsLines_3D is true, then lineBuffer will
+    //             // binded.
+    //             // so in here we just need to check if we need to change
+    //             // the binding buffer to pillBuffer or not.
+    //             if (!styles.bonds_renderAsLines_3D) {
+    //                 gl.sphereBuffer.bindBuffers(gl);
+    //             }
+    //             for ( let i = 0, ii = asSpheres.length; i < ii; i++) {
+    //                 asSpheres[i].render(gl, styles, true);
+    //             }
+    //         }
+    //     }
+    //     if (styles.atoms_display) {
+    //         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //             let a = this.atoms[i];
+    //             a.bondNumber = 0;
+    //             a.renderAsStar = false;
+    //         }
+    //         for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //             let b = this.bonds[i];
+    //             b.a1.bondNumber++;
+    //             b.a2.bondNumber++;
+    //         }
+    //         if (this.atoms.length > 0) {
+    //             gl.sphereBuffer.bindBuffers(gl);
+    //             // colors
+    //             gl.material.setTempColors(gl, styles.atoms_materialAmbientColor_3D, undefined, styles.atoms_materialSpecularColor_3D, styles.atoms_materialShininess_3D);
+    //         }
+    //         let asStars = [];
+    //         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //             let a = this.atoms[i];
+    //             if (!isMacro || (a.hetatm && (styles.macro_showWater || !a.isWater))) {
+    //                 if (styles.atoms_nonBondedAsStars_3D && a.bondNumber === 0) {
+    //                     a.renderAsStar = true;
+    //                     asStars.push(a);
+    //                 } else {
+    //                     a.render(gl, styles);
+    //                 }
+    //             }
+    //         }
+    //         if (asStars.length > 0) {
+    //             gl.starBuffer.bindBuffers(gl);
+    //             for ( let i = 0, ii = asStars.length; i < ii; i++) {
+    //                 asStars[i].render(gl, styles);
+    //             }
+    //         }
+    //     }
+    //     if (this.chains) {
+    //         // set up the model view matrix, since it won't be modified
+    //         // for macromolecules
+    //         gl.shader.setMatrixUniforms(gl);
+    //         // render chains
+    //         if (styles.proteins_displayRibbon) {
+    //             // proteins
+    //             // colors
+    //             gl.material.setTempColors(gl, styles.proteins_materialAmbientColor_3D, undefined, styles.proteins_materialSpecularColor_3D, styles.proteins_materialShininess_3D);
+    //             let uses = styles.proteins_ribbonCartoonize ? this.cartoons : this.ribbons;
+    //             for ( let j = 0, jj = uses.length; j < jj; j++) {
+    //                 let use = uses[j];
+    //                 if (styles.proteins_residueColor !== 'none') {
+    //                     use.front.bindBuffers(gl);
+    //                     let rainbow = (styles.proteins_residueColor === 'rainbow');
+    //                     for ( let i = 0, ii = use.front.segments.length; i < ii; i++) {
+    //                         if (rainbow) {
+    //                             gl.material.setDiffuseColor(gl, math.rainbowAt(i, ii, styles.macro_rainbowColors));
+    //                         }
+    //                         use.front.segments[i].render(gl, styles);
+    //                     }
+    //                     use.back.bindBuffers(gl);
+    //                     for ( let i = 0, ii = use.back.segments.length; i < ii; i++) {
+    //                         if (rainbow) {
+    //                             gl.material.setDiffuseColor(gl, math.rainbowAt(i, ii, styles.macro_rainbowColors));
+    //                         }
+    //                         use.back.segments[i].render(gl, styles);
+    //                     }
+    //                 } else {
+    //                     use.front.render(gl, styles);
+    //                     use.back.render(gl, styles);
+    //                 }
+    //             }
+    //         }
+    //
+    //         if(styles.proteins_displayPipePlank) {
+    //             for ( let j = 0, jj = this.pipePlanks.length; j < jj; j++) {
+    //                 this.pipePlanks[j].render(gl, styles);
+    //             }
+    //         }
+    //
+    //         if (styles.proteins_displayBackbone) {
+    //             if (!this.alphaCarbonTrace) {
+    //                 // cache the alpha carbon trace
+    //                 this.alphaCarbonTrace = {
+    //                     nodes : [],
+    //                     edges : []
+    //                 };
+    //                 for ( let j = 0, jj = this.chains.length; j < jj; j++) {
+    //                     let rs = this.chains[j];
+    //                     let isNucleotide = rs.length > 2 && RESIDUE[rs[2].name] && RESIDUE[rs[2].name].aminoColor === '#BEA06E';
+    //                     if (!isNucleotide && rs.length > 0) {
+    //                         for ( let i = 0, ii = rs.length - 2; i < ii; i++) {
+    //                             let n = rs[i].cp1;
+    //                             n.chainColor = rs.chainColor;
+    //                             this.alphaCarbonTrace.nodes.push(n);
+    //                             let b = new structures.Bond(rs[i].cp1, rs[i + 1].cp1);
+    //                             b.residueName = rs[i].name;
+    //                             b.chainColor = rs.chainColor;
+    //                             this.alphaCarbonTrace.edges.push(b);
+    //                             if (i === rs.length - 3) {
+    //                                 n = rs[i + 1].cp1;
+    //                                 n.chainColor = rs.chainColor;
+    //                                 this.alphaCarbonTrace.nodes.push(n);
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //             if (this.alphaCarbonTrace.nodes.length > 0) {
+    //                 let traceSpecs = new structures.Styles();
+    //                 traceSpecs.atoms_display = true;
+    //                 traceSpecs.bonds_display = true;
+    //                 traceSpecs.atoms_sphereDiameter_3D = styles.proteins_backboneThickness;
+    //                 traceSpecs.bonds_cylinderDiameter_3D = styles.proteins_backboneThickness;
+    //                 traceSpecs.bonds_splitColor = false;
+    //                 traceSpecs.atoms_color = styles.proteins_backboneColor;
+    //                 traceSpecs.bonds_color = styles.proteins_backboneColor;
+    //                 traceSpecs.atoms_useVDWDiameters_3D = false;
+    //                 // colors
+    //                 gl.material.setTempColors(gl, styles.proteins_materialAmbientColor_3D, undefined, styles.proteins_materialSpecularColor_3D, styles.proteins_materialShininess_3D);
+    //                 gl.material.setDiffuseColor(gl, styles.proteins_backboneColor);
+    //                 for ( let i = 0, ii = this.alphaCarbonTrace.nodes.length; i < ii; i++) {
+    //                     let n = this.alphaCarbonTrace.nodes[i];
+    //                     if (styles.macro_colorByChain) {
+    //                         traceSpecs.atoms_color = n.chainColor;
+    //                     }
+    //                     gl.sphereBuffer.bindBuffers(gl);
+    //                     n.render(gl, traceSpecs);
+    //                 }
+    //                 for ( let i = 0, ii = this.alphaCarbonTrace.edges.length; i < ii; i++) {
+    //                     let e = this.alphaCarbonTrace.edges[i];
+    //                     let color;
+    //                     let r = RESIDUE[e.residueName] ? RESIDUE[e.residueName] : RESIDUE['*'];
+    //                     if (styles.macro_colorByChain) {
+    //                         color = e.chainColor;
+    //                     } else if (styles.proteins_residueColor === 'shapely') {
+    //                         color = r.shapelyColor;
+    //                     } else if (styles.proteins_residueColor === 'amino') {
+    //                         color = r.aminoColor;
+    //                     } else if (styles.proteins_residueColor === 'polarity') {
+    //                         if (r.polar) {
+    //                             color = '#C10000';
+    //                         } else {
+    //                             color = '#FFFFFF';
+    //                         }
+    //                     } else if (styles.proteins_residueColor === 'acidity') {
+    //                         if(r.acidity === 1){
+    //                             color = '#0000FF';
+    //                         }else if(r.acidity === -1){
+    //                             color = '#FF0000';
+    //                         }else if (r.polar) {
+    //                             color = '#FFFFFF';
+    //                         } else {
+    //                             color = '#773300';
+    //                         }
+    //                     } else if (styles.proteins_residueColor === 'rainbow') {
+    //                         color = math.rainbowAt(i, ii, styles.macro_rainbowColors);
+    //                     }
+    //                     if (color) {
+    //                         traceSpecs.bonds_color = color;
+    //                     }
+    //                     gl.cylinderBuffer.bindBuffers(gl);
+    //                     e.render(gl, traceSpecs);
+    //                 }
+    //             }
+    //         }
+    //         if (styles.nucleics_display) {
+    //             // nucleic acids
+    //             // colors
+    //             gl.material.setTempColors(gl, styles.nucleics_materialAmbientColor_3D, undefined, styles.nucleics_materialSpecularColor_3D, styles.nucleics_materialShininess_3D);
+    //             for ( let j = 0, jj = this.tubes.length; j < jj; j++) {
+    //                 gl.shader.setMatrixUniforms(gl);
+    //                 let use = this.tubes[j];
+    //                 use.render(gl, styles);
+    //             }
+    //         }
+    //     }
+    //     if (styles.atoms_display) {
+    //         let highlight = false;
+    //         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //             let a = this.atoms[i];
+    //             if(a.isHover || a.isSelected_old){
+    //                 highlight = true;
+    //                 break;
+    //             }
+    //         }
+    //         if(!highlight){
+    //             for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //                 let b = this.bonds[i];
+    //                 if(b.isHover || b.isSelected_old){
+    //                     highlight = true;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //         if(highlight){
+    //             gl.sphereBuffer.bindBuffers(gl);
+    //             // colors
+    //             gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    //             gl.material.setTempColors(gl, styles.atoms_materialAmbientColor_3D, undefined, '#000000', 0);
+    //             gl.enable(gl.BLEND);
+    //             gl.depthMask(false);
+    //             gl.material.setAlpha(gl, .4);
+    //             gl.sphereBuffer.bindBuffers(gl);
+    //             for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //                 let a = this.atoms[i];
+    //                 if(a.isHover || a.isSelected_old){
+    //                     a.renderHighlight(gl, styles);
+    //                 }
+    //             }
+    //             gl.cylinderBuffer.bindBuffers(gl);
+    //             for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //                 let b = this.bonds[i];
+    //                 if(b.isHover || b.isSelected_old){
+    //                     b.renderHighlight(gl, styles);
+    //                 }
+    //             }
+    //             gl.depthMask(true);
+    //             gl.disable(gl.BLEND);
+    //             gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    //         }
+    //     }
+    // };
+    // _.renderPickFrame = function(gl, styles, objects, includeAtoms, includeBonds) {
+    //     if (this.styles) {
+    //         styles = this.styles;
+    //     }
+    //     let isMacro = this.atoms.length > 0 && this.atoms[0].hetatm !== undefined;
+    //     if (includeBonds && styles.bonds_display) {
+    //         if (this.bonds.length > 0) {
+    //             if (styles.bonds_renderAsLines_3D) {
+    //                 gl.lineWidth(styles.bonds_width_2D);
+    //                 gl.lineBuffer.bindBuffers(gl);
+    //             } else {
+    //                 gl.cylinderBuffer.bindBuffers(gl);
+    //             }
+    //         }
+    //         for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //             let b = this.bonds[i];
+    //             if (!isMacro || b.a1.hetatm) {
+    //                 gl.material.setDiffuseColor(gl, math.idx2color(objects.length));
+    //                 b.renderPicker(gl, styles);
+    //                 objects.push(b);
+    //             }
+    //         }
+    //     }
+    //     if (includeAtoms && styles.atoms_display) {
+    //         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //             let a = this.atoms[i];
+    //             a.bondNumber = 0;
+    //             a.renderAsStar = false;
+    //         }
+    //         for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
+    //             let b = this.bonds[i];
+    //             b.a1.bondNumber++;
+    //             b.a2.bondNumber++;
+    //         }
+    //         if (this.atoms.length > 0) {
+    //             gl.sphereBuffer.bindBuffers(gl);
+    //         }
+    //         let asStars = [];
+    //         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //             let a = this.atoms[i];
+    //             if (!isMacro || (a.hetatm && (styles.macro_showWater || !a.isWater))) {
+    //                 if (styles.atoms_nonBondedAsStars_3D && a.bondNumber === 0) {
+    //                     a.renderAsStar = true;
+    //                     asStars.push(a);
+    //                 } else {
+    //                     gl.material.setDiffuseColor(gl, math.idx2color(objects.length));
+    //                     a.render(gl, styles, true);
+    //                     objects.push(a);
+    //                 }
+    //             }
+    //         }
+    //         if (asStars.length > 0) {
+    //             gl.starBuffer.bindBuffers(gl);
+    //             for ( let i = 0, ii = asStars.length; i < ii; i++) {
+    //                 let a = asStars[i];
+    //                 gl.material.setDiffuseColor(gl, math.idx2color(objects.length));
+    //                 a.render(gl, styles, true);
+    //                 objects.push(a);
+    //             }
+    //         }
+    //     }
+    // };
+    // _.getCenter3D = function() {
+    //     if (this.atoms.length === 1) {
+    //         return new structures.Atom('C', this.atoms[0].x, this.atoms[0].y, this.atoms[0].z);
+    //     }
+    //     let minX = Infinity, minY = Infinity, minZ = Infinity;
+    //     let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+    //     if (this.chains) {
+    //         // residues
+    //         for ( let i = 0, ii = this.chains.length; i < ii; i++) {
+    //             let chain = this.chains[i];
+    //             for ( let j = 0, jj = chain.length; j < jj; j++) {
+    //                 let residue = chain[j];
+    //                 minX = m.min(residue.cp1.x, residue.cp2.x, minX);
+    //                 minY = m.min(residue.cp1.y, residue.cp2.y, minY);
+    //                 minZ = m.min(residue.cp1.z, residue.cp2.z, minZ);
+    //                 maxX = m.max(residue.cp1.x, residue.cp2.x, maxX);
+    //                 maxY = m.max(residue.cp1.y, residue.cp2.y, maxY);
+    //                 maxZ = m.max(residue.cp1.z, residue.cp2.z, maxZ);
+    //             }
+    //         }
+    //     }
+    //     for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //         minX = m.min(this.atoms[i].x, minX);
+    //         minY = m.min(this.atoms[i].y, minY);
+    //         minZ = m.min(this.atoms[i].z, minZ);
+    //         maxX = m.max(this.atoms[i].x, maxX);
+    //         maxY = m.max(this.atoms[i].y, maxY);
+    //         maxZ = m.max(this.atoms[i].z, maxZ);
+    //     }
+    //     return new structures.Atom('C', (maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
+    // };
     _.getCenter = function() {
         if (this.atoms.length === 1) {
             return new structures.Point(this.atoms[0].x, this.atoms[0].y);
@@ -2481,23 +2475,23 @@
         }
         return bounds;
     };
-    _.getBounds3D = function() {
-        let bounds = new math.Bounds();
-        for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
-            bounds.expand(this.atoms[i].getBounds3D());
-        }
-        if (this.chains) {
-            for ( let i = 0, ii = this.chains.length; i < ii; i++) {
-                let chain = this.chains[i];
-                for ( let j = 0, jj = chain.length; j < jj; j++) {
-                    let residue = chain[j];
-                    bounds.expand3D(residue.cp1.x, residue.cp1.y, residue.cp1.z);
-                    bounds.expand3D(residue.cp2.x, residue.cp2.y, residue.cp2.z);
-                }
-            }
-        }
-        return bounds;
-    };
+    // _.getBounds3D = function() {
+    //     let bounds = new math.Bounds();
+    //     for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
+    //         bounds.expand(this.atoms[i].getBounds3D());
+    //     }
+    //     if (this.chains) {
+    //         for ( let i = 0, ii = this.chains.length; i < ii; i++) {
+    //             let chain = this.chains[i];
+    //             for ( let j = 0, jj = chain.length; j < jj; j++) {
+    //                 let residue = chain[j];
+    //                 bounds.expand3D(residue.cp1.x, residue.cp1.y, residue.cp1.z);
+    //                 bounds.expand3D(residue.cp2.x, residue.cp2.y, residue.cp2.z);
+    //             }
+    //         }
+    //     }
+    //     return bounds;
+    // };
     _.getAtomGroup = function(a) {
         let ring = false;
         for(let i = 0, ii = this.atoms.length; i<ii; i++){
