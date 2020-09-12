@@ -168,6 +168,21 @@
         angle = angle % (m.PI * 2);
         return angle;
     };
+})(Chemio.structures, Math);
+
+(function(structures, m, undefined) {
+    'use strict';
+    structures.Vector = function(p1, p2) {
+        this.p1 = new structures.Point(p1.x, p1.y);
+        this.p2 = new structures.Point(p2.x, p2.y);
+    };
+    let _ = structures.Vector.prototype;
+    _.distance = function() {
+        return p1.distance(p2);
+    };
+    _.angle = function() {
+        return p1.angle(p2);
+    };
 
 })(Chemio.structures, Math);
 
@@ -195,6 +210,8 @@
     _.isLone = false;
     _.isHover = false;
     _.isSelected_old = false;
+    _.textBounds = [];
+    _.renderMoveCharge = false;
     _.add3D = function (p) {
         this.x += p.x;
         this.y += p.y;
@@ -306,7 +323,7 @@
                 let symbolWidth = ctx.measureText(this.label).width;
                 this.textBounds.push({
                     x: this.x - symbolWidth / 2,
-                    y: this.y - styles.atoms_font_size_2D / 2 + 1,
+                    y: this.y + 1 - styles.atoms_font_size_2D / 2,
                     w: symbolWidth,
                     h: styles.atoms_font_size_2D - 2
                 });
@@ -335,7 +352,7 @@
                     if (numHs > 1) {
                         let xoffset = symbolWidth / 2 + hWidth / 2;
                         let yoffset = 0;
-                        let subFont = extensions.getFontString(styles.atoms_font_size_2D * .8, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
+                        let subFont = extensions.getFontString(styles.atoms_font_size_2D * .7, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
                         ctx.font = subFont;
                         let numWidth = ctx.measureText(numHs).width;
                         if (this.bondNumber === 1) {
@@ -372,15 +389,15 @@
                         ctx.fillText(numHs, this.x + xoffset + hWidth / 2 + numWidth / 2, this.y + yoffset + styles.atoms_font_size_2D * .3);
                         this.textBounds.push({
                             x: this.x + xoffset - hWidth / 2,
-                            y: this.y + yoffset - styles.atoms_font_size_2D / 2 + 1,
+                            y: this.y + yoffset + 1 - styles.atoms_font_size_2D / 2,
                             w: hWidth,
                             h: styles.atoms_font_size_2D - 2
                         });
                         this.textBounds.push({
                             x: this.x + xoffset + hWidth / 2,
-                            y: this.y + yoffset + styles.atoms_font_size_2D * .3 - styles.atoms_font_size_2D / 2 + 1,
+                            y: this.y + yoffset + styles.atoms_font_size_2D * .3 - styles.atoms_font_size_2D * 0.7 / 2,
                             w: numWidth,
-                            h: styles.atoms_font_size_2D * .8 - 2
+                            h: (styles.atoms_font_size_2D - 2) * 0.7
                         });
                     } else {
                         let xoffset = symbolWidth / 2 + hWidth / 2;
@@ -442,17 +459,18 @@
                     } else {
                         s += '+';
                     }
-                    let chargeWidth = ctx.measureText(s).width;
-                    chargeOffset += chargeWidth / 2;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = extensions.getFontString(m.floor(styles.atoms_font_size_2D * .8), styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
-                    ctx.fillText(s, this.x + chargeOffset - 1, this.y - styles.atoms_font_size_2D / 2 + 1);
+                    ctx.font = extensions.getFontString(styles.atoms_font_size_2D * .8, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
+                    let chargeWidth = ctx.measureText(s).width;
+                    chargeOffset += chargeWidth / 2;
+                    ctx.fillText(s, this.x + chargeOffset + 1, this.y + 1 - styles.atoms_font_size_2D * 0.4);
+
                     this.textBounds.push({
-                        x: this.x + chargeOffset - chargeWidth / 2 - 1,
-                        y: this.y - (styles.atoms_font_size_2D * 1.8) / 2 + 5,
+                        x: this.x + chargeOffset + 1 - chargeWidth / 2,
+                        y: this.y + 1 - styles.atoms_font_size_2D * 0.4 - styles.atoms_font_size_2D * .8 / 2,
                         w: chargeWidth,
-                        h: styles.atoms_font_size_2D / 2 - 1
+                        h: (styles.atoms_font_size_2D - 2) * 0.8
                     });
                 }
             }
@@ -495,7 +513,7 @@
         // }
 
         // for debugging atom label dimensions
-        // ctx.strokeStyle = 'red'; for(let i = 0, ii = this.textBounds.length;i<ii; i++){ let r = this.textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
+        ctx.strokeStyle = 'red'; ctx.lineWidth = 0.05; for(let i = 0, ii = this.textBounds.length;i<ii; i++){ let r = this.textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
 
     };
     _.drawElectrons = function (ctx, styles, things, angle, largest, hAngle) {
@@ -700,6 +718,7 @@
     _.stereo = structures.Bond.STEREO_NONE;
     _.isHover = false;
     _.ring = undefined;
+    _.renderVector = undefined;
     _.getCenter = function() {
         return new structures.Point((this.a1.x + this.a2.x) / 2, (this.a1.y + this.a2.y) / 2);
     };
@@ -760,7 +779,6 @@
             // //console.log(cx1, cx2);
             // ctx.arc(cx1, cy1, 0.2, 0, m.PI *2);
             // ctx.stroke();
-            // ctx.strokeStyle = 'black';
             // ctx.closePath();
             //
             // ctx.beginPath();
@@ -781,15 +799,23 @@
             // ctx.stroke();
             // ctx.closePath();
 
-            ctx.moveTo(cx1, cy1);
-            ctx.beginPath();
             ctx.fillStyle = styles.colorSelect;
-            ctx.arc(x1, y1, radius, -angle - m.PI / 6, -angle + m.PI / 6);
+
+            ctx.beginPath();
+            ctx.moveTo(cx1, cy1);
+
+            ctx.lineTo(cx2, cy2);
+            ctx.lineTo(cx3, cy3);
             ctx.lineTo(cx4, cy4);
-            ctx.arc(x2, y2, radius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
+
+            // ctx.arc(x1, y1, radius, -angle - m.PI / 6, -angle + m.PI / 6);
+            // ctx.lineTo(cx4, cy4);
+            // ctx.arc(x2, y2, radius, -angle - m.PI * 1/6 + m.PI , -angle + m.PI * 1/6 + m.PI);
+
             ctx.closePath();
             ctx.fill();
         }
+
         if (styles.atoms_display && !styles.atoms_circles_2D && this.a1.isLabelVisible(styles) && this.a1.textBounds) {
             let distShrink = 0;
             for ( let i = 0, ii = this.a1.textBounds.length; i < ii; i++) {

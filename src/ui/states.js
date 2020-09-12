@@ -273,7 +273,6 @@
         }
         this.sketcher.styles.scale *= delta >= 0 ? 1.1 : (1 / 1.1);
         this.sketcher.checkScale();
-        console.log(this.sketcher.renderer);
         this.sketcher.renderer.redraw();
     };
     _.drag = function(e) {

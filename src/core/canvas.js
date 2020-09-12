@@ -1,5 +1,4 @@
 // ************************** Canvases ******************************
-
 (function(c, render, featureDetection, math, monitor, structures, m, document, window, userAgent, undefined) {
     'use strict';
     c._Canvas = function() {
@@ -309,9 +308,9 @@
             canvas.className = "ChemioWebComponent";
         }
 
-        this.canvas = document.getElementById(this.id);
-        let canvas = this.canvas;
-        this.context = this.canvas.getContext("2d");
+        this.el = document.getElementById(this.id);
+        let canvas = this.el;
+        this.context = this.el.getContext("2d");
 
 
         canvas.style.width = width.toString()+'px';
@@ -319,9 +318,6 @@
 
         this.renderer = new render.Renderer(this);
         let renderer = this.renderer;
-        console.log(renderer);
-        console.log(this.renderer);
-        console.log(renderer == this.renderer);
         renderer.startRenderLoop();
         renderer.redraw();
 
@@ -460,7 +456,7 @@
             e.preventDefault();
             e.returnValue = false;
         }
-        let rect = this.canvas.getBoundingClientRect();
+        let rect = this.el.getBoundingClientRect();
         e.offset = {
             top: rect.top + window.scrollY,
             left: rect.left + window.scrollX,
