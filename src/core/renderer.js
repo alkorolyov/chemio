@@ -88,7 +88,6 @@
         canvas.el.width = canvas.width * canvas.pixelRatio;
         canvas.el.height = canvas.height * canvas.pixelRatio;
         ctx.scale(canvas.pixelRatio, canvas.pixelRatio);
-
     }
 
     Rp.drawAtom = function(atom) {
@@ -112,7 +111,14 @@
         ctx.fill();
     };
 
-    Rp.drawLabel = function(atom) {
+    /**
+     * Draws label including charge, isotope mass and implicit hydrogens
+     * @param atom
+     * @param {boolean} debug show debug info
+     */
+    Rp.drawLabel = function(atom, debug) {
+        debug = debug ? debug : false;
+
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
         ctx.font = extensions.getFontString(styles.atoms_font_size_2D, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
@@ -142,10 +148,15 @@
         }
 
         // for debugging atom label dimensions
-        ctx.strokeStyle = 'red'; ctx.lineWidth = 0.05; let textBounds = Object.values(atom.textBounds);  for(let i = 0, ii = textBounds.length;i<ii; i++){ let r = textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
-
+        if (debug) {
+            ctx.strokeStyle = 'red'; ctx.lineWidth = 0.05; let textBounds = Object.values(atom.textBounds);  for(let i = 0, ii = textBounds.length;i<ii; i++){ let r = textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
+        }
     };
 
+    /**
+     * Draws atom symbol
+     * @param atom
+     */
     Rp._drawSymbol = function(atom){
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
@@ -182,7 +193,7 @@
     Rp._drawImplicitHs = function(atom) {
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
-        let font = extensions.getFontString(styles.atoms_font_size_2D, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
+
         let hAngle = 0;
         let hWidth = ctx.measureText('H').width;
         let symbolWidth = atom.textBounds['Symbol'].w;
@@ -193,6 +204,8 @@
         if (numHs > 1) {
             let xoffset = symbolWidth / 2 + hWidth / 2;
             let yoffset = 0;
+            let fontSave = ctx.font;
+
             let subFont = extensions.getFontString(styles.atoms_font_size_2D * .8, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
             ctx.font = subFont;
             let numWidth = ctx.measureText(numHs).width;
@@ -224,10 +237,13 @@
                     hAngle = 3 * m.PI / 2;
                 }
             }
-            ctx.font = font;
+
+            ctx.font = fontSave;
             ctx.fillText('H', atom.x + xoffset, atom.y + yoffset + 1);
             ctx.font = subFont;
             ctx.fillText(numHs, atom.x + xoffset + hWidth / 2 + numWidth / 2, atom.y + yoffset + styles.atoms_font_size_2D * .3);
+            ctx.font = fontSave;
+
             atom.textBounds['ImplicitH'] = {
                 x: atom.x + xoffset - hWidth / 2,
                 y: atom.y + yoffset - styles.atoms_font_size_2D / 2 + 1,
@@ -276,13 +292,15 @@
                 h: styles.atoms_font_size_2D - 2
             };
         }
-
         atom.renderMoveCharge = moveCharge;
     };
 
     Rp._drawCharge = function(atom) {
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
+
+        let fontSave = ctx.font;
+        ctx.font = extensions.getFontString(m.floor(styles.atoms_font_size_2D * .8), styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
 
         let s = atom.charge.toFixed(0);
         if (s === '1') {
@@ -301,8 +319,8 @@
         let chargeOffset = symbolWidth/2 + chargeWidth/2;
         chargeOffset += atom.renderMoveCharge ? hWidth : 0;
 
-        ctx.font = extensions.getFontString(m.floor(styles.atoms_font_size_2D * .8), styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
         ctx.fillText(s, atom.x + chargeOffset, atom.y + 1 - styles.atoms_font_size_2D * 0.4);
+        ctx.font = fontSave;
 
         atom.textBounds['Charge'] = {
             x: atom.x + chargeOffset - chargeWidth / 2,
@@ -314,7 +332,6 @@
 
     Rp.drawBond = function(bond) {
         let styles = this.canvas.styles;
-        let ctx = this.canvas.context;
 
         if (bond.a1.x === bond.a2.x && bond.a1.y === bond.a2.y) {
             // return, as there is nothing to render, will only cause fill
@@ -336,15 +353,14 @@
             this._subLabelDistance(bond, 2);
         }
 
-        ctx.strokeStyle = bond.error ? styles.colorError : styles.bonds_color;
-        ctx.fillStyle = bond.error ? styles.colorError : styles.bonds_color;
-        ctx.lineWidth = styles.bonds_width_2D;
-        ctx.lineCap = styles.bonds_ends_2D;
+        // set drawing styles
+        this._setBondDrawStyles(bond);
 
         if (styles.bonds_splitColor) {
             this._setBondSplitColor(bond)
         }
 
+        // draw bonds
         switch (bond.bondOrder) {
             case 0: break;
             case 1:
@@ -363,6 +379,16 @@
             case 3: break;
         }
 
+    };
+
+    Rp._setBondDrawStyles = function(bond) {
+        let ctx = this.canvas.context;
+        let styles = this.canvas.styles;
+
+        ctx.strokeStyle = bond.error ? styles.colorError : styles.bonds_color;
+        ctx.fillStyle = bond.error ? styles.colorError : styles.bonds_color;
+        ctx.lineWidth = styles.bonds_width_2D;
+        ctx.lineCap = styles.bonds_ends_2D;
     };
 
     Rp.drawBondSelection = function(bond) {
@@ -482,7 +508,7 @@
 
         ctx.strokeStyle = linearGradient;
         ctx.fillStyle = linearGradient;
-    }
+    };
 
     Rp._drawSingleBond = function(bond) {
         let ctx = this.canvas.context;
@@ -560,6 +586,7 @@
         }
         return color;
     };
+
 })(Chemio.render, Chemio.ELEMENT, Chemio.extensions, Chemio.structures, Chemio.math, Math, window);
 
 
