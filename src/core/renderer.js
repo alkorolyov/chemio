@@ -5,6 +5,7 @@
      */
     render.Renderer = function(canvas){
         this.canvas = canvas;
+        this.options = {};
         this.requestedFrame = false;
         this.renderLoopStarted = false;
     };
@@ -17,7 +18,10 @@
      * @param options
      */
     Rp.redraw = function(options) {
-        this.options = options || {};
+        if (options) {
+            this.options.scaleCenterPosition = options.scaleCenterPosition ? options.scaleCenterPosition : this.options.scaleCenterPosition;
+            this.options.mousePosition = options.mousePosition ? options.mousePosition : this.options.mousePosition;
+        }
         this.requestedFrame = true;
     };
 
@@ -55,6 +59,7 @@
         let styles = this.canvas.styles;
         let ctx = this.canvas.context;
         let molecules = this.canvas.molecules;
+        let mousePos = this.options.mousePosition;
 
         if (canvas.pixelRatio !== 1 && canvas.el.width === canvas.width) {
             this._adjustPixelRatio();
@@ -65,21 +70,41 @@
 
             ctx.save();
 
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate(styles.rotateAngle);
-            ctx.scale(styles.scale, styles.scale);
-            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            this._scale();
+
+            // debug mouse position
+            if (mousePos) {
+                ctx.fillStyle = styles.colorSelect
+                ctx.beginPath();
+                ctx.arc(mousePos.x, mousePos.y, 4, 0, m.PI * 2, false);
+                ctx.fill();
+            }
 
             for ( let i = 0, ii = molecules.length; i < ii; i++) {
                 molecules[i].check(true);
                 this.drawMolecule(molecules[i]);
             }
 
+
             ctx.restore();
         }
 
         // this.canvas.repaint();
     };
+
+    Rp._scale = function() {
+        let ctx = this.canvas.context;
+        let styles = this.canvas.styles;
+        let scaleCenter = this.options.scaleCenterPosition;
+        // let x = scaleCenter ? scaleCenter.x : this.canvas.width/2;
+        // let y = scaleCenter ? scaleCenter.y : this.canvas.height/2;
+        let x = this.canvas.width/2;
+        let y = this.canvas.height/2;
+
+        ctx.translate(x, y);
+        ctx.scale(styles.scale, styles.scale);
+        ctx.translate(-x, -y);
+    }
 
     Rp._adjustPixelRatio = function() {
         let canvas = this.canvas;

@@ -8,9 +8,6 @@
     _.shapes = undefined;
     _.emptyMessage = undefined;
     _.needRedraw = true;
-    /**
-     * @type {render.Renderer}
-     */
     _.renderer = undefined;
     _.repaint = function() {
         if (this.test) {
@@ -461,6 +458,7 @@
             top: rect.top + window.scrollY,
             left: rect.left + window.scrollX,
         };
+        // coordinates relative to canvas
         e.p = new structures.Point((e.pageX - e.offset.left), (e.pageY - e.offset.top));
     };
 

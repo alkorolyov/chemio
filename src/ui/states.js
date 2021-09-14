@@ -232,10 +232,11 @@
         // console.log('lassoed: ' + this.sketcher.getAllAtoms()[0].isLassoed);
         // console.log('hover: ' + this.sketcher.getAllAtoms()[0].isHover);
 
-
         // call the repaint here to repaint the help button, also this is called
         // by other functions, so the repaint must be here
         // this.sketcher.repaint();
+
+        this.sketcher.renderer.redraw( {mousePosition: e.p} );
     };
     _.mouseout = function(e) {
         this.sketcher.lastMousePos = undefined;
@@ -271,9 +272,10 @@
         if (this.innermousewheel) {
             this.innermousewheel(e);
         }
-        this.sketcher.styles.scale *= delta >= 0 ? 1.1 : (1 / 1.1);
-        this.sketcher.checkScale();
-        this.sketcher.renderer.redraw();
+        let sketcher = this.sketcher;
+        sketcher.styles.scale *= delta >= 0 ? 1.1 : (1 / 1.1);
+        sketcher.checkScale();
+        sketcher.renderer.redraw( {mousePosition: e.p} );
     };
     _.drag = function(e) {
         if (this.innerdrag) {
