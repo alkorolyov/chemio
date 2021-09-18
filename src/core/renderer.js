@@ -398,7 +398,11 @@
                 }
                 break;
             case 2:
-                this._drawDoubleBond(bond);
+                if (!styles.bonds_symmetrical_2D && bond.ring) {
+                    this._drawAssymetricDoubleBond(bond)
+                } else {
+                    this._drawDoubleBond(bond);
+                }
                 break;
 
             case 3:
@@ -669,6 +673,65 @@
         ctx.moveTo(cx2, cy2);
         ctx.lineTo(cx3, cy3);
         ctx.stroke();
+    }
+
+    Rp._drawAssymetricDoubleBond = function(bond) {
+        let ctx = this.canvas.context;
+        let styles = this.canvas.styles;
+
+        let x1 = bond.renderVector.p1.x;
+        let x2 = bond.renderVector.p2.x;
+        let y1 = bond.renderVector.p1.y;
+        let y2 = bond.renderVector.p2.y;
+
+        let angle = bond.a1.angle(bond.a2);
+        let perpendicular = angle + m.PI / 2;
+        let mcosp = m.cos(perpendicular);
+        let msinp = m.sin(perpendicular);
+
+        let dist = bond.a1.distance(bond.a2);
+        let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D/2 : dist * styles.bonds_saturationWidth_2D/2;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        let clip = 0;
+        useDist *= 2;
+
+        // TODO adjust for different clip angles from both sides (not fixed one like now)
+        let clipAngle = styles.bonds_saturationAngle_2D;
+        if (clipAngle < m.PI / 2) {
+            clip = -(useDist / m.tan(clipAngle));
+        }
+        if (m.abs(clip) < dist / 2) {
+            let xuse1 = x1 - m.cos(angle) * clip;
+            let xuse2 = x2 + m.cos(angle) * clip;
+            let yuse1 = y1 + m.sin(angle) * clip;
+            let yuse2 = y2 - m.sin(angle) * clip;
+            let cx1 = xuse1 - mcosp * useDist;
+            let cy1 = yuse1 + msinp * useDist;
+            let cx2 = xuse1 + mcosp * useDist;
+            let cy2 = yuse1 - msinp * useDist;
+            let cx3 = xuse2 - mcosp * useDist;
+            let cy3 = yuse2 + msinp * useDist;
+            let cx4 = xuse2 + mcosp * useDist;
+            let cy4 = yuse2 - msinp * useDist;
+            let flip = !bond.ring || (bond.ring.center.angle(bond.a1) > bond.ring.center.angle(bond.a2) && !(bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) > m.PI) || (bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) < -m.PI));
+            ctx.beginPath();
+            if (flip) {
+                ctx.moveTo(cx1, cy1);
+                ctx.lineTo(cx3, cy3);
+            } else {
+                ctx.moveTo(cx2, cy2);
+                ctx.lineTo(cx4, cy4);
+            }
+            if (bond.bondOrder !== 2) {
+                ctx.setLineDash([styles.bonds_hashSpacing_2D, styles.bonds_hashSpacing_2D]);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
     }
 
     Rp._drawTripleBond = function(bond) {
