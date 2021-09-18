@@ -89,6 +89,7 @@
             ctx.restore();
         }
 
+        // previous rendering comes from here
         // this.canvas.repaint();
     };
 
@@ -389,19 +390,20 @@
         switch (bond.bondOrder) {
             case 0: break;
             case 1:
-                if (bond.stereo === structures.Bond.STEREO_WEDGED) {
-
-                } else if (bond.stereo === structures.Bond.STEREO_DASHED) {
-
-                } else {
+                if (bond.stereo === structures.Bond.STEREO_NONE) {
                     this._drawSingleBond(bond);
+                }
+                else {
+                    this._drawStereoBond(bond);
                 }
                 break;
             case 2:
                 this._drawDoubleBond(bond);
                 break;
 
-            case 3: break;
+            case 3:
+                this._drawTripleBond(bond);
+                break;
         }
 
     };
@@ -548,6 +550,91 @@
         ctx.stroke();
     };
 
+    Rp._drawStereoBond = function(bond)  {
+        let ctx = this.canvas.context;
+        let styles = this.canvas.styles;
+
+        let x1 = bond.renderVector.p1.x;
+        let x2 = bond.renderVector.p2.x;
+        let y1 = bond.renderVector.p1.y;
+        let y2 = bond.renderVector.p2.y;
+
+        let thinSpread = styles.bonds_width_2D / 2;
+        let useDist = styles.bonds_wedgeThickness_2D/2;
+        let perpendicular = bond.a1.angle(bond.a2) + m.PI / 2;
+        let mcosp = m.cos(perpendicular);
+        let msinp = m.sin(perpendicular);
+        let cx1 = x1 - mcosp * thinSpread;
+        let cy1 = y1 + msinp * thinSpread;
+        let cx2 = x1 + mcosp * thinSpread;
+        let cy2 = y1 - msinp * thinSpread;
+        let cx3 = x2 + mcosp * useDist;
+        let cy3 = y2 - msinp * useDist;
+        let cx4 = x2 - mcosp * useDist;
+        let cy4 = y2 + msinp * useDist;
+        ctx.beginPath();
+        ctx.moveTo(cx1, cy1);
+        ctx.lineTo(cx2, cy2);
+        ctx.lineTo(cx3, cy3);
+        ctx.lineTo(cx4, cy4);
+        ctx.closePath();
+
+        if (bond.stereo === structures.Bond.STEREO_WEDGED) {
+            ctx.fill();
+        } else if (bond.stereo === structures.Bond.STEREO_DASHED) {
+            ctx.save();
+            ctx.clip();
+            ctx.lineWidth = useDist * 2;
+            ctx.lineCap = 'butt';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.setLineDash([styles.bonds_hashWidth_2D, styles.bonds_hashSpacing_2D]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+        } else {
+            this._drawStereoAmbiguous(bond);
+        }
+
+
+    }
+
+    Rp._drawStereoAmbiguous = function(bond) {
+        let ctx = this.canvas.context;
+        let styles = this.canvas.styles;
+
+        let x1 = bond.renderVector.p1.x;
+        let x2 = bond.renderVector.p2.x;
+        let y1 = bond.renderVector.p1.y;
+        let y2 = bond.renderVector.p2.y;
+
+        // these coordinates are modified to space away from labels AFTER the original difX and difY variables are calculated
+        let innerDifX = x2 - x1;
+        let innerDifY = y2 - y1;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        let curves = m.floor(m.sqrt(innerDifX * innerDifX + innerDifY * innerDifY) / styles.bonds_wavyLength_2D);
+        let x = x1;
+        let y = y1;
+        let perpendicular = bond.a1.angle(bond.a2) + m.PI / 2;
+        let mcosp = m.cos(perpendicular);
+        let msinp = m.sin(perpendicular);
+
+        let curveX = innerDifX / curves;
+        let curveY = innerDifY / curves;
+        let cpx, cpy;
+        for ( let i = 0; i < curves; i++) {
+            x += curveX;
+            y += curveY;
+            let mult = i % 2 === 0?1:-1;
+            cpx = styles.bonds_wavyLength_2D * mcosp * mult + x - curveX * 0.5;
+            cpy = styles.bonds_wavyLength_2D * -msinp * mult + y - curveY * 0.5;
+            ctx.quadraticCurveTo(cpx, cpy, x, y);
+        }
+        ctx.stroke();
+    }
+
     Rp._drawDoubleBond = function(bond) {
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
@@ -581,6 +668,42 @@
         ctx.beginPath();
         ctx.moveTo(cx2, cy2);
         ctx.lineTo(cx3, cy3);
+        ctx.stroke();
+    }
+
+    Rp._drawTripleBond = function(bond) {
+        let ctx = this.canvas.context;
+        let styles = this.canvas.styles;
+
+        let x1 = bond.renderVector.p1.x;
+        let x2 = bond.renderVector.p2.x;
+        let y1 = bond.renderVector.p1.y;
+        let y2 = bond.renderVector.p2.y;
+
+        let angle = bond.a1.angle(bond.a2);
+        let perpendicular = angle + m.PI / 2;
+        let mcosp = m.cos(perpendicular);
+        let msinp = m.sin(perpendicular);
+
+        let dist = bond.a1.distance(bond.a2);
+        let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D/2 : dist * styles.bonds_saturationWidth_2D/2;
+
+        let cx1 = x1 - mcosp * useDist;
+        let cy1 = y1 + msinp * useDist;
+        let cx2 = x1 + mcosp * useDist;
+        let cy2 = y1 - msinp * useDist;
+        let cx3 = x2 + mcosp * useDist;
+        let cy3 = y2 - msinp * useDist;
+        let cx4 = x2 - mcosp * useDist;
+        let cy4 = y2 + msinp * useDist;
+
+        ctx.beginPath();
+        ctx.moveTo(cx1, cy1);
+        ctx.lineTo(cx4, cy4);
+        ctx.moveTo(cx2, cy2);
+        ctx.lineTo(cx3, cy3);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
         ctx.stroke();
     }
 
