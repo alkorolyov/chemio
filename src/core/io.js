@@ -564,14 +564,14 @@ Chemio.io = (function(undefined) {
 			}
 			var b = new structures.Bond(molecule.atoms[parseInt(line.substring(0, 3)) - 1], molecule.atoms[parseInt(line.substring(3, 6)) - 1], bondOrder);
 			switch (stereo) {
-				case 3:
+				case 4:
 					b.stereo = structures.Bond.STEREO_AMBIGUOUS;
 					break;
 				case 1:
-					b.stereo = structures.Bond.STEREO_PROTRUDING;
+					b.stereo = structures.Bond.STEREO_WEDGED;
 					break;
 				case 6:
-					b.stereo = structures.Bond.STEREO_RECESSED;
+					b.stereo = structures.Bond.STEREO_DASHED;
 					break;
 			}
 			molecule.bonds[i] = b;
@@ -631,9 +631,9 @@ Chemio.io = (function(undefined) {
 			var stereo = 0;
 			if (b.stereo === structures.Bond.STEREO_AMBIGUOUS) {
 				stereo = 3;
-			} else if (b.stereo === structures.Bond.STEREO_PROTRUDING) {
+			} else if (b.stereo === structures.Bond.STEREO_WEDGED) {
 				stereo = 1;
-			} else if (b.stereo === structures.Bond.STEREO_RECESSED) {
+			} else if (b.stereo === structures.Bond.STEREO_DASHED) {
 				stereo = 6;
 			}
 			sb.push(this.fit((molecule.atoms.indexOf(b.a1) + 1).toString(), 3));
@@ -731,10 +731,10 @@ Chemio.io = (function(undefined) {
 // 					// check stereo... only support W or H
 // 					switch (currentCMLBond.find('bondStereo').text()) {
 // 					case 'W':
-// 						currentBond.stereo = structures.Bond.STEREO_PROTRUDING;
+// 						currentBond.stereo = structures.Bond.STEREO_WEDGED;
 // 						break;
 // 					case 'H':
-// 						currentBond.stereo = structures.Bond.STEREO_RECESSED;
+// 						currentBond.stereo = structures.Bond.STEREO_DASHED;
 // 						break;
 // 					}
 // 				}
