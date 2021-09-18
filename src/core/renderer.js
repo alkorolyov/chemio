@@ -686,7 +686,7 @@
         let msinp = m.sin(perpendicular);
 
         let dist = bond.a1.distance(bond.a2);
-        let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D/2 : dist * styles.bonds_saturationWidth_2D/2;
+        let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D : dist * styles.bonds_saturationWidth_2D;
 
         let cx1 = x1 - mcosp * useDist;
         let cy1 = y1 + msinp * useDist;
