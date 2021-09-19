@@ -197,6 +197,7 @@
         this.z = z ? z : 0;
     };
     let _ = structures.Atom.prototype = new structures.Point(0, 0);
+    // _.parentMol = undefined;
     _.charge = 0;
     _.numLonePair = 0;
     _.numRadical = 0;
@@ -717,11 +718,15 @@
     let _ = structures.Bond.prototype;
     _.stereo = structures.Bond.STEREO_NONE;
     _.isHover = false;
+    // _.parentMol = undefined;
     _.ring = undefined;
     _.renderVector = undefined;
     _.getCenter = function() {
         return new structures.Point((this.a1.x + this.a2.x) / 2, (this.a1.y + this.a2.y) / 2);
     };
+    _.getAngle = function() {
+        return this.a1.angle(this.a2);
+    }
     _.getLength = function() {
         return this.a1.distance(this.a2);
     };
@@ -2444,6 +2449,7 @@
         let center = this.getCenter();
         for ( let i = 0, ii = this.atoms.length; i < ii; i++) {
             let a = this.atoms[i];
+            // a.parentMol = this;
             a.bonds = this.getBonds(a);
             a.angles = this.getAngles(a);
             a.isHidden = a.bonds.length === 2 && m.abs(m.abs(a.angles[1] - a.angles[0]) - m.PI) < m.PI / 30 && a.bonds[0].bondOrder === a.bonds[1].bondOrder;
@@ -2456,6 +2462,7 @@
         }
         for ( let i = 0, ii = this.bonds.length; i < ii; i++) {
             let b = this.bonds[i];
+            // b.parentMol = this;
             b.molCenter = center;
         }
     };

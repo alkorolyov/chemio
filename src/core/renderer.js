@@ -8,6 +8,7 @@
         this.options = {};
         this.requestedFrame = false;
         this.renderLoopStarted = false;
+        this.debug = true;
     };
 
     let Rp = render.Renderer.prototype
@@ -72,19 +73,13 @@
 
             this._scale();
 
-            // debug mouse position
-            if (mousePos) {
-                ctx.fillStyle = styles.colorSelect
-                ctx.beginPath();
-                ctx.arc(mousePos.x, mousePos.y, 4, 0, m.PI * 2, false);
-                ctx.fill();
-            }
-
             for ( let i = 0, ii = molecules.length; i < ii; i++) {
                 molecules[i].check(true);
                 this.drawMolecule(molecules[i]);
             }
 
+            // debug mouse position
+            if (this.debug && mousePos) { ctx.fillStyle = styles.colorSelect; this.drawPoint(mousePos.x, mousePos.y); }
 
             ctx.restore();
         }
@@ -126,6 +121,11 @@
         if (labelVisible) {
             this.drawLabel(atom);
         }
+
+        // debug atom coords
+        if (this.debug) {
+            let ctx = this.canvas.context; ctx.font = "2px arial"; ctx.fillStyle = 'red'; let coords = 'x:'+ atom.x.toFixed(1) + ' y:' + atom.y.toFixed(1); ctx.fillText(coords, atom.x, atom.y);
+        }
     };
 
     Rp.drawAtomSelection = function(atom) {
@@ -140,11 +140,8 @@
     /**
      * Draws label including charge, isotope mass and implicit hydrogens
      * @param atom
-     * @param {boolean} debug show debug info
      */
-    Rp.drawLabel = function(atom, debug) {
-        debug = debug ? debug : false;
-
+    Rp.drawLabel = function(atom) {
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
         ctx.font = extensions.getFontString(styles.atoms_font_size_2D, styles.atoms_font_families_2D, styles.atoms_font_bold_2D, styles.atoms_font_italic_2D);
@@ -173,8 +170,8 @@
             this._drawCharge(atom);
         }
 
-        // for debugging atom label dimensions
-        if (debug) {
+        // debug atom label dimensions
+        if (this.debug) {
             ctx.strokeStyle = 'red'; ctx.lineWidth = 0.05; let textBounds = Object.values(atom.textBounds);  for(let i = 0, ii = textBounds.length;i<ii; i++){ let r = textBounds[i];ctx.beginPath();ctx.rect(r.x, r.y, r.w, r.h); ctx.stroke(); }
         }
     };
@@ -357,6 +354,7 @@
     };
 
     Rp.drawBond = function(bond) {
+        let ctx = this.canvas.context;
         let styles = this.canvas.styles;
 
         if (bond.a1.x === bond.a2.x && bond.a1.y === bond.a2.y) {
@@ -398,7 +396,7 @@
                 }
                 break;
             case 2:
-                if (!styles.bonds_symmetrical_2D && bond.ring) {
+                if (!styles.bonds_symmetrical_2D && (bond.ring || (bond.a1.label === 'C' && bond.a1.label === 'C'))) {
                     this._drawAssymetricDoubleBond(bond)
                 } else {
                     this._drawDoubleBond(bond);
@@ -409,6 +407,37 @@
                 this._drawTripleBond(bond);
                 break;
         }
+
+        // show debug info
+        // if (this.debug) {
+        //     let x1 = bond.renderVector.p1.x;
+        //     let x2 = bond.renderVector.p2.x;
+        //     let y1 = bond.renderVector.p1.y;
+        //     let y2 = bond.renderVector.p2.y;
+        //
+        //     let x = bond.getCenter().x;
+        //     let y = bond.getCenter().y;
+        //
+        //     let angle = bond.getAngle();
+        //     let perpendicular = angle + m.PI / 2;
+        //     let mcosp = m.cos(perpendicular);
+        //     let msinp = m.sin(perpendicular);
+        //     let dist = bond.getLength();
+        //
+        //     let bond_info = 'a:' + ((angle / m.PI) * 180).toFixed() + ' d:' + dist.toFixed(1)
+        //
+        //     ctx.font = "2px arial"
+        //     ctx.fillStyle = 'red';
+        //     ctx.fillText(bond_info, x, y)
+        //
+        //     ctx.strokeStyle = 'red';
+        //     ctx.lineWidth = 0.05;
+        //
+        //     ctx.beginPath();
+        //     ctx.moveTo(x, y);
+        //     ctx.lineTo(x + mcosp*5, y - msinp*5);
+        //     ctx.stroke();
+        // }
 
     };
 
@@ -429,7 +458,7 @@
         let x2 = bond.a2.x;
         let y1 = bond.a1.y;
         let y2 = bond.a2.y;
-        let angle = bond.a1.angle(bond.a2);
+        let angle = bond.getAngle();
 
         let radius = styles.atoms_selectRadius;
         let useDist = radius * 0.5;
@@ -507,7 +536,7 @@
 
         }
         distShrink += styles.bonds_atomLabelBuffer_2D;
-        let distance = bond.a1.distance(bond.a2);
+        let distance = bond.getLength();
 
         let perc = distShrink / distance;
         let difX = bond.a2.x - bond.a1.x;
@@ -565,7 +594,7 @@
 
         let thinSpread = styles.bonds_width_2D / 2;
         let useDist = styles.bonds_wedgeThickness_2D/2;
-        let perpendicular = bond.a1.angle(bond.a2) + m.PI / 2;
+        let perpendicular = bond.getAngle() + m.PI / 2;
         let mcosp = m.cos(perpendicular);
         let msinp = m.sin(perpendicular);
         let cx1 = x1 - mcosp * thinSpread;
@@ -621,7 +650,7 @@
         let curves = m.floor(m.sqrt(innerDifX * innerDifX + innerDifY * innerDifY) / styles.bonds_wavyLength_2D);
         let x = x1;
         let y = y1;
-        let perpendicular = bond.a1.angle(bond.a2) + m.PI / 2;
+        let perpendicular = bond.getAngle() + m.PI / 2;
         let mcosp = m.cos(perpendicular);
         let msinp = m.sin(perpendicular);
 
@@ -648,12 +677,12 @@
         let y1 = bond.renderVector.p1.y;
         let y2 = bond.renderVector.p2.y;
 
-        let angle = bond.a1.angle(bond.a2);
+        let angle = bond.getAngle();
         let perpendicular = angle + m.PI / 2;
         let mcosp = m.cos(perpendicular);
         let msinp = m.sin(perpendicular);
 
-        let dist = bond.a1.distance(bond.a2);
+        let dist = bond.getLength();
         let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D/2 : dist * styles.bonds_saturationWidth_2D/2;
 
         let cx1 = x1 - mcosp * useDist;
@@ -684,31 +713,36 @@
         let y1 = bond.renderVector.p1.y;
         let y2 = bond.renderVector.p2.y;
 
-        let angle = bond.a1.angle(bond.a2);
+        let angle = bond.getAngle();
         let perpendicular = angle + m.PI / 2;
         let mcosp = m.cos(perpendicular);
         let msinp = m.sin(perpendicular);
 
-        let dist = bond.a1.distance(bond.a2);
-        let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D/2 : dist * styles.bonds_saturationWidth_2D/2;
+        let dist = bond.getLength();
+        let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D : dist * styles.bonds_saturationWidth_2D;
 
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
-        let clip = 0;
-        useDist *= 2;
+        let clip1 = 0;
+        let clip2 = 0;
 
-        // TODO adjust for different clip angles from both sides (not fixed one like now)
-        let clipAngle = styles.bonds_saturationAngle_2D;
-        if (clipAngle < m.PI / 2) {
-            clip = -(useDist / m.tan(clipAngle));
+        // TODO adjust for assymetric clip from both sides (not single fix clipAngle)
+        let clipAngle1 = styles.bonds_saturationAngle_2D;
+        let clipAngle2 = styles.bonds_saturationAngle_2D;
+
+        if (clipAngle1 < m.PI / 2) {
+            clip1 = -(useDist / m.tan(clipAngle1));
         }
-        if (m.abs(clip) < dist / 2) {
-            let xuse1 = x1 - m.cos(angle) * clip;
-            let xuse2 = x2 + m.cos(angle) * clip;
-            let yuse1 = y1 + m.sin(angle) * clip;
-            let yuse2 = y2 - m.sin(angle) * clip;
+        if (clipAngle2 < m.PI / 2) {
+            clip2 = -(useDist / m.tan(clipAngle2));
+        }
+        if (m.abs(clip1) < dist / 2) {
+            let xuse1 = x1 - m.cos(angle) * clip1;
+            let xuse2 = x2 + m.cos(angle) * clip2;
+            let yuse1 = y1 + m.sin(angle) * clip1;
+            let yuse2 = y2 - m.sin(angle) * clip2;
             let cx1 = xuse1 - mcosp * useDist;
             let cy1 = yuse1 + msinp * useDist;
             let cx2 = xuse1 + mcosp * useDist;
@@ -731,6 +765,27 @@
             }
             ctx.stroke();
             ctx.setLineDash([]);
+
+            if (this.debug) {
+
+                // let angle = bond.a1.angles[1];
+
+                for ( let i = 0, ii = bond.a1.angles.length; i < ii; i++) {
+                    let angle = (bond.a1.angles[i] + bond.a1.angles[i + 1]) / 2;
+
+                    ctx.lineWidth = 0.1;
+                    ctx.strokeStyle = 'green';
+                    ctx.beginPath();
+                    ctx.moveTo(bond.a1.x, bond.a1.y);
+                    ctx.lineTo(bond.a1.x + m.cos(angle) * 5, bond.a1.y - m.sin(angle) * 5);
+                    ctx.stroke();
+
+                    ctx.fillStyle = 'red'
+                    ctx.fillText(angle.toFixed(), bond.a1.x + m.cos(angle) * 5, bond.a1.y - m.sin(angle) * 5)
+                    ctx.closePath();
+
+                }
+            }
         }
     }
 
@@ -743,12 +798,12 @@
         let y1 = bond.renderVector.p1.y;
         let y2 = bond.renderVector.p2.y;
 
-        let angle = bond.a1.angle(bond.a2);
+        let angle = bond.getAngle();
         let perpendicular = angle + m.PI / 2;
         let mcosp = m.cos(perpendicular);
         let msinp = m.sin(perpendicular);
 
-        let dist = bond.a1.distance(bond.a2);
+        let dist = bond.getLength();
         let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D : dist * styles.bonds_saturationWidth_2D;
 
         let cx1 = x1 - mcosp * useDist;
@@ -774,15 +829,18 @@
         let ctx = this.canvas.context;
         let styles = this.canvas.styles;
 
+        if (this.debug) {ctx.globalAlpha = 0.5}
+
         // draw atoms
         for ( let i = 0, ii = mol.atoms.length; i < ii; i++) {
-            this.drawAtom(mol.atoms[i]);
+            this.drawAtom(mol.atoms[i], mol);
         }
 
         // draw bonds
         for ( let i = 0, ii = mol.bonds.length; i < ii; i++) {
-            this.drawBond(mol.bonds[i]);
+            this.drawBond(mol.bonds[i], mol);
         }
+
     }
 
     Rp.getElementColor = function (label, useJMOLColors, usePYMOLColors) {
@@ -797,6 +855,13 @@
         }
         return color;
     };
+
+    Rp.drawPoint = function (x, y){
+        let ctx = this.canvas.context;
+        ctx.beginPath();
+        ctx.arc(x, y, 1, 0, 2 * Math.PI, true);
+        ctx.fill();
+    }
 
 })(Chemio.render, Chemio.ELEMENT, Chemio.extensions, Chemio.structures, Chemio.math, Math, window);
 
