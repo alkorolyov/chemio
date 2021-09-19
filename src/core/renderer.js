@@ -408,7 +408,7 @@
                 break;
         }
 
-        // show debug info
+
         // if (this.debug) {
         //     let x1 = bond.renderVector.p1.x;
         //     let x2 = bond.renderVector.p2.x;
@@ -438,7 +438,6 @@
         //     ctx.lineTo(x + mcosp*5, y - msinp*5);
         //     ctx.stroke();
         // }
-
     };
 
     Rp._setBondDrawStyles = function(bond) {
@@ -721,70 +720,138 @@
         let dist = bond.getLength();
         let useDist = styles.bonds_useAbsoluteSaturationWidths_2D ? styles.bonds_saturationWidthAbs_2D : dist * styles.bonds_saturationWidth_2D;
 
+        // main bond
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
-        ctx.stroke();
+
         let clip1 = 0;
         let clip2 = 0;
+        let direction = -1;
+
+        let clipAngle1 = styles.bonds_saturationAngle_2D;
+
+        // get clipAngle
+        let bissectors = math.getBissectors(bond.a1.angles);
+        let rel_bissectors = bissectors.map(a => math.angleBounds(a - angle));
+        // console.log(bissectors.map(a => math.toDeg(math.angleBounds(a - angle))));
+
+        // filter bissectors pointing in the same direction as double bond
+        let same_direction = rel_bissectors.filter(a => m.sign(a) === direction);
+
+        // get the closest bissector
+        // console.log(result.map(a => math.toDeg(a)));
+        let result = m.min(...same_direction.map(a => m.abs(a)));
+        // console.log(math.toDeg(result));
+        clipAngle1 = result;
+
+        // if (clipAngle1 < m.PI / 2 ) {
+        //     clip1 = -(useDist / m.tan(clipAngle1));
+        // }
+
+        clip1 = -(useDist / m.tan(clipAngle1));
+
+        let xuse1 = x1 - m.cos(angle) * clip1;
+        let yuse1 = y1 + m.sin(angle) * clip1;
+        let xuse2 = x2 - m.cos(angle) * 0;
+        let yuse2 = y2 + m.sin(angle) * 0;
+
+        let db1 = new structures.Point(
+            xuse1 + mcosp * useDist * direction,
+            yuse1 - msinp * useDist * direction
+        );
+        let db2 = new structures.Point(
+            xuse2 + mcosp * useDist * direction,
+            yuse2 - msinp * useDist * direction
+        );
+
+        if (m.tan(clipAngle1) < (useDist / (0.8 * bond.getLength())) || clipAngle1 > styles.bonds_saturationAngle_2D) {
+            clip1 = -(useDist / m.tan(styles.bonds_saturationAngle_2D));
+            let xuse1 = x1 - m.cos(angle) * clip1;
+            let yuse1 = y1 + m.sin(angle) * clip1;
+
+            db1.x = xuse1 + mcosp * useDist * direction
+            db1.y = yuse1 - msinp * useDist * direction
+        }
+
+        ctx.moveTo(db1.x, db1.y);
+        ctx.lineTo(db2.x, db2.y);
+        ctx.stroke();
 
         // TODO adjust for assymetric clip from both sides (not single fix clipAngle)
-        let clipAngle1 = styles.bonds_saturationAngle_2D;
-        let clipAngle2 = styles.bonds_saturationAngle_2D;
+        // let clipAngle1 = styles.bonds_saturationAngle_2D;
+        // let clipAngle2 = styles.bonds_saturationAngle_2D;
+        //
+        // if (clipAngle1 < m.PI / 2) {
+        //     clip1 = -(useDist / m.tan(clipAngle1));
+        // }
+        // if (clipAngle2 < m.PI / 2) {
+        //     clip2 = -(useDist / m.tan(clipAngle2));
+        // }
+        // if (m.abs(clip1) < dist / 2) {
+        //     let xuse1 = x1 - m.cos(angle) * clip1;
+        //     let xuse2 = x2 + m.cos(angle) * clip2;
+        //     let yuse1 = y1 + m.sin(angle) * clip1;
+        //     let yuse2 = y2 - m.sin(angle) * clip2;
+        //     let cx1 = xuse1 - mcosp * useDist;
+        //     let cy1 = yuse1 + msinp * useDist;
+        //     let cx2 = xuse1 + mcosp * useDist;
+        //     let cy2 = yuse1 - msinp * useDist;
+        //     let cx3 = xuse2 - mcosp * useDist;
+        //     let cy3 = yuse2 + msinp * useDist;
+        //     let cx4 = xuse2 + mcosp * useDist;
+        //     let cy4 = yuse2 - msinp * useDist;
+        //     let flip = !bond.ring || (bond.ring.center.angle(bond.a1) > bond.ring.center.angle(bond.a2) && !(bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) > m.PI) || (bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) < -m.PI));
+        //     ctx.beginPath();
+        //     if (flip) {
+        //         ctx.moveTo(cx1, cy1);
+        //         ctx.lineTo(cx3, cy3);
+        //     } else {
+        //         ctx.moveTo(cx2, cy2);
+        //         ctx.lineTo(cx4, cy4);
+        //     }
+        //     if (bond.bondOrder !== 2) {
+        //         ctx.setLineDash([styles.bonds_hashSpacing_2D, styles.bonds_hashSpacing_2D]);
+        //     }
+        //     ctx.stroke();
+        //     ctx.setLineDash([]);
+        //     ctx.closePath();
+        //
+        //
+        //
+        // }
 
-        if (clipAngle1 < m.PI / 2) {
-            clip1 = -(useDist / m.tan(clipAngle1));
-        }
-        if (clipAngle2 < m.PI / 2) {
-            clip2 = -(useDist / m.tan(clipAngle2));
-        }
-        if (m.abs(clip1) < dist / 2) {
-            let xuse1 = x1 - m.cos(angle) * clip1;
-            let xuse2 = x2 + m.cos(angle) * clip2;
-            let yuse1 = y1 + m.sin(angle) * clip1;
-            let yuse2 = y2 - m.sin(angle) * clip2;
-            let cx1 = xuse1 - mcosp * useDist;
-            let cy1 = yuse1 + msinp * useDist;
-            let cx2 = xuse1 + mcosp * useDist;
-            let cy2 = yuse1 - msinp * useDist;
-            let cx3 = xuse2 - mcosp * useDist;
-            let cy3 = yuse2 + msinp * useDist;
-            let cx4 = xuse2 + mcosp * useDist;
-            let cy4 = yuse2 - msinp * useDist;
-            let flip = !bond.ring || (bond.ring.center.angle(bond.a1) > bond.ring.center.angle(bond.a2) && !(bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) > m.PI) || (bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) < -m.PI));
+        if (this.debug) {
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 0.05;
+
             ctx.beginPath();
-            if (flip) {
-                ctx.moveTo(cx1, cy1);
-                ctx.lineTo(cx3, cy3);
-            } else {
-                ctx.moveTo(cx2, cy2);
-                ctx.lineTo(cx4, cy4);
-            }
-            if (bond.bondOrder !== 2) {
-                ctx.setLineDash([styles.bonds_hashSpacing_2D, styles.bonds_hashSpacing_2D]);
-            }
+            let cx = bond.getCenter().x;
+            let cy = bond.getCenter().y;
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + mcosp*useDist*direction, cy - msinp*useDist*direction);
             ctx.stroke();
-            ctx.setLineDash([]);
+            ctx.closePath();
 
-            if (this.debug) {
 
-                // let angle = bond.a1.angles[1];
+            // bisectors
+            let angles = bond.a1.angles
+            let bissectors = math.getBissectors(bond.a1.angles);
+            for ( let i = 0, ii = angles.length; i < ii; i++) {
 
-                for ( let i = 0, ii = bond.a1.angles.length; i < ii; i++) {
-                    let angle = (bond.a1.angles[i] + bond.a1.angles[i + 1]) / 2;
+                ctx.lineWidth = 0.1;
+                ctx.strokeStyle = 'green';
+                ctx.beginPath();
+                ctx.moveTo(bond.a1.x, bond.a1.y);
+                let cx = bond.a1.x + m.cos(bissectors[i]) * 5;
+                let cy = bond.a1.y - m.sin(bissectors[i]) * 5;
+                ctx.lineTo(cx, cy);
+                ctx.stroke();
 
-                    ctx.lineWidth = 0.1;
-                    ctx.strokeStyle = 'green';
-                    ctx.beginPath();
-                    ctx.moveTo(bond.a1.x, bond.a1.y);
-                    ctx.lineTo(bond.a1.x + m.cos(angle) * 5, bond.a1.y - m.sin(angle) * 5);
-                    ctx.stroke();
+                ctx.fillStyle = 'red'
+                ctx.fillText(math.toDeg(rel_bissectors[i]).toFixed(), cx, cy);
+                ctx.closePath();
 
-                    ctx.fillStyle = 'red'
-                    ctx.fillText(angle.toFixed(), bond.a1.x + m.cos(angle) * 5, bond.a1.y - m.sin(angle) * 5)
-                    ctx.closePath();
-
-                }
             }
         }
     }

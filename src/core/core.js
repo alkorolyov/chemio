@@ -455,6 +455,21 @@ Chemio.math = (function(c, structures, m, undefined) {
 		};
 	};
 
+	math.getBissectors = function(angles) {
+		let bissectors = [];
+		for (let i = 0, ii = angles.length; i < ii; i++) {
+
+			if (i < angles.length - 1) {
+				let angle = (angles[i] + angles[i + 1]) / 2;
+				bissectors.push(math.angleBounds(angle));
+			} else {
+				let last = (angles[0] + angles[angles.length - 1] + 2 * m.PI) / 2;
+				bissectors.push(math.angleBounds(last));
+			}
+		}
+		return bissectors;
+	}
+
 	math.isBetween = function(x, left, right) {
 		if (left > right) {
 			let tmp = left;
