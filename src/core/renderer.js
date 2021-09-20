@@ -122,10 +122,7 @@
             this.drawLabel(atom);
         }
 
-        // debug atom coords
-        if (this.debug) {
-            let ctx = this.canvas.context; ctx.font = "2px arial"; ctx.fillStyle = 'red'; let coords = 'x:'+ atom.x.toFixed(1) + ' y:' + atom.y.toFixed(1); ctx.fillText(coords, atom.x, atom.y);
-        }
+        // if (this.debug) { let ctx = this.canvas.context; ctx.font = "2px arial"; ctx.fillStyle = 'red'; let coords = 'x:'+ atom.x.toFixed(1) + ' y:' + atom.y.toFixed(1); ctx.fillText(coords, atom.x, atom.y); }
     };
 
     Rp.drawAtomSelection = function(atom) {
@@ -396,6 +393,7 @@
                 }
                 break;
             case 2:
+                let single_exo_atom = bond.a1.bondNumber === 1 || bond.a2.bondNumber === 1;
                 if (!styles.bonds_symmetrical_2D && (bond.ring || (bond.a1.label === 'C' && bond.a1.label === 'C'))) {
                     this._drawAssymetricDoubleBond(bond)
                 } else {
@@ -409,35 +407,47 @@
         }
 
 
-        // if (this.debug) {
-        //     let x1 = bond.renderVector.p1.x;
-        //     let x2 = bond.renderVector.p2.x;
-        //     let y1 = bond.renderVector.p1.y;
-        //     let y2 = bond.renderVector.p2.y;
-        //
-        //     let x = bond.getCenter().x;
-        //     let y = bond.getCenter().y;
-        //
-        //     let angle = bond.getAngle();
-        //     let perpendicular = angle + m.PI / 2;
-        //     let mcosp = m.cos(perpendicular);
-        //     let msinp = m.sin(perpendicular);
-        //     let dist = bond.getLength();
-        //
-        //     let bond_info = 'a:' + ((angle / m.PI) * 180).toFixed() + ' d:' + dist.toFixed(1)
-        //
-        //     ctx.font = "2px arial"
-        //     ctx.fillStyle = 'red';
-        //     ctx.fillText(bond_info, x, y)
-        //
-        //     ctx.strokeStyle = 'red';
-        //     ctx.lineWidth = 0.05;
-        //
-        //     ctx.beginPath();
-        //     ctx.moveTo(x, y);
-        //     ctx.lineTo(x + mcosp*5, y - msinp*5);
-        //     ctx.stroke();
-        // }
+        if (this.debug) {
+            let x1 = bond.renderVector.p1.x;
+            let x2 = bond.renderVector.p2.x;
+            let y1 = bond.renderVector.p1.y;
+            let y2 = bond.renderVector.p2.y;
+
+            let x = bond.getCenter().x;
+            let y = bond.getCenter().y;
+
+            let angle = bond.getAngle();
+            let perpendicular = angle + m.PI / 2;
+            let mcosp = m.cos(perpendicular);
+            let msinp = m.sin(perpendicular);
+            let dist = bond.getLength();
+
+            // let bond_info = 'a:' + ((angle / m.PI) * 180).toFixed() + ' d:' + dist.toFixed(1)
+
+            // ctx.font = "2px arial"
+            // ctx.fillStyle = 'red';
+            // ctx.fillText(bond_info, x, y)
+            //
+            // ctx.strokeStyle = 'red';
+            // ctx.lineWidth = 0.05;
+            //
+            // ctx.beginPath();
+            // ctx.moveTo(x, y);
+            // ctx.lineTo(x + mcosp*5, y - msinp*5);
+            // ctx.stroke();
+
+            // bond direction
+            this._setBondDrawStyles(bond);
+            ctx.beginPath();
+            x2 = bond.a2.x;
+            y2 = bond.a2.y;
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 + m.cos(angle + m.PI * 13/12) * 2, y2 - m.sin(angle + m.PI* 13/12) * 2);
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 + m.cos(angle - m.PI* 13/12) * 2, y2 - m.sin(angle - m.PI* 13/12) * 2);
+            ctx.stroke();
+            ctx.closePath();
+        }
     };
 
     Rp._setBondDrawStyles = function(bond) {
@@ -629,7 +639,6 @@
             this._drawStereoAmbiguous(bond);
         }
 
-
     }
 
     Rp._drawStereoAmbiguous = function(bond) {
@@ -641,7 +650,6 @@
         let y1 = bond.renderVector.p1.y;
         let y2 = bond.renderVector.p2.y;
 
-        // these coordinates are modified to space away from labels AFTER the original difX and difY variables are calculated
         let innerDifX = x2 - x1;
         let innerDifY = y2 - y1;
         ctx.beginPath();
@@ -727,132 +735,118 @@
 
         let clip1 = 0;
         let clip2 = 0;
-        let direction = -1;
+        let db_direction = 1;
 
-        let clipAngle1 = styles.bonds_saturationAngle_2D;
+        // get clip shortening distance
+        let getClip = function(atom) {
+            // get array of bisectors relative to bond angle
+            // let relative_bisectors = math.getBissectors(atom.angles).map(a => math.angleBounds(a - angle));
+            // let bond_direction = atom === bond.a1 ? 1 : -1;
+            let relative_bisectors = math.getBissectors(atom.angles).map(a => math.angleBounds(a - angle));
 
-        // get clipAngle
-        let bissectors = math.getBissectors(bond.a1.angles);
-        let rel_bissectors = bissectors.map(a => math.angleBounds(a - angle));
-        // console.log(bissectors.map(a => math.toDeg(math.angleBounds(a - angle))));
+            // filter bisectors pointing in the same direction as double bond
+            let same_direction = relative_bisectors.filter(a => m.sign(a) === db_direction);
 
-        // filter bissectors pointing in the same direction as double bond
-        let same_direction = rel_bissectors.filter(a => m.sign(a) === direction);
+            // get the closest bisector and set as clip angle
+            let clipAngle = 0;
+            clipAngle = m.min(...same_direction.map(a => m.abs(a)));
+            if (atom === bond.a1) {
+                clipAngle = m.min(...same_direction.map(a => m.abs(a)));
+            } else {
+                clipAngle = m.max(...same_direction.map(a => m.abs(a)));
+            }
 
-        // get the closest bissector
-        // console.log(result.map(a => math.toDeg(a)));
-        let result = m.min(...same_direction.map(a => m.abs(a)));
-        // console.log(math.toDeg(result));
-        clipAngle1 = result;
+            let clip = 0;
 
-        // if (clipAngle1 < m.PI / 2 ) {
-        //     clip1 = -(useDist / m.tan(clipAngle1));
-        // }
+            // IUPAC GR-1.10.1-3 recommendations
+            // no clip if atom unsubstituted
+            if (atom.bondNumber < 2) {
+                clip = 0;
+            // } else if (clipAngle > m.PI *2 || m.tan(clipAngle) < (useDist / (0.8 * dist))) {
+            //     clip = 0;
+                // clip = -(useDist / m.tan(clipAngle));
+            } else {
+                clip = -(useDist / m.tan(clipAngle));
+            }
 
-        clip1 = -(useDist / m.tan(clipAngle1));
+            return clip;
+
+        };
+
+
+        clip1 = getClip(bond.a1);
+        clip2 = getClip(bond.a2);
+
+        let getDbPosition = function(atom) {
+            let xuse = 0 ;
+            let yuse = 0;
+            return dbPos
+        };
 
         let xuse1 = x1 - m.cos(angle) * clip1;
         let yuse1 = y1 + m.sin(angle) * clip1;
-        let xuse2 = x2 - m.cos(angle) * 0;
-        let yuse2 = y2 + m.sin(angle) * 0;
+        let xuse2 = x2 - m.cos(angle) * clip2;
+        let yuse2 = y2 + m.sin(angle) * clip2;
 
         let db1 = new structures.Point(
-            xuse1 + mcosp * useDist * direction,
-            yuse1 - msinp * useDist * direction
+            xuse1 + mcosp * useDist * db_direction,
+            yuse1 - msinp * useDist * db_direction
         );
         let db2 = new structures.Point(
-            xuse2 + mcosp * useDist * direction,
-            yuse2 - msinp * useDist * direction
+            xuse2 + mcosp * useDist * db_direction,
+            yuse2 - msinp * useDist * db_direction
         );
-
-        if (m.tan(clipAngle1) < (useDist / (0.8 * bond.getLength())) || clipAngle1 > styles.bonds_saturationAngle_2D) {
-            clip1 = -(useDist / m.tan(styles.bonds_saturationAngle_2D));
-            let xuse1 = x1 - m.cos(angle) * clip1;
-            let yuse1 = y1 + m.sin(angle) * clip1;
-
-            db1.x = xuse1 + mcosp * useDist * direction
-            db1.y = yuse1 - msinp * useDist * direction
-        }
 
         ctx.moveTo(db1.x, db1.y);
         ctx.lineTo(db2.x, db2.y);
         ctx.stroke();
 
-        // TODO adjust for assymetric clip from both sides (not single fix clipAngle)
-        // let clipAngle1 = styles.bonds_saturationAngle_2D;
-        // let clipAngle2 = styles.bonds_saturationAngle_2D;
-        //
-        // if (clipAngle1 < m.PI / 2) {
-        //     clip1 = -(useDist / m.tan(clipAngle1));
-        // }
-        // if (clipAngle2 < m.PI / 2) {
-        //     clip2 = -(useDist / m.tan(clipAngle2));
-        // }
-        // if (m.abs(clip1) < dist / 2) {
-        //     let xuse1 = x1 - m.cos(angle) * clip1;
-        //     let xuse2 = x2 + m.cos(angle) * clip2;
-        //     let yuse1 = y1 + m.sin(angle) * clip1;
-        //     let yuse2 = y2 - m.sin(angle) * clip2;
-        //     let cx1 = xuse1 - mcosp * useDist;
-        //     let cy1 = yuse1 + msinp * useDist;
-        //     let cx2 = xuse1 + mcosp * useDist;
-        //     let cy2 = yuse1 - msinp * useDist;
-        //     let cx3 = xuse2 - mcosp * useDist;
-        //     let cy3 = yuse2 + msinp * useDist;
-        //     let cx4 = xuse2 + mcosp * useDist;
-        //     let cy4 = yuse2 - msinp * useDist;
-        //     let flip = !bond.ring || (bond.ring.center.angle(bond.a1) > bond.ring.center.angle(bond.a2) && !(bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) > m.PI) || (bond.ring.center.angle(bond.a1) - bond.ring.center.angle(bond.a2) < -m.PI));
-        //     ctx.beginPath();
-        //     if (flip) {
-        //         ctx.moveTo(cx1, cy1);
-        //         ctx.lineTo(cx3, cy3);
-        //     } else {
-        //         ctx.moveTo(cx2, cy2);
-        //         ctx.lineTo(cx4, cy4);
-        //     }
-        //     if (bond.bondOrder !== 2) {
-        //         ctx.setLineDash([styles.bonds_hashSpacing_2D, styles.bonds_hashSpacing_2D]);
-        //     }
-        //     ctx.stroke();
-        //     ctx.setLineDash([]);
-        //     ctx.closePath();
-        //
-        //
-        //
-        // }
 
         if (this.debug) {
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 0.05;
-
-            ctx.beginPath();
             let cx = bond.getCenter().x;
             let cy = bond.getCenter().y;
-            ctx.moveTo(cx, cy);
-            ctx.lineTo(cx + mcosp*useDist*direction, cy - msinp*useDist*direction);
-            ctx.stroke();
-            ctx.closePath();
+            ctx.font = "2px arial"
 
+            let showPerpendicular = function() {
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 0.05;
 
-            // bisectors
-            let angles = bond.a1.angles
-            let bissectors = math.getBissectors(bond.a1.angles);
-            for ( let i = 0, ii = angles.length; i < ii; i++) {
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx + mcosp*useDist*db_direction, cy - msinp*useDist*db_direction);
+                ctx.stroke();
+                ctx.closePath();
+            }
 
+            let showBisectors = function(atom) {
+                // bisectors
                 ctx.lineWidth = 0.1;
                 ctx.strokeStyle = 'green';
-                ctx.beginPath();
-                ctx.moveTo(bond.a1.x, bond.a1.y);
-                let cx = bond.a1.x + m.cos(bissectors[i]) * 5;
-                let cy = bond.a1.y - m.sin(bissectors[i]) * 5;
-                ctx.lineTo(cx, cy);
-                ctx.stroke();
 
-                ctx.fillStyle = 'red'
-                ctx.fillText(math.toDeg(rel_bissectors[i]).toFixed(), cx, cy);
-                ctx.closePath();
+                let angles = atom.angles;
+                let bisectors = math.getBissectors(atom.angles);
+                let bond_direction = atom === bond.a1 ? 1 : -1;
 
+                let rel_bisectors = bisectors.map(a => math.angleBounds(a - angle));
+
+
+                for ( let i = 0, ii = angles.length; i < ii; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(atom.x, atom.y);
+                    let bx = atom.x + m.cos(bisectors[i]) * 5;
+                    let by = atom.y - m.sin(bisectors[i]) * 5;
+                    ctx.lineTo(bx, by);
+                    ctx.stroke();
+
+                    ctx.fillStyle = 'red'
+                    ctx.fillText(math.toDeg(rel_bisectors[i]).toFixed(), bx, by);
+                    ctx.closePath();
+                }
             }
+
+            showPerpendicular();
+            showBisectors(bond.a1);
+            showBisectors(bond.a2);
         }
     }
 
