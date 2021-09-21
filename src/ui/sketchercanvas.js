@@ -1,5 +1,5 @@
 // Sketcher canvas
-(function(c, extensions, featureDetection, sketcherPack, structures, d2, tools, q, m, window, undefined) {
+(function(c, extensions, featureDetection, sketcherPack, structures, d2, tools, m, window, undefined) {
     'use strict';
     c.SketcherCanvas = function(id, width, height, options) {
         // save the original options object
@@ -46,15 +46,16 @@
         this.startAtom = new structures.Atom('C', -10, -10);
         this.startAtom.isLone = true;
         this.lasso = new tools.Lasso(this);
-        if(this.resizable){
-            let jqsk = q('#'+this.id);
-            let self = this;
-            jqsk.resizable({
-                resize: function( event, ui ) {
-                    self.resize(jqsk.innerWidth(), jqsk.innerHeight());
-                }
-            });
-        }
+        // TODO remove jquery dependece
+        // if(this.resizable){
+        //     let jqsk = q('#'+this.id);
+        //     let self = this;
+        //     jqsk.resizable({
+        //         resize: function( event, ui ) {
+        //             self.resize(jqsk.innerWidth(), jqsk.innerHeight());
+        //         }
+        //     });
+        // }
     };
     let _ = c.SketcherCanvas.prototype = new c._Canvas();
     _.drawSketcherDecorations = function(ctx, styles) {
@@ -609,4 +610,4 @@
         this.parentAction = undefined;
     };
 
-})(Chemio, Chemio.extensions, Chemio.featureDetection, Chemio.uis, Chemio.structures, Chemio.structures.d2, Chemio.uis.tools, Chemio.lib.jQuery, Math, window);
+})(Chemio, Chemio.extensions, Chemio.featureDetection, Chemio.uis, Chemio.structures, Chemio.structures.d2, Chemio.uis.tools, Math, window);

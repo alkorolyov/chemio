@@ -30,8 +30,10 @@ module.exports = (env, argv) => ({
                     'src/core/styles.js',
                     'src/core/informatics.js',
                     'src/core/io.js',
+                    'src/ext/gl-matrix.js', //TODO fix loading order
                     'src/core/renderer.js',
                     'src/core/canvas.js',
+
 
                     // ui
                     'src/ui/ui.js',

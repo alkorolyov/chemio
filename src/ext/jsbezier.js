@@ -388,7 +388,7 @@
 	} ];
  };
 
- ChemDoodle.math.jsBezier = {
+ Chemio.math.jsBezier = {
 	distanceFromCurve : _distanceFromCurve,
 	gradientAtPoint : _gradientAtPoint,
 	gradientAtPointAlongCurveFrom : _gradientAtPointAlongPathFrom,
