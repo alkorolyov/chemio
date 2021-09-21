@@ -46,6 +46,7 @@
         this.startAtom = new structures.Atom('C', -10, -10);
         this.startAtom.isLone = true;
         this.lasso = new tools.Lasso(this);
+
         // TODO remove jquery dependece
         // if(this.resizable){
         //     let jqsk = q('#'+this.id);
