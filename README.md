@@ -1,8 +1,12 @@
-npm i -D path webpack webpack-merge webpack-cli webpack-dev-server
-npm i-D webpack-merge-and-include-globally
-npm i -D webpack-watch-files-plugin
+After cloning from git:
+1) install npm from https://nodejs.org/en/download/ 
 
-npm i -D rimraf
+2) run in command line:
+`npm i -D path webpack webpack-merge webpack-cli webpack-dev-server
+npm i-D webpack-merge-and-include-globally webpack-watch-files-plugin
+npm i -D rimraf`
+3) to start dev mode run:
+`npm run start`
 
 # **Global TODO's**
 
